@@ -8,3 +8,5 @@ Console.WriteLine(sadFace);
 
 
 Console.WriteLine("Test ich heiße Tisch!");
+
+Console.ReadLine();
