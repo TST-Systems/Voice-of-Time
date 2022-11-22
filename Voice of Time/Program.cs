@@ -8,6 +8,7 @@ Console.WriteLine(sadFace);
 
 
 Console.WriteLine("Test ich heiße Tisch!");
+Console.WriteLine("Test ich heiße Tisch!");
 
 var test = Console.ReadLine();
 Console.WriteLine(test + " -> Ist ein Tests");
