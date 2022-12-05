@@ -7,6 +7,9 @@ using VoTCore.Package;
 
 namespace VoTCore.Communication
 {
+    /// <summary>
+    /// Extended FileMessage for Images and outher showable files
+    /// </summary>
     public class MultimediaMessage : FileMessage
     {
         public MultimediaMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation, FileStream file) 

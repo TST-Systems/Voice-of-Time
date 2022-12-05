@@ -9,23 +9,14 @@ namespace VoTCore.Package
 {
     public class VOTP
     {
-        private readonly IVOTPHeader header;
-        private readonly IVOTPBody?  data;
-
         public VOTP(IVOTPHeader header, IVOTPBody? data)
         {
-            this.header = header;
-            this.data = data;
+            this.Header = header;
+            this.Data = data;
         }
 
-        public IVOTPHeader Header
-        {
-            get { return header; }
-        }
+        public IVOTPHeader Header { get; }
 
-        public IVOTPBody? Data
-        {
-            get { return data; }
-        }
+        public IVOTPBody? Data { get; }
     }
 }

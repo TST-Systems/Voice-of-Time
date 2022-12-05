@@ -7,6 +7,9 @@ using VoTCore.Package;
 
 namespace VoTCore.Communication
 {
+    /// <summary>
+    /// Basic text message
+    /// </summary>
     public class TextMessage : Message, IVOTPBody
     {
         public TextMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation) 
