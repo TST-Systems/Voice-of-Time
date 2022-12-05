@@ -9,24 +9,24 @@ namespace VoTCore
 {
     public class TextChat
     {
-        private readonly List<IMessage> messages;
+        private readonly List<Message> messages;
         
         public TextChat()
         {
             messages = new();
         }
 
-        public TextChat(List<IMessage> messages)
+        public TextChat(List<Message> messages)
         {
             this.messages = messages;
         }
 
-        public void AddMessage(IMessage message)
+        public void AddMessage(Message message)
         {
             messages.Add(message);
         }
 
-        public List<IMessage> GetMessages()
+        public List<Message> GetMessages()
         {
             return messages;
         }

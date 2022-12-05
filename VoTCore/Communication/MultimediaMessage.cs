@@ -6,41 +6,11 @@ using System.Threading.Tasks;
 
 namespace VoTCore.Communication
 {
-    public class MultimediaMessage : IMessage
+    public class MultimediaMessage : FileMessage
     {
-        //TODO: Implement Multimedia
-        private readonly short typeOfMessage;
-        private readonly string messageString;
-        private readonly long authorID;
-        private readonly long dateOfCreation;
-
-        public MultimediaMessage(short typeOfMessage, string textMessage, long authorID, long dateOfCreation)
+        public MultimediaMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation, FileStream file) 
+            : base(typeOfMessage, messageString, authorID, dateOfCreation, file)
         {
-            this.typeOfMessage = typeOfMessage;
-            this.messageString = textMessage;
-            this.authorID = authorID;
-            this.dateOfCreation = dateOfCreation;
-        }
-
-        public short TypeOfMessage
-        {
-            get { return typeOfMessage; }
-        }
-
-        public string MessageString
-        {
-            get { return messageString; }
-        }
-
-
-        public long AuthorID
-        {
-            get { return authorID; }
-        }
-
-        public long DateOfCreation
-        {
-            get { return dateOfCreation; }
         }
     }
 }

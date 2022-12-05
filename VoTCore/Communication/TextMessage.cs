@@ -6,40 +6,11 @@ using System.Threading.Tasks;
 
 namespace VoTCore.Communication
 {
-    public class TextMessage : IMessage
+    public class TextMessage : Message
     {
-        private readonly short  typeOfMessage;
-        private readonly string messageString;
-        private readonly long   authorID;
-        private readonly long   dateOfCreation;
-
-        public TextMessage(short typeOfMessage, string textMessage, long authorID, long dateOfCreation)
+        public TextMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation) 
+            : base(typeOfMessage, messageString, authorID, dateOfCreation)
         {
-            this.typeOfMessage  = typeOfMessage;
-            this.messageString  = textMessage;
-            this.authorID       = authorID;
-            this.dateOfCreation = dateOfCreation;
-        }
-
-        public short TypeOfMessage
-        {
-            get { return typeOfMessage; }
-        }
-
-        public string MessageString
-        {
-            get { return messageString; }
-        }
-
-
-        public long AuthorID
-        {
-            get { return authorID; }
-        }
-
-        public long DateOfCreation
-        {
-            get { return dateOfCreation; }
-        }
+        }        
     }
 }
