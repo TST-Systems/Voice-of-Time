@@ -20,9 +20,9 @@ namespace VoTCore
 
     public enum MessageType
     {
-        TEXT_MESSAGE    = 0b00000001,
-        MEDIA_MESSAGE   = 0b00000010,
-        CONTROL_MESSAGE = 0b00000100,
-        KEY_MESSAGE     = 0b00001000,
+        TEXT_MESSAGE    = 1 << 0,
+        MEDIA_MESSAGE   = 1 << 1,
+        CONTROL_MESSAGE = 1 << 2,
+        KEY_MESSAGE     = 1 << 3,
     }
 }
