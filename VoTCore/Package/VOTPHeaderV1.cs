@@ -25,5 +25,25 @@ namespace VoTCore.Package
         public byte MessageType { get; }
 
         public byte EncrypionType { get; }
+
+        public override bool Equals(object? obj)
+        {
+            if(obj == null) return false;
+
+            if (obj is not VOTPHeaderV1 their) return false;
+
+            if (this.Version       != their.Version)       return false;
+            if (this.ReceiverID    != their.ReceiverID)    return false;
+            if (this.SenderID      != their.SenderID)      return false;
+            if (this.MessageType   != their.MessageType)   return false;
+            if (this.EncrypionType != their.EncrypionType) return false;
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)(Version * SenderID * ReceiverID * MessageType * EncrypionType);
+        }
     }
 }

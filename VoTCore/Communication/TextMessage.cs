@@ -18,5 +18,10 @@ namespace VoTCore.Communication
         }
 
         public MessageType Type => MessageType.TEXT_MESSAGE;
+
+        public override bool Equals(object? obj)
+        {
+            return base.Equals(obj);
+        }
     }
 }

@@ -22,5 +22,20 @@ namespace VoTCore.Communication
         }
         
         public MessageType Type => MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE;
+
+        public override bool Equals(object? obj)
+        {
+            if (!base.Equals(obj)) return false;
+
+            if (obj is not FileMessage their) return false;
+
+            if(this.File == null && their.File == null) return true;
+            if(this.File == null) return false;
+
+
+            if (this.File.Equals(their.File)) return false;
+
+            return true;
+        }
     }
 }
