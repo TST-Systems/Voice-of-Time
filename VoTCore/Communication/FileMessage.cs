@@ -10,12 +10,12 @@ namespace VoTCore.Communication
     /// <summary>
     /// Message with a file attached
     /// </summary>
-    public class MediaMessage : Message, IVOTPBody
+    public class FileMessage : Message, IVOTPBody
     {
 
         public FileStream? File { get; }
 
-        public MediaMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation, FileStream file) 
+        public FileMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation, FileStream file) 
             : base(typeOfMessage, messageString, authorID, dateOfCreation)
         {
             this.File = file;
