@@ -53,7 +53,7 @@ namespace VoTCore.Package
             try
             {
                 var _headerType = Constants.HeaderTypes[vOTPInfo.Version];
-                if (_headerType == null) throw new ArgumentException("Header (version) unknown!");
+                if (_headerType == null) throw new ArgumentException("Header version unknown!");
                 Type headerType = _headerType;
                 var _header = (IVOTPHeader?)JsonConvert.DeserializeObject(split[1], headerType);
                 if (_header == null) throw new ArgumentException("Header can not be converted!");
@@ -69,7 +69,7 @@ namespace VoTCore.Package
             try
             {
                 var _bodyType = Constants.BodyTypes[vOTPInfo.Type];
-                if (_bodyType == null) throw new ArgumentException("Body (type) unknown!");
+                if (_bodyType == null) throw new ArgumentException("Body type unknown!");
                 Type bodyType = _bodyType;
                 var _body = (IVOTPBody?)JsonConvert.DeserializeObject(split[2], bodyType);
                 if (_body == null) throw new ArgumentException("Body can not be converted!");
