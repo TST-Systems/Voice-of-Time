@@ -1,45 +1,26 @@
-﻿namespace VoTCore.Communication
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using VoTCore.Package;
+
+namespace VoTCore.Communication
 {
-    public class FileMessage : IMessage
+    /// <summary>
+    /// Message with a file attached
+    /// </summary>
+    public class FileMessage : Message, IVOTPBody
     {
-        private readonly FileStream? file;
-        private readonly short       typeOfMessage;
-        private readonly string      messageString;
-        private readonly long        authorID;
-        private readonly long        dateOfCreation;
 
-        public FileMessage(FileStream? file, short typeOfMessage, string textMessage, long authorID, long dateOfCreation)
+        public FileStream? File { get; }
+
+        public FileMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation, FileStream file) 
+            : base(typeOfMessage, messageString, authorID, dateOfCreation)
         {
-            this.file           = file;
-            this.typeOfMessage  = typeOfMessage;
-            this.messageString  = textMessage;
-            this.authorID       = authorID;
-            this.dateOfCreation = dateOfCreation;
+            this.File = file;
         }
-
-        public short TypeOfMessage {
-            get { return typeOfMessage; }
-        }
-
-        public string MessageString
-        {
-            get { return messageString; }
-        }
-    
-
-        public long AuthorID
-        {
-            get { return authorID; }
-        }
-
-        public long DateOfCreation
-        {
-            get { return dateOfCreation; }
-        }
-
-        public FileStream? File
-        {
-            get { return file; }
-        }
+        
+        public MessageType Type => MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE;
     }
 }
