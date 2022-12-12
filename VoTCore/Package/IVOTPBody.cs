@@ -13,12 +13,4 @@ namespace VoTCore.Package
         /// </summary>
         MessageType Type { get; }
     }
-    
-    public enum MessageType
-    {
-        TEXT_MESSAGE    = 0b00000001,
-        MEDIA_MESSAGE   = 0b00000010,
-        CONTROL_MESSAGE = 0b00000100,
-        KEY_MESSAGE     = 0b00001000,
-    }
 }
