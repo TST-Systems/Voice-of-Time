@@ -13,7 +13,7 @@ namespace VoTCore
         public readonly static Dictionary<MessageType, Type> BodyTypes   = new()
         {
             { MessageType.TEXT_MESSAGE,                             typeof(TextMessage) },
-            { MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE, typeof(FileMessage) },
+            { MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE, typeof(MediaMessage) },
         };
 
     }
