@@ -18,7 +18,7 @@ namespace VoTCore.Package
         }
 
         [JsonConstructor]
-        public VOTPInfo(short Version, MessageType? Type)
+        public VOTPInfo(short Version, MessageType Type)
         {
             this.Version = Version;
             this.Type    = Type;
@@ -26,6 +26,6 @@ namespace VoTCore.Package
 
         public short Version { get; }
 
-        public MessageType? Type { get; }
+        public MessageType Type { get; }
     }
 }
