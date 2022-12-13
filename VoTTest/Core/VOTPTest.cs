@@ -1,6 +1,8 @@
-﻿using System.Text.Json;
+﻿using System.Reflection.PortableExecutable;
+using System.Text.Json;
 using VoTCore.Communication;
 using VoTCore.Package;
+using Xunit;
 
 namespace VoTTest.Core
 {
@@ -126,6 +128,114 @@ namespace VoTTest.Core
             Assert.Equal(deserialized.Header, header);
         }
 
+        [Fact]
+        public void Equal_Test()
+        {
+            /// GENERATE PACKAGE
+            var header1 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+
+            while (header1.Equals(header2))
+            {
+                header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            }
+
+            var body1 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+
+            while (body1.Equals(body2))
+            {
+                body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            }
+
+            var package1_1 = new VOTP(header1, body1);
+            var package1_2 = new VOTP(header1, body2);
+            var package2_1 = new VOTP(header2, body1);
+            var package2_2 = new VOTP(header2, body2);
+
+            var packageNoBody1 = new VOTP(header1, default);
+            var packageNoBody2 = new VOTP(header2, default);
+            ///
+
+            /// Test results
+            // Crossover Test
+            Assert.Equal   (package1_1, package1_1);
+            Assert.NotEqual(package1_1, package1_2);
+            Assert.NotEqual(package1_1, package2_1);
+            Assert.NotEqual(package1_1, package2_2);
+            Assert.NotEqual(package1_1, packageNoBody1);
+            Assert.NotEqual(package1_1, packageNoBody2);
+
+            Assert.NotEqual(package1_2, package1_1);
+            Assert.Equal   (package1_2, package1_2);
+            Assert.NotEqual(package1_2, package2_1);
+            Assert.NotEqual(package1_2, package2_2);
+            Assert.NotEqual(package1_2, packageNoBody1);
+            Assert.NotEqual(package1_2, packageNoBody2);
+
+            Assert.NotEqual(package2_1, package1_1);
+            Assert.NotEqual(package2_1, package1_2);
+            Assert.Equal   (package2_1, package2_1);
+            Assert.NotEqual(package2_1, package2_2);
+            Assert.NotEqual(package2_1, packageNoBody1);
+            Assert.NotEqual(package2_1, packageNoBody2);
+
+            Assert.NotEqual(package2_2, package1_1);
+            Assert.NotEqual(package2_2, package1_2);
+            Assert.NotEqual(package2_2, package2_1);
+            Assert.Equal   (package2_2, package2_2);
+            Assert.NotEqual(package2_2, packageNoBody1);
+            Assert.NotEqual(package2_2, packageNoBody2);
+
+            Assert.NotEqual(packageNoBody1, package1_1);
+            Assert.NotEqual(packageNoBody1, package1_2);
+            Assert.NotEqual(packageNoBody1, package2_1);
+            Assert.NotEqual(packageNoBody1, package2_2);
+            Assert.Equal   (packageNoBody1, packageNoBody1);
+            Assert.NotEqual(packageNoBody1, packageNoBody2);
+
+            Assert.NotEqual(packageNoBody2, package1_1);
+            Assert.NotEqual(packageNoBody2, package1_2);
+            Assert.NotEqual(packageNoBody2, package2_1);
+            Assert.NotEqual(packageNoBody2, package2_2);
+            Assert.NotEqual(packageNoBody2, packageNoBody1);
+            Assert.Equal   (packageNoBody2, packageNoBody2);
+
+            // Intern variable Test
+            Assert.False(package1_1.Equals(header1));
+            Assert.False(package1_1.Equals(header2));
+            Assert.False(package1_1.Equals(body1));
+            Assert.False(package1_1.Equals(body2));
+
+            Assert.False(package1_2.Equals(header1));
+            Assert.False(package1_2.Equals(header2));
+            Assert.False(package1_2.Equals(body1));
+            Assert.False(package1_2.Equals(body2));
+
+            Assert.False(package2_1.Equals(header1));
+            Assert.False(package2_1.Equals(header2));
+            Assert.False(package2_1.Equals(body1));
+            Assert.False(package2_1.Equals(body2));
+
+            Assert.False(package2_2.Equals(header1));
+            Assert.False(package2_2.Equals(header2));
+            Assert.False(package2_2.Equals(body1));
+            Assert.False(package2_2.Equals(body2));
+
+            Assert.False(package2_2.Equals(header1));
+            Assert.False(package2_2.Equals(header2));
+            Assert.False(package2_2.Equals(body1));
+            Assert.False(package2_2.Equals(body2));
+
+            // Null Test
+            Assert.False(package1_1.Equals(null));
+            Assert.False(package1_2.Equals(null));
+            Assert.False(package2_1.Equals(null));
+            Assert.False(package2_2.Equals(null));
+            Assert.False(packageNoBody1.Equals(null));
+            Assert.False(packageNoBody2.Equals(null));
+
+        }
 
     }
 }
