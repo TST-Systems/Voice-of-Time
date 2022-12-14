@@ -8,7 +8,25 @@ namespace VoTTest.Core
 {
     public class VOTPTest
     {
+
         readonly Random rnd = new();
+
+        [Fact]
+        public void Constructo_Test()
+        {
+            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+
+            var package = new VOTP(header, body);
+            var packageEmptyBody = new VOTP(header, default);
+
+            Assert.Equal(header, package.Header);
+            Assert.Equal(body, package.Data);
+
+            Assert.Equal(header, packageEmptyBody.Header);
+            Assert.Equal(default, packageEmptyBody.Data);
+        }
+        
 
         [Fact]
         public void Serialize_Normal_Test()
@@ -234,7 +252,6 @@ namespace VoTTest.Core
             Assert.False(package2_2.Equals(null));
             Assert.False(packageNoBody1.Equals(null));
             Assert.False(packageNoBody2.Equals(null));
-
         }
 
     }
