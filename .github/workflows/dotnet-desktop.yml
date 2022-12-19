@@ -42,7 +42,8 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
+    branches: 
+      - '**'        # matches every branch
 
 jobs:
 
