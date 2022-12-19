@@ -30,7 +30,7 @@ jobs:
         run: dotnet publish -c ${{ matrix.dotnet-configuration }} --self-contained -r ${{ matrix.os }}-x64
       - name: Remove the pfx
         run: find . -name "*.pfx" -delete
-      - run: cd ".\Voice of Time\"
+      - run: cd "Voice of Time"
       - name: Upload the Build
         uses: actions/upload-artifact@v2
         with:
