@@ -26,13 +26,12 @@ jobs:
         run: dotnet test
       - name: Restore the application
         run: dotnet restore
-      - name: Create a package for Windows, Linux, and MacOS
-        run: dotnet publish -c ${{ matrix.dotnet-configuration }} --self-contained -r ${{ matrix.os }}-x64
-      - name: Remove the pfx
-        run: find . -name "*.pfx" -delete
-      - run: tree 
-      - name: Upload the Build
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-${{ matrix.dotnet-configuration }}${{ matrix.os }}
-          path: "Voice of Time/bin/${{ matrix.dotnet-configuration }}/*"
+#     - name: Create a package for Windows, Linux, and MacOS
+#       run: dotnet publish -c ${{ matrix.dotnet-configuration }} --self-contained -r ${{ matrix.os }}-x64
+#     - name: Remove the pfx
+#       run: find . -name "*.pfx" -delete
+#     - name: Upload the Build
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: build-${{ matrix.dotnet-configuration }}${{ matrix.os }}
+#         path: "Voice of Time/bin/${{ matrix.dotnet-configuration }}/*"
