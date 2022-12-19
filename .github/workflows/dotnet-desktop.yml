@@ -26,7 +26,7 @@ jobs:
       - name: Restore the application
         run: dotnet restore
       - name: Create a package for Windows, Linux, and MacOS
-        run: dotnet publish -c ${{ matrix.dotnet-configuration }} -r win-x64,linux-x64,osx-x64
+        run: dotnet publish -c ${{ matrix.dotnet-configuration }} -r win-x64,linux-am64,osx-x64
       - name: Remove the pfx
         run: find . -name "*.pfx" -delete
       - name: Upload the Build
