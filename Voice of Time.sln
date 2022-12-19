@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voice of Time", "Voice of T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTCore", "VoTCore\VoTCore.csproj", "{5AE240BD-9A06-48AF-9583-728E72DD4E8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoTTest", "VoTTest\VoTTest.csproj", "{879A50A6-6106-4D51-883E-69B0736C6645}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTTest", "VoTTest\VoTTest.csproj", "{879A50A6-6106-4D51-883E-69B0736C6645}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
