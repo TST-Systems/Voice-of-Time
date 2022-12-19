@@ -11,10 +11,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-configuration: [release]
-        os: [win, linux, osx]
+#   strategy:
+#     matrix:
+#       dotnet-configuration: [release]
+#       os: [win, linux, osx]
 
     steps:
       - uses: actions/checkout@v3
