@@ -1,14 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using VoTCore.Communication;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+﻿using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace VoTCore.Package
 {
@@ -55,7 +45,7 @@ namespace VoTCore.Package
                 var _headerType = Constants.HeaderTypes[vOTPInfo.Version];
                 if (_headerType == null) throw new ArgumentException("Header version unknown!");
                 Type headerType = _headerType;
-                var _header = (IVOTPHeader?)JsonConvert.DeserializeObject(split[1], headerType);
+                var _header = (IVOTPHeader?)JsonSerializer.Deserialize(split[1], headerType);
                 if (_header == null) throw new ArgumentException("Header can not be converted!");
                 Header = _header;
             }
@@ -71,7 +61,7 @@ namespace VoTCore.Package
                 var _bodyType = Constants.BodyTypes[vOTPInfo.Type];
                 if (_bodyType == null) throw new ArgumentException("Body type unknown!");
                 Type bodyType = _bodyType;
-                var _body = (IVOTPBody?)JsonConvert.DeserializeObject(split[2], bodyType);
+                var _body = (IVOTPBody?)JsonSerializer.Deserialize(split[2], bodyType);
                 if (_body == null) throw new ArgumentException("Body can not be converted!");
                 Data = _body;
             }
@@ -99,6 +89,21 @@ namespace VoTCore.Package
                 serialized += JsonSerializer.Serialize(Convert.ChangeType(Data, Data.GetType()));
             }
             return serialized;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null) return false;
+
+            if (obj is not VOTP their) return false;
+
+            if (!this.Header.Equals(their.Header)) return false;
+            if (this.Data == null) 
+                if (their.Data == null) return true; 
+                else                    return false;
+            if (!this.Data.Equals(their.Data))     return false;
+
+            return true;
         }
     }
 }
