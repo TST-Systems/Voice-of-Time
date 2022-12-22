@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Cryptography;
 using Xunit;
 using Voice_of_Time;
+using VoTCore.Secure;
 
-namespace VoTTest.VoTClient
+namespace VoTTest.Core
 {
     public class ClientTest
     {
         [Fact]
         public void AddKeyTest()
         {
-
             Client c = new(101, "Schmitd", RSA.Create());
 
             var rsa1 = RSA.Create();
