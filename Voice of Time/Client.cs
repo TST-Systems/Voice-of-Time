@@ -12,9 +12,13 @@ namespace Voice_of_Time
     internal class Client : PublicKeyStorage
 #endif
     {
+        // From the Server given unique ID
         public long UserID { get; }
+        // Display Name for outher users
         public string UserName { get; }
+        // Public and privat Key pair
         public RSA UserKey { get; }
+        // List of all Textchats
         public List<TextChat> TextChats { get; }
 
         public Client(long userID, string userName, RSA userKey, Dictionary<long, RSA>? publicKeyDictionary = null, List<TextChat>? textChats = null)
