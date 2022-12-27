@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VoTCore.Package;
 
 namespace VoTCore.Communication
 {
@@ -35,6 +36,20 @@ namespace VoTCore.Communication
             this.MessageString  = messageString;
             this.AuthorID       = authorID;
             this.DateOfCreation = dateOfCreation;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null) return false;
+
+            if (obj is not Message their) return false;
+
+            if (this.TypeOfMessage  != their.TypeOfMessage)  return false;
+            if (this.MessageString  != their.MessageString)  return false;
+            if (this.AuthorID       != their.AuthorID)       return false;
+            if (this.DateOfCreation != their.DateOfCreation) return false;
+
+            return true;
         }
     }
 }

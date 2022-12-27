@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using VoTCore.Communication;
+﻿using System.Text.Json.Serialization;
 
 namespace VoTCore.Package
 {
@@ -13,8 +7,9 @@ namespace VoTCore.Package
         public VOTPInfo(VOTP package)
         {
             this.Version = package.Header.Version;
-            if(package.Data != null)
+            if (package.Data != null)
                 this.Type = package.Data.Type;
+            else this.Type = MessageType.NONE;
         }
 
         [JsonConstructor]
