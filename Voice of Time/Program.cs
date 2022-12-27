@@ -1,4 +1,5 @@
-﻿using VoTCore.Communication;
+﻿using Voice_of_Time.Transfer;
+using VoTCore.Communication;
 using VoTCore.Package;
 
 var head = new VOTPHeaderV1(1, 1, 1, 1);
@@ -13,3 +14,6 @@ Console.WriteLine(serialized);
 var deserialize = new VOTP(serialized);
 
 Console.ReadKey();
+
+SocketClient.SetStreamAsync("Hey There!!!");
+
