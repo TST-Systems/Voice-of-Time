@@ -26,4 +26,14 @@ namespace VoTCore
         CONTROL_MESSAGE = 1 << 2,
         KEY_MESSAGE     = 1 << 3,
     }
+
+    public enum MessageStatus
+    {
+        SENT,
+        RECEIVED,
+        FAIL,
+    
+    }
+
+
 }
