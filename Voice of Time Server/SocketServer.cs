@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,9 +12,32 @@ namespace Voice_of_Time.Transfer
 {
     internal class SocketServer
     {
-        public static async Task Main()
+        private String? message;
+        
+
+        public static void Main()
         {
-            var endPoint = new IPEndPoint(IPAddress.Loopback, 5000);
+            var sockServer = new SocketServer();
+            Task task1 = sockServer.ListenLine();
+
+            while (true) ;
+        }
+
+        //Set and Geter method to change and output message 
+        //If not required, it can also be deleted
+        public String GetMessage()
+        {
+            return this.message;
+        }
+
+        private void SetMessage(String? currentMessage)
+        {
+             this.message = currentMessage;
+        }
+
+        public async Task ListenLine()
+        {
+            var endPoint = new IPEndPoint(IPAddress.Loopback, 11_000);
             using var socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             using Socket listener = new(
@@ -21,7 +46,7 @@ namespace Voice_of_Time.Transfer
             ProtocolType.Tcp);
 
             listener.Bind(endPoint);
-            listener.Listen(100);
+            listener.Listen();
 
             var handler = await listener.AcceptAsync();
             while (true)
@@ -31,15 +56,23 @@ namespace Voice_of_Time.Transfer
                 var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
                 var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-                var eom = "<|EOM|>";
-                if (response.IndexOf(eom) > -1 /* is end of message */)
+
+                if (response.Length > 0)
                 {
-                    var ackMessage = "<|ACK|>";
-                    var echoBytes = Encoding.UTF8.GetBytes(ackMessage);
-                    await handler.SendAsync(echoBytes, 0);
+                    SetMessage(response);
+
+                    //Show current message Value on Console
+                    //Console.WriteLine(GetMessage());
+
+                    //infinite execute of ListenLine
+                    ListenLine();
                     break;
                 }
+
             }
+
+            
+
         }
 
 

@@ -8,16 +8,18 @@ using System.Threading.Tasks;
 
 namespace Voice_of_Time.Transfer
 {
-    internal class SocketClient
+    public class SocketClient
     {
-        //source: 
-        //https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/sockets/tcp-classes
-        //https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/sockets/socket-services
-
-        public static async Task SetStreamAsync(String message)
+        public async Task SetStreamAsync(String message)
         {
+            //source: 
+            //https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/sockets/tcp-classes
+            //https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/sockets/socket-services
 
-            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync("www.timeliners.org");
+
+            //IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync("www.timeliners.org");
+            
+            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync("127.0.0.1"); //localhost
             IPAddress ipAddress = ipHostInfo.AddressList[0];
 
             IPEndPoint ipEndPoint = new(ipAddress, 11_000);
@@ -28,24 +30,14 @@ namespace Voice_of_Time.Transfer
             ProtocolType.Tcp);
 
             await client.ConnectAsync(ipEndPoint);
-            while (true)
-            {
-                // Send message.
-                var messageBytes = Encoding.UTF8.GetBytes(message);
-                _ = await client.SendAsync(messageBytes, SocketFlags.None);
 
-                // Receive ack.
-                var buffer = new byte[1_024];
-                var received = await client.ReceiveAsync(buffer, SocketFlags.None);
-                var response = Encoding.UTF8.GetString(buffer, 0, received);
-                if (response == "<|ACK|>")
-                {
-                    break;
-                }
-            }
+            // Send message.
+            var messageBytes = Encoding.UTF8.GetBytes(message);
+            var _ = await client.SendAsync(messageBytes, SocketFlags.None);
 
             client.Shutdown(SocketShutdown.Both);
         }
+
 
     }
 }
