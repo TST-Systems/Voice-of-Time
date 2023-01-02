@@ -25,6 +25,5 @@ namespace VoTCore
         MEDIA_MESSAGE   = 1 << 1,
         CONTROL_MESSAGE = 1 << 2,
         KEY_MESSAGE     = 1 << 3,
-        SENT            = 1 << 4,
     }
 }
