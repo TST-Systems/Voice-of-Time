@@ -24,10 +24,10 @@ namespace Voice_of_Time
         public Client(long userID, string userName, RSA userKey, Dictionary<long, RSA>? publicKeyDictionary = null, List<TextChat>? textChats = null)
             :base(publicKeyDictionary)
         {
-            UserID              = userID;
-            UserName            = userName  ?? throw new ArgumentNullException(nameof(userName));
-            UserKey             = userKey   ?? throw new ArgumentNullException(nameof(userKey));
-            TextChats           = textChats ?? new();
+            UserID    = userID;
+            UserName  = userName  ?? throw new ArgumentNullException(nameof(userName));
+            UserKey   = userKey   ?? throw new ArgumentNullException(nameof(userKey));
+            TextChats = textChats ?? new();
         }
 
         public override KeyStatus AddPublicKey(long targetID, RSA publicKey)
