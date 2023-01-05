@@ -9,5 +9,12 @@ namespace Voice_of_Time_Server
 
         public Dictionary<long, UserInfo> UserDB { get; }
 
+        public Server(Dictionary<long, RSA>? publicKeyDictionary = null, ServerConfig? config = null, Dictionary<long, UserInfo>? userDB = null)
+            : base(publicKeyDictionary)
+        {
+            Config = config ?? new();
+            UserDB = userDB ?? new();
+        }
+
     }
 }
