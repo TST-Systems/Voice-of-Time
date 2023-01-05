@@ -24,6 +24,8 @@ namespace Voice_of_Time.Transfer
             SocketType.Stream,
             ProtocolType.Tcp);
 
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+
             await client.ConnectAsync(IpEndPoint);
 
             // Send message.
@@ -34,7 +36,7 @@ namespace Voice_of_Time.Transfer
             //var buffer = new byte[33_554_432];
             //var received = await client.ReceiveAsync(buffer, SocketFlags.None);
             //var response = Encoding.UTF8.GetString(buffer, 0, received);
-            //client.Shutdown(SocketShutdown.Receive);
+            client.Shutdown(SocketShutdown.Receive);
 
             return null;
         }
