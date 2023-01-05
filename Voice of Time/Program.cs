@@ -2,6 +2,6 @@
 
 var clientSocket = new SocketClient("192.168.178.34", 15050);
 
-await clientSocket.SetStreamAsync("Hey NA!");
+Console.WriteLine(await clientSocket.StreamAsync("Hey NA!"));
 
 Console.ReadLine();

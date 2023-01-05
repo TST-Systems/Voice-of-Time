@@ -17,12 +17,15 @@ namespace Voice_of_Time.Transfer
         private IPEndPoint IpEndPoint { get; set; }
         private Socket Listener { get; set; }
 
-        public SocketServer (int port)
+        private Func<SocketMessage, Task> Function { get; }
+
+        public SocketServer (int port, Func<SocketMessage, Task> func)
         {
             IpEndPoint = new(IPAddress.Any, port);
             Listener   = new(IpEndPoint.AddressFamily,
                              SocketType.Stream,
                              ProtocolType.Tcp);
+            Function = func;
             Console.WriteLine("Init");
         }
 
@@ -35,11 +38,12 @@ namespace Voice_of_Time.Transfer
             {
                 Console.WriteLine("Start new listining");
                 var message = ListenNext();
-                //DEBUG
                 SocketMessage msg = await message;
-                Console.WriteLine(msg.Message);
+                _ = Function(msg);
             }
         }
+
+
 
         public async Task<SocketMessage> ListenNext()
         {

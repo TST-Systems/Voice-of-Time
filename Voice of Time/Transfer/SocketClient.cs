@@ -17,7 +17,7 @@ namespace Voice_of_Time.Transfer
             IpEndPoint = new(IpAddress, port);
         }
 
-        internal async Task<string?> SetStreamAsync(String message)
+        internal async Task<string?> StreamAsync(String message)
         {
             using Socket client = new(
             IpEndPoint.AddressFamily,
@@ -33,12 +33,12 @@ namespace Voice_of_Time.Transfer
             var code = await client.SendAsync(messageBytes, SocketFlags.None);
             client.Shutdown(SocketShutdown.Send);
             // Recive answer
-            //var buffer = new byte[33_554_432];
-            //var received = await client.ReceiveAsync(buffer, SocketFlags.None);
-            //var response = Encoding.UTF8.GetString(buffer, 0, received);
+            var buffer = new byte[33_554_432];
+            var received = await client.ReceiveAsync(buffer, SocketFlags.None);
+            var response = Encoding.UTF8.GetString(buffer, 0, received);
             client.Shutdown(SocketShutdown.Receive);
 
-            return null;
+            return response;
         }
 
 
