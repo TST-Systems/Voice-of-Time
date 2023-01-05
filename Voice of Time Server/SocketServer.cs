@@ -19,7 +19,7 @@ namespace Voice_of_Time.Transfer
 
         public SocketServer (int port)
         {
-            IpEndPoint = new(IPAddress.Loopback, port);
+            IpEndPoint = new(IPAddress.Any, port);
             Listener   = new(IpEndPoint.AddressFamily,
                              SocketType.Stream,
                              ProtocolType.Tcp);
@@ -30,7 +30,7 @@ namespace Voice_of_Time.Transfer
         {
             Console.WriteLine("Start Listining");
             Listener.Bind(IpEndPoint);
-            Listener.Listen();
+            Listener.Listen(100);
             while (true)
             {
                 Console.WriteLine("Start new listining");
