@@ -22,7 +22,7 @@ namespace Voice_of_Time
         public List<TextChat> TextChats { get; }
 
         public Client(long userID, string userName, RSA userKey, Dictionary<long, RSA>? publicKeyDictionary = null, List<TextChat>? textChats = null)
-            :base(publicKeyDictionary)
+            : base(publicKeyDictionary)
         {
             UserID    = userID;
             UserName  = userName  ?? throw new ArgumentNullException(nameof(userName));
