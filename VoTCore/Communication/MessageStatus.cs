@@ -15,7 +15,7 @@ public abstract class MessageStatus {
 
 
     //Message needs generatedHash
-    //sentMessage needs to be compred to the receivedMessage
+    //sentMessage needs to be compared to the receivedMessage
     //how do we keep them apart?
 
     var generatedHash = x.GetHashCode();
