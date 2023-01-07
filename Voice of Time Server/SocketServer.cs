@@ -34,10 +34,14 @@ namespace Voice_of_Time.Transfer
             Console.WriteLine("Start Listining");
             Listener.Bind(IpEndPoint);
             Listener.Listen(100);
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             while (true)
             {
-                Console.WriteLine("Start new listining");
+                stopWatch.Stop();
+                Console.WriteLine("Start new listining: " + stopWatch.Elapsed);
                 var handler = await Listener.AcceptAsync();
+                stopWatch.Start();
                 _ = ListenNext(handler);
             }
         }
