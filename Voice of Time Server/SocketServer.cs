@@ -40,6 +40,7 @@ namespace Voice_of_Time.Transfer
             {
                 stopWatch.Stop();
                 Console.WriteLine("Start new listining: " + stopWatch.Elapsed);
+                stopWatch.Reset();
                 var handler = await Listener.AcceptAsync();
                 stopWatch.Start();
                 _ = ListenNext(handler);
