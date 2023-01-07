@@ -37,17 +37,13 @@ namespace Voice_of_Time.Transfer
             while (true)
             {
                 Console.WriteLine("Start new listining");
-                var message = ListenNext();
-                SocketMessage msg = await message;
-                _ = Function(msg);
+                var handler = await Listener.AcceptAsync();
+                _ = ListenNext(handler);
             }
         }
 
-
-
-        public async Task<SocketMessage> ListenNext()
+        public async Task ListenNext(Socket handler)
         {
-            var handler = await Listener.AcceptAsync();
 
             Console.WriteLine("Message Incoming");
             var buffer = new byte[33_554_432];
@@ -55,7 +51,7 @@ namespace Voice_of_Time.Transfer
             var response = Encoding.UTF8.GetString(buffer, 0, received);
             Console.WriteLine("Message had read!");
 
-            return new(handler, response);
+            _ = Function(new(handler, response));
         }
     }
 
