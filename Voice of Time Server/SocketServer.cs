@@ -51,12 +51,14 @@ namespace Voice_of_Time.Transfer
         {
 
             Console.WriteLine("Message Incoming");
-            var buffer = new byte[33_554_432];
+            var buffer = new byte[64_000];
             var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
             var response = Encoding.UTF8.GetString(buffer, 0, received);
             Console.WriteLine("Message had read!");
 
             _ = Function(new(handler, response));
+            handler.Close();
+            return;
         }
     }
 
