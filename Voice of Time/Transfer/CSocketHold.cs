@@ -1,0 +1,210 @@
+﻿using System.Net.Sockets;
+using System.Data;
+
+namespace Voice_of_Time.Transfer
+{
+    internal class CSocketHold : CSocketSingle, IDisposable
+    {
+        private struct QueueItem
+        {
+            /// <summary>
+            /// Message to send
+            /// </summary>
+            public string? Message { get; set; }
+            /// <summary>
+            /// Function to call with when task is done 
+            /// </summary>
+            public Action<string?> CallBack { get; set; }
+            /// <summary>
+            /// ID to track task
+            /// </summary>
+            public long ID { get; } 
+
+            public QueueItem(string? message, Action<string?> callBack, long iD)
+            {
+                Message  = message;
+                CallBack = callBack;
+                ID       = iD;
+            }
+        }
+        /// <summary>
+        /// Client Server Connection
+        /// </summary>
+        private Socket Client { get; }
+
+        /// <summary>
+        /// Queue of open Tasks
+        /// </summary>
+        private readonly Queue<QueueItem> Queue = new();
+        /// <summary>
+        /// Blockade to stop multiple read and write operations on the queue
+        /// </summary>
+        private readonly SemaphoreSlim QueueBlock  = new(1, 1);
+        /// <summary>
+        /// Blockade for handling if ther is a new item in queue
+        /// </summary>
+        private readonly SemaphoreSlim itemInQueue = new(0, 1);
+
+        /// <summary>
+        /// ID for new items
+        /// </summary>
+        private long IDNew = 0;
+        /// <summary>
+        /// ID of currently processed Task
+        /// </summary>
+        private long IDCurrent = -1;
+        /// <summary>
+        /// Signal to show that the current handler has to stop
+        /// </summary>
+        private bool isCancelled = false;
+        /// <summary>
+        /// Current Message handler
+        /// </summary>
+        private Task? handler;
+        /// <summary>
+        /// Shows if the handler is currently running
+        /// </summary>
+        public bool IsRunning { get => handler != null;  }
+
+        /// <summary>
+        /// Current status of Client-Server connection
+        /// </summary>
+        private protected ConnectionState currentState;
+        /// <summary>
+        /// Current status of Client-Server connection
+        /// </summary>
+        public ConnectionState CurrentState { get => currentState; }
+
+
+        /// <summary>
+        /// A socket for client server communication with the ability to connect once, send endlessly
+        /// </summary>
+        /// <param name="address">Ip addess / Domain of the server</param>
+        /// <param name="port">Port of the server</param>
+        internal CSocketHold(string address, int port) : base(address, port)
+        {
+            Client = new(
+            IpEndPoint.AddressFamily,
+            SocketType.Stream,
+            ProtocolType.Tcp);
+            currentState = ConnectionState.Closed;
+        }
+
+        ~CSocketHold()
+        {
+            Dispose();
+        }
+
+        internal async Task<bool> AutoStart()
+        {
+            var con = Connect();
+            StartHandler();
+            return await con;
+        }
+
+        /// <summary>
+        /// Connect with the Server
+        /// </summary>
+        /// <returns>Connection could be established</returns>
+        internal async Task<bool> Connect()
+        {
+            currentState = ConnectionState.Connecting;
+            try
+            {
+                await Client.ConnectAsync(IpEndPoint);
+            }
+            catch(Exception ex) 
+            {
+#if DEBUG
+                throw ex;
+#endif
+                Console.WriteLine(ex.ToString());
+                currentState = ConnectionState.Broken;
+                return false;
+            }
+            currentState = ConnectionState.Open;
+            return true;
+        }
+
+        /// <summary>
+        /// Breaks up Connection with Server
+        /// </summary>
+        /// <returns></returns>
+        internal bool Disconect()
+        {
+            try
+            {
+                Client.Close();
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
+
+        /// <summary>
+        /// Task handler
+        /// </summary>
+        /// <returns></returns>
+        private async Task QueueHandler()
+        {
+            while (!isCancelled)
+            {
+                await itemInQueue.WaitAsync();
+                if (isCancelled) return;
+
+            }
+        }
+
+        /// <summary>
+        /// Start the Handler if not active
+        /// </summary>
+        public void StartHandler()
+        {
+            handler ??= QueueHandler();
+        }
+
+        /// <summary>
+        /// Stops the current Handler
+        /// </summary>
+        public async void StopHandler()
+        {
+            // Check if handler is running
+            if (handler is null) return;
+            // Set stoptoken
+            isCancelled = true;
+            // Allow Handler to run, even when their is no message to send
+            itemInQueue.Release();
+            await handler;
+            isCancelled = false;
+            handler.Dispose();
+            handler = null;
+        }
+
+        /// <summary>
+        /// Add an Message to the "to send" queue
+        /// </summary>
+        /// <param name="message">Message as String (Must not be null)</param>
+        /// <param name="callBack">Task to perform with the reply</param>
+        /// <returns></returns>
+        internal async Task<long> EnqueueItem(string? message, Action<string?> callBack)
+        {
+            if (message is null) { return -1; }
+            await QueueBlock.WaitAsync();
+            var id = IDNew++;
+            Queue.Enqueue(new QueueItem(message, callBack, id++));
+            itemInQueue.Release();
+            QueueBlock.Release();
+            return id;
+        }
+
+        public void Dispose()
+        {
+            StopHandler();
+            Queue.Clear();
+            Disconect();
+        }
+    }
+}

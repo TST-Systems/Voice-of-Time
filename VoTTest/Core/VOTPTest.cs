@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using VoTCore.Communication;
 using VoTCore.Package;
-using Xunit;
 
 namespace VoTTest.Core
 {

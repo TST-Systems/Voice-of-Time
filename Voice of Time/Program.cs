@@ -1,6 +1,6 @@
 ﻿using Voice_of_Time.Transfer;
 
-var clientSocket = new SocketClient("84.144.245.119", 15050);
+var clientSocket = new CSocketHold("84.144.245.119", 15050);
 
 List<List<bool>> WaitXTSuccess = new();
 

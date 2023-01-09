@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Voice_of_Time.Transfer;
+using Voice_of_Time_Server.Transfer;
 
 var serverSocket = new SocketServer(15050, async (msg) => returnMessage(msg));
 _ = serverSocket.StartListining();

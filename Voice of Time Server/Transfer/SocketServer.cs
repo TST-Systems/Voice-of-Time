@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Voice_of_Time.Transfer
+namespace Voice_of_Time_Server.Transfer
 {
     internal class SocketServer
     {
@@ -19,10 +13,10 @@ namespace Voice_of_Time.Transfer
 
         private Func<SocketMessage, Task> Function { get; }
 
-        public SocketServer (int port, Func<SocketMessage, Task> func)
+        public SocketServer(int port, Func<SocketMessage, Task> func)
         {
             IpEndPoint = new(IPAddress.Any, port);
-            Listener   = new(IpEndPoint.AddressFamily,
+            Listener = new(IpEndPoint.AddressFamily,
                              SocketType.Stream,
                              ProtocolType.Tcp);
             Function = func;
@@ -65,10 +59,10 @@ namespace Voice_of_Time.Transfer
     internal readonly struct SocketMessage
     {
         public readonly Socket? Socket;
-        public readonly string  Message;
+        public readonly string Message;
         public SocketMessage(Socket? socket, string message)
         {
-            Socket  = socket;
+            Socket = socket;
             Message = message;
         }
     }

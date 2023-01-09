@@ -4,13 +4,13 @@ using System.Text;
 
 namespace Voice_of_Time.Transfer
 {
-    internal class SocketClient
+    internal class CSocketSingle
     {
         private protected IPHostEntry IpHostInfo { get; set; }
         private protected IPAddress   IpAddress  { get; set; }
         private protected IPEndPoint  IpEndPoint { get; set; }
 
-        internal SocketClient(string address, int port)
+        internal CSocketSingle(string address, int port)
         {
             IpHostInfo = Dns.GetHostEntry(address);
             IpAddress  = IpHostInfo.AddressList[0];
