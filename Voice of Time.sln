@@ -8,7 +8,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTCore", "VoTCore\VoTCore.csproj", "{5AE240BD-9A06-48AF-9583-728E72DD4E8B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTTest", "VoTTest\VoTTest.csproj", "{879A50A6-6106-4D51-883E-69B0736C6645}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voice of Time Server", "Voice of Time Server\Voice of Time Server.csproj", "{2C61BB4A-9444-4C82-B66B-054E3F17429C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voice of Time Server", "Voice of Time Server\Voice of Time Server.csproj", "{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}"
 EndProject
