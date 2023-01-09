@@ -6,9 +6,9 @@ namespace Voice_of_Time.Transfer
 {
     internal class SocketClient
     {
-        private IPHostEntry IpHostInfo { get; set; }
-        private IPAddress   IpAddress  { get; set; }
-        private IPEndPoint  IpEndPoint { get; set; }
+        private protected IPHostEntry IpHostInfo { get; set; }
+        private protected IPAddress   IpAddress  { get; set; }
+        private protected IPEndPoint  IpEndPoint { get; set; }
 
         internal SocketClient(string address, int port)
         {
@@ -39,7 +39,6 @@ namespace Voice_of_Time.Transfer
             client.Close();
             return response;
         }
-
 
     }
 }
