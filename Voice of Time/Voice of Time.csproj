@@ -13,4 +13,8 @@
     <Folder Include="Security\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VoTCore\VoTCore.csproj" />
+  </ItemGroup>
+
 </Project>

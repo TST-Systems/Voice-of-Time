@@ -8,4 +8,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VoTCore\VoTCore.csproj" />
+  </ItemGroup>
 </Project>

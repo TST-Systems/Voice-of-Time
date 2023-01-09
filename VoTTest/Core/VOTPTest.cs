@@ -1,5 +1,4 @@
-﻿using System.Reflection.PortableExecutable;
-using System.Text.Json;
+﻿using System.Text.Json;
 using VoTCore.Communication;
 using VoTCore.Package;
 using Xunit;

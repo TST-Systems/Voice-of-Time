@@ -105,5 +105,10 @@ namespace VoTCore.Package
 
             return true;
         }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
