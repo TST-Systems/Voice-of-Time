@@ -37,6 +37,9 @@ namespace Voice_of_Time_Server.Transfer
         public async Task HandleConnection(Socket handler)
         {
             bool EndConnection = false;
+            var userEndPoint = handler.RemoteEndPoint as IPEndPoint;
+            if (userEndPoint == null) throw new Exception("User has valied connection!");
+            Console.WriteLine(userEndPoint.Address.ToString() + ": User connected");
             try
             {
                 while (!EndConnection)
@@ -78,13 +81,18 @@ namespace Voice_of_Time_Server.Transfer
                     var messageBytes = Encoding.UTF8.GetBytes(answer);
                     var code = await handler.SendAsync(messageBytes, SocketFlags.None);
                 }
-            }catch(Exception ex)
+            }catch(SocketException)
+            {
+                Console.WriteLine(userEndPoint.Address.ToString() + ": User did not properly close the connection");
+            }
+            catch(Exception ex)
             {
                 Console.WriteLine("Connection Error:");
                 Console.WriteLine(ex.ToString());
             }
             finally
             {
+                Console.WriteLine(userEndPoint.Address.ToString() + ": User disconnected");
                 handler.Close();
             }
             return;

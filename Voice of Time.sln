@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTCore", "VoTCore\VoTCore.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTTest", "VoTTest\VoTTest.csproj", "{879A50A6-6106-4D51-883E-69B0736C6645}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voice of Time Server", "Voice of Time Server\Voice of Time Server.csproj", "{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voice of Time Server", "Voice of Time Server\Voice of Time Server.csproj", "{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,8 +27,8 @@ Global
 		{5AE240BD-9A06-48AF-9583-728E72DD4E8B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{879A50A6-6106-4D51-883E-69B0736C6645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{879A50A6-6106-4D51-883E-69B0736C6645}.Debug|Any CPU.Build.0 = Debug|Any CPU
-#		{879A50A6-6106-4D51-883E-69B0736C6645}.Release|Any CPU.ActiveCfg = Release|Any CPU
-#		{879A50A6-6106-4D51-883E-69B0736C6645}.Release|Any CPU.Build.0 = Release|Any CPU
+		{879A50A6-6106-4D51-883E-69B0736C6645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{879A50A6-6106-4D51-883E-69B0736C6645}.Release|Any CPU.Build.0 = Release|Any CPU
 		{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
