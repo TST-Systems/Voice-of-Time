@@ -16,6 +16,14 @@ namespace VoTCore
             { MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE, typeof(FileMessage) },
         };
 
+        // Transmission buffer size
+        public const int BUFFER_SIZE_BYTE = 64_000;
+
+        // Transmission symbols
+        public const char EOM = (char) 3; // ASCI: ETX
+        public const char FIN = (char) 4; // ASCI: EOT
+        public const char ACK = (char) 6; // ASCI: ACK
+
     }
 
     public enum MessageType

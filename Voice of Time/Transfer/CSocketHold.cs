@@ -154,7 +154,11 @@ namespace Voice_of_Time.Transfer
             {
                 await itemInQueue.WaitAsync();
                 if (isCancelled) return;
+                while(Queue.Count > 0)
+                {
+                    if (isCancelled) return;
 
+                }
             }
         }
 
@@ -177,7 +181,9 @@ namespace Voice_of_Time.Transfer
             isCancelled = true;
             // Allow Handler to run, even when their is no message to send
             itemInQueue.Release();
+            // Wait that the handler closes
             await handler;
+            // Reset handler and the halt signal
             isCancelled = false;
             handler.Dispose();
             handler = null;

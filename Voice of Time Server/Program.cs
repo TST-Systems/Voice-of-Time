@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Voice_of_Time_Server.Transfer;
 
-var serverSocket = new SocketServer(15050, async (msg) => returnMessage(msg));
+var serverSocket = new SocketServer(15050, (msg) => returnMessage(msg));
 _ = serverSocket.StartListining();
 
 Console.ReadLine();
@@ -9,13 +9,15 @@ Console.ReadLine();
 
 
 
-async Task returnMessage(SocketMessage msg)
+string returnMessage(SocketMessage msg)
 {
+    var anserw = "";
     var Socket  = msg.Socket;
     var Message = msg.Message;
-    if (Socket is null) return;
-    await Task.Delay(1000);
-    Console.WriteLine("Message Proccess!");
-    var echoBytes = Encoding.UTF8.GetBytes(Message);
-    await Socket.SendAsync(echoBytes, 0);
+    if (Socket is null) throw new Exception("No Socket!");
+    for (var i = Message.Length - 1; i >= 0; i--)
+    {
+        anserw += Message[i];
+    }
+    return anserw;
 }
