@@ -24,7 +24,6 @@
                 status_sent = false;
                 Console.WriteLine("Message couldn't be sent.");
             }
-
         }
 
         public void AssignStatusReceived()
@@ -38,7 +37,6 @@
                 status_received = false;
                 Console.WriteLine("Message wasn't received.");
             }
-
         }
 
         public void AssignStatusFailed()
@@ -48,7 +46,6 @@
                 status_failed = true;
                 Console.WriteLine("Failed.");
             }
-
         }
 
     }
