@@ -50,18 +50,18 @@ namespace Voice_of_Time_Server.Transfer
                         var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-                        var indexOfEOM = response.IndexOf(Constants.EOM);
-
                         if (response.Length == 1 && response.StartsWith(Constants.FIN))
                         {
                             EndConnection = true;
                             break;
                         }
 
+                        var indexOfEOM = response.IndexOf(Constants.EOM);
+
                         if (indexOfEOM > -1)
                         {
                             messageComplete = true;
-                            response.Remove(indexOfEOM);
+                            response = response.Remove(indexOfEOM);
                         }
                         else if (received < Constants.BUFFER_SIZE_BYTE)
                         {

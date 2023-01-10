@@ -36,11 +36,10 @@ namespace Voice_of_Time.Transfer
             var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
             var received = await client.ReceiveAsync(buffer, SocketFlags.None);
             var response = Encoding.UTF8.GetString(buffer, 0, received);
-            client.Shutdown(SocketShutdown.Receive);
             var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
-            var fin_code = await client.SendAsync(messageBytes, SocketFlags.None);
+            var fin_code = await client.SendAsync(fin_byte, SocketFlags.None);
             client.Close();
-            return response;
+            return response + response;
         }
 
     }
