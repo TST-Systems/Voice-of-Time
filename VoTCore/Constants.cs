@@ -17,7 +17,7 @@ namespace VoTCore
         };
 
         // Transmission buffer size
-        public const int BUFFER_SIZE_BYTE = 64_000;
+        public const int BUFFER_SIZE_BYTE = 16;
 
         // Transmission symbols
         public const char EOM = (char) 3; // ASCI: ETX

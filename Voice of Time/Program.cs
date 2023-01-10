@@ -1,8 +1,24 @@
 ﻿using Voice_of_Time.Transfer;
 
+
+int done = 0;
+object synDone = new();
+int err = 0;
+object synErr = new();
+
+Random rmd = new();
+int proc = 0;
+
+
 var clientSocket = new CSocketHold("84.144.245.119", 15050);
 
 List<List<bool>> WaitXTSuccess = new();
+
+await doStuff2(105);
+
+
+
+
 
 /*
 for(int j = 10; j > 0; j--)
@@ -18,25 +34,7 @@ for(int j = 10; j > 0; j--)
     }
 }
 */
-
-int done = 0;
-object synDone = new();
-int err = 0;
-object synErr = new();
-
-Random rmd = new();
-int proc = 0;
 /*
-Func<Task> loopPrint = async () => {
-    while (true)
-    {
-        print();
-        await Task.Delay(1000/144);
-    }
-};
-
-_ = loopPrint();
-*/
 for(long waitTick = 500_000; waitTick >= 0; waitTick -= 50_000)
 {
     Console.WriteLine("Ticktime: " + waitTick);
@@ -57,8 +55,19 @@ for(long waitTick = 500_000; waitTick >= 0; waitTick -= 50_000)
     Console.WriteLine();
     Console.WriteLine("IT: " + IT);
 }
+*/
 
+/*
+Func<Task> loopPrint = async () => {
+    while (true)
+    {
+        print();
+        await Task.Delay(1000/144);
+    }
+};
 
+_ = loopPrint();
+*/
 /*
 async Task doStuff(int i, List<bool> list)
 {
@@ -81,11 +90,12 @@ async Task doStuff2(int i)
 {
     try
     {
-        var echo = await clientSocket.StreamAsync(i.ToString());
+        var echo = clientSocket.StreamAsync(i.ToString());
         lock (synDone)
         {
             done++;
         }
+        Console.WriteLine(echo.Result);
     }
     catch (Exception)
     {
