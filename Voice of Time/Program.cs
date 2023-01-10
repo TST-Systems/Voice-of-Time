@@ -1,5 +1,5 @@
 ﻿using Voice_of_Time.Transfer;
-
+/*
 
 int done = 0;
 object synDone = new();
@@ -9,10 +9,24 @@ object synErr = new();
 Random rnd = new();
 int proc = 0;
 
-
+*/
 var clientSocket = new CSocketHold("84.144.245.119", 15050);
 
-List<List<bool>> WaitXTSuccess = new();
+var a = await clientSocket.AutoStart();
+Console.WriteLine(a);
+Console.WriteLine(clientSocket.CurrentState);
+
+var id = clientSocket.EnqueueItem("Hello World", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
+
+Console.ReadLine();
+
+clientSocket.Dispose();
+
+
+
+//List<List<bool>> WaitXTSuccess = new();
+
+/*
 
 string rdmString = "";
 
@@ -26,7 +40,7 @@ for(int i = 0; i < 6_000; i++)
 await doStuff2(rdmString);
 
 
-
+*/
 
 
 /*
@@ -89,7 +103,7 @@ async Task doStuff(int i, List<bool> list)
     }
     catch (Exception ex) { Console.WriteLine(i + ": " + ex.Message); };
 }*/
-
+/*
 void print()
 {
     Console.Write("\rC: " + (proc + 1) + " | D: " + done + " | F: " + err + " | IT: " + (proc + 1 - done - err) + "");
@@ -114,5 +128,5 @@ async Task doStuff2(string i)
         }
     };
 }
-
+*/
 Console.ReadLine();
