@@ -17,6 +17,7 @@ namespace Voice_of_Time.Transfer
             IpEndPoint = new(IpAddress, port);
         }
 
+        [Obsolete("Outdated! Please use CSocketHold.EnqueItem instead.")]
         internal async Task<string?> StreamAsync(String message)
         {
             using Socket client = new(

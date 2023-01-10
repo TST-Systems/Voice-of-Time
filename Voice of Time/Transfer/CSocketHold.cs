@@ -1,5 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Data;
+using System.Text;
+using VoTCore.Communication;
 
 namespace Voice_of_Time.Transfer
 {
@@ -10,17 +12,17 @@ namespace Voice_of_Time.Transfer
             /// <summary>
             /// Message to send
             /// </summary>
-            public string? Message { get; set; }
+            public string Message { get; set; }
             /// <summary>
             /// Function to call with when task is done 
             /// </summary>
-            public Action<string?> CallBack { get; set; }
+            public Func<string?, Task> CallBack { get; set; }
             /// <summary>
             /// ID to track task
             /// </summary>
             public long ID { get; } 
 
-            public QueueItem(string? message, Action<string?> callBack, long iD)
+            public QueueItem(string message, Func<string?, Task> callBack, long iD)
             {
                 Message  = message;
                 CallBack = callBack;
@@ -134,6 +136,27 @@ namespace Voice_of_Time.Transfer
         {
             try
             {
+                var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
+                var fin_code = Client.Send(fin_byte, SocketFlags.None);
+                Client.Close();
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Breaks up Connection with Server
+        /// </summary>
+        /// <returns></returns>
+        internal async Task<bool> DisconectAsync()
+        {
+            try
+            {
+                var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
+                var fin_code = await Client.SendAsync(fin_byte, SocketFlags.None);
                 Client.Close();
             }
             catch
@@ -150,6 +173,7 @@ namespace Voice_of_Time.Transfer
         /// <returns></returns>
         private async Task QueueHandler()
         {
+            
             while (!isCancelled)
             {
                 await itemInQueue.WaitAsync();
@@ -157,7 +181,28 @@ namespace Voice_of_Time.Transfer
                 while(Queue.Count > 0)
                 {
                     if (isCancelled) return;
+                    var nextQueueItem = Queue.Dequeue();
 
+                    var messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message + Constants.EOM);
+                    var code = await Client.SendAsync(messageBytes, SocketFlags.None);
+
+                    bool messageComplete = false;
+                    string IncomingMessage = "";
+                    while (!messageComplete)
+                    {
+                        var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                        var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+                        var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+                        var indexOfEOM = response.IndexOf(Constants.EOM);
+                        if (indexOfEOM > -1)
+                        {
+                            messageComplete = true;
+                            response = response.Remove(indexOfEOM);
+                        }
+                        IncomingMessage += response;
+                    }
+                    _ = nextQueueItem.CallBack(IncomingMessage);
                 }
             }
         }
@@ -195,7 +240,7 @@ namespace Voice_of_Time.Transfer
         /// <param name="message">Message as String (Must not be null)</param>
         /// <param name="callBack">Task to perform with the reply</param>
         /// <returns></returns>
-        internal async Task<long> EnqueueItem(string? message, Action<string?> callBack)
+        internal async Task<long> EnqueueItem(string? message, Func<string?, Task> callBack)
         {
             if (message is null) { return -1; }
             await QueueBlock.WaitAsync();
@@ -211,6 +256,7 @@ namespace Voice_of_Time.Transfer
             StopHandler();
             Queue.Clear();
             Disconect();
+            GC.SuppressFinalize(this);
         }
     }
 }
