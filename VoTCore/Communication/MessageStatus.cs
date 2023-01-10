@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VoTCore.Package;
-
-public abstract class MessageStatus {
+﻿public abstract class MessageStatus
+{
 
     public bool status_sent { get; }
 
@@ -14,18 +8,49 @@ public abstract class MessageStatus {
     public bool status_failed { get; }
 
 
-    //Message needs generatedHash
-    //sentMessage needs to be compared to the receivedMessage
-    //how do we keep them apart?
-
-    var generatedHash = x.GetHashCode();
-
-    if (generatedHash.Equals(receivedHash))
-        return true;
-
-    if (Message.Equals(generatedHash))
-        return status_sent = true;
 
 
+    var serverGotMessage = false;
+    var serverReceivedReceipt = false;
+
+    public void assignStatusSent
+    {
+        if (serverGotMessage = true)
+        {
+            set { status_sent = true; }
+
+        }else
+{
+    set { status_sent = false; };
+    Console.WriteLine("Message couldn't be sent.");
+}
+                
+    }
+
+
+    public void assignStatusReceived
+{
+    if (serverReceivedReceipt = true)
+        {
+        set { status_received = true; }
+
+    }else
+{
+        set { status_received = false; };
+        Console.WriteLine("Message wasn't received.");
+    }
+
+}
+
+
+    public void assignStatusFailed
+{
+    if (status_sent == false && status_received == false){
+
+        set { status_failed = true; }
+        Console.WriteLine("Failed.");
+    }
+
+}
 
 }
