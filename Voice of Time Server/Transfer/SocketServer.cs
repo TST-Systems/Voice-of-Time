@@ -44,7 +44,7 @@ namespace Voice_of_Time_Server.Transfer
                     bool messageComplete = false;
                     string IncomingMessage = "";
                     // RECIVE
-                    while (messageComplete)
+                    while (!messageComplete)
                     {
                         var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
                         var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
