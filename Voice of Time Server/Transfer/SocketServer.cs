@@ -63,11 +63,12 @@ namespace Voice_of_Time_Server.Transfer
                             messageComplete = true;
                             response = response.Remove(indexOfEOM);
                         }
+                        /*
                         else if (received < Constants.BUFFER_SIZE_BYTE)
                         {
                             throw new Exception("End of message was not resived!");
                         }
-
+                        */
                         IncomingMessage += response;
                     }
                     // PROCESS
