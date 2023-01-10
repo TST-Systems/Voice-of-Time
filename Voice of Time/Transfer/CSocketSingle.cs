@@ -33,13 +33,32 @@ namespace Voice_of_Time.Transfer
             var messageBytes = Encoding.UTF8.GetBytes(message);
             var code = await client.SendAsync(messageBytes, SocketFlags.None);
             // Recive answer
-            var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-            var received = await client.ReceiveAsync(buffer, SocketFlags.None);
-            var response = Encoding.UTF8.GetString(buffer, 0, received);
+            bool messageComplete = false;
+            string IncomingMessage = "";
+            // RECIVE
+            while (!messageComplete)
+            {
+                var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                var received = await client.ReceiveAsync(buffer, SocketFlags.None);
+                var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+                var indexOfEOM = response.IndexOf(Constants.EOM);
+                if (indexOfEOM > -1)
+                {
+                    messageComplete = true;
+                    response = response.Remove(indexOfEOM);
+                }
+                else if (received < Constants.BUFFER_SIZE_BYTE)
+                {
+                    throw new Exception("End of message was not resived!");
+                }
+
+                IncomingMessage += response;
+            }
             var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
             var fin_code = await client.SendAsync(fin_byte, SocketFlags.None);
             client.Close();
-            return response + response;
+            return IncomingMessage;
         }
 
     }

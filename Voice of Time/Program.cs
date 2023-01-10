@@ -14,7 +14,7 @@ var clientSocket = new CSocketHold("84.144.245.119", 15050);
 
 List<List<bool>> WaitXTSuccess = new();
 
-await doStuff2(105);
+await doStuff2("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
 
 
@@ -86,11 +86,11 @@ void print()
     Console.Write("\rC: " + (proc + 1) + " | D: " + done + " | F: " + err + " | IT: " + (proc + 1 - done - err) + "");
 }
 
-async Task doStuff2(int i)
+async Task doStuff2(string i)
 {
     try
     {
-        var echo = clientSocket.StreamAsync(i.ToString());
+        var echo = clientSocket.StreamAsync(i);
         lock (synDone)
         {
             done++;
