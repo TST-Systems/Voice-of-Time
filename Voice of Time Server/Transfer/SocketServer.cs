@@ -81,9 +81,9 @@ namespace Voice_of_Time_Server.Transfer
                     var messageBytes = Encoding.UTF8.GetBytes(answer);
                     var code = await handler.SendAsync(messageBytes, SocketFlags.None);
                 }
-            }catch(SocketException)
+            }catch(SocketException soex)
             {
-                Console.WriteLine(userEndPoint.Address.ToString() + ": User did not properly close the connection");
+                Console.WriteLine(userEndPoint.Address.ToString() + ": " + soex.Message);
             }
             catch(Exception ex)
             {
