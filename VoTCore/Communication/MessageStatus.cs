@@ -1,56 +1,56 @@
-﻿public abstract class MessageStatus
+﻿namespace VoTCore.Communication
 {
-
-    public bool status_sent { get; }
-
-    public bool status_received { get; }
-
-    public bool status_failed { get; }
-
-
-
-
-    var serverGotMessage = false;
-    var serverReceivedReceipt = false;
-
-    public void assignStatusSent
+    public class MessageStatus
     {
-        if (serverGotMessage = true)
+        private bool status_sent;
+        private bool status_received;
+        private bool status_failed;
+
+        bool serverGotMessage      = false;
+        bool serverReceivedReceipt = false;
+
+        public bool Status_sent     { get => status_sent; }
+        public bool Status_received { get => status_received; }
+        public bool Status_failed   { get => status_failed; }
+
+        public void AssignStatusSent()
         {
-            set { status_sent = true; }
+            if (serverGotMessage == true)
+            {
+                status_sent = true;
+            }
+            else
+            {
+                status_sent = false;
+                Console.WriteLine("Message couldn't be sent.");
+            }
 
-        }else
-{
-    set { status_sent = false; };
-    Console.WriteLine("Message couldn't be sent.");
-}
-                
-    }
+        }
 
-
-    public void assignStatusReceived
-{
-    if (serverReceivedReceipt = true)
+        public void AssignStatusReceived()
         {
-        set { status_received = true; }
+            if (serverReceivedReceipt == true)
+            {
+                status_received = true;
+            }
+            else
+            {
+                status_received = false;
+                Console.WriteLine("Message wasn't received.");
+            }
 
-    }else
-{
-        set { status_received = false; };
-        Console.WriteLine("Message wasn't received.");
+        }
+
+        public void AssignStatusFailed()
+        {
+            if (Status_sent == false && Status_received == false)
+            {
+                status_failed = true;
+                Console.WriteLine("Failed.");
+            }
+
+        }
+
     }
-
-}
-
-
-    public void assignStatusFailed
-{
-    if (status_sent == false && status_received == false){
-
-        set { status_failed = true; }
-        Console.WriteLine("Failed.");
-    }
-
-}
 
 }
