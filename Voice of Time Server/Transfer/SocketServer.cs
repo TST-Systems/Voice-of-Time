@@ -12,9 +12,9 @@ namespace Voice_of_Time_Server.Transfer
         private IPEndPoint IpEndPoint { get; set; }
         private Socket Listener { get; set; }
 
-        private Func<SocketMessage, string> Function { get; }
+        private Func<string, string> Function { get; }
 
-        public SocketServer(int port, Func<SocketMessage, string> func)
+        public SocketServer(int port, Func<string, string> func)
         {
             IpEndPoint = new(IPAddress.Any, port);
             Listener = new(IpEndPoint.AddressFamily,
@@ -71,7 +71,7 @@ namespace Voice_of_Time_Server.Transfer
                         IncomingMessage += response;
                     }
                     // PROCESS
-                    var answer = Function(new(handler, IncomingMessage));
+                    var answer = Function(IncomingMessage);
                     // SEND
                     answer += Constants.EOM;
                     var messageBytes = Encoding.UTF8.GetBytes(answer);
@@ -87,17 +87,6 @@ namespace Voice_of_Time_Server.Transfer
                 handler.Close();
             }
             return;
-        }
-    }
-
-    internal readonly struct SocketMessage
-    {
-        public readonly Socket? Socket;
-        public readonly string Message;
-        public SocketMessage(Socket? socket, string message)
-        {
-            Socket = socket;
-            Message = message;
         }
     }
 

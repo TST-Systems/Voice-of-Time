@@ -9,15 +9,12 @@ Console.ReadLine();
 
 
 
-string returnMessage(SocketMessage msg)
+string returnMessage(string msg)
 {
     var anserw = "";
-    var Socket  = msg.Socket;
-    var Message = msg.Message;
-    if (Socket is null) throw new Exception("No Socket!");
-    for (var i = Message.Length - 1; i >= 0; i--)
+    for (var i = msg.Length - 1; i >= 0; i--)
     {
-        anserw += Message[i];
+        anserw += msg[i];
     }
     return anserw;
 }
