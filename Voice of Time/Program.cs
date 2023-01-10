@@ -6,7 +6,7 @@ object synDone = new();
 int err = 0;
 object synErr = new();
 
-Random rmd = new();
+Random rnd = new();
 int proc = 0;
 
 
@@ -14,7 +14,16 @@ var clientSocket = new CSocketHold("84.144.245.119", 15050);
 
 List<List<bool>> WaitXTSuccess = new();
 
-await doStuff2("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+string rdmString = "";
+
+for(int i = 0; i < 6_000; i++)
+{
+    rdmString += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+}
+
+
+
+await doStuff2(rdmString);
 
 
 
