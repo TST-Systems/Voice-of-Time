@@ -7,7 +7,7 @@ using VoTCore.Communication;
 
 namespace Voice_of_Time_Server.Transfer
 {
-    public class SocketServer
+    internal class SocketServer
     {
         private IPEndPoint IpEndPoint { get; set; }
         private Socket Listener { get; set; }

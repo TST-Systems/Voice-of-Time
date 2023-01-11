@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Voice_of_Time.Transfer
 {
-    public class CSocketSingle
+    internal class CSocketSingle
     {
         private protected IPHostEntry IpHostInfo { get; set; }
         private protected IPAddress   IpAddress  { get; set; }

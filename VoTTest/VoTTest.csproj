@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Voice of Time Server\Voice of Time Server.csproj" />
     <ProjectReference Include="..\VoTCore\VoTCore.csproj" />
     <ProjectReference Include="..\Voice of Time\Voice of Time.csproj" />
   </ItemGroup>
