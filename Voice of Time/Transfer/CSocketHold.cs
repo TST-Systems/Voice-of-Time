@@ -173,6 +173,7 @@ namespace Voice_of_Time.Transfer
         /// <returns></returns>
         private async Task QueueHandler()
         {
+            
             while (!isCancelled)
             {
                 await itemInQueue.WaitAsync();
@@ -244,7 +245,7 @@ namespace Voice_of_Time.Transfer
             if (message is null) { return -1; }
             await QueueBlock.WaitAsync();
             var id = IDNew++;
-            Queue.Enqueue(new QueueItem(message, callBack, id));
+            Queue.Enqueue(new QueueItem(message, callBack, id++));
             itemInQueue.Release();
             QueueBlock.Release();
             return id;
