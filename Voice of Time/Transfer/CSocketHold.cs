@@ -5,7 +5,7 @@ using VoTCore.Communication;
 
 namespace Voice_of_Time.Transfer
 {
-    internal class CSocketHold : CSocketSingle, IDisposable
+    public class CSocketHold : CSocketSingle, IDisposable
     {
         private struct QueueItem
         {
@@ -83,7 +83,7 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         /// <param name="address">Ip addess / Domain of the server</param>
         /// <param name="port">Port of the server</param>
-        internal CSocketHold(string address, int port) : base(address, port)
+        public CSocketHold(string address, int port) : base(address, port)
         {
             Client = new(
             IpEndPoint.AddressFamily,
@@ -97,7 +97,7 @@ namespace Voice_of_Time.Transfer
             Dispose();
         }
 
-        internal async Task<bool> AutoStart()
+        public async Task<bool> AutoStart()
         {
             var con = Connect();
             StartHandler();
@@ -108,7 +108,7 @@ namespace Voice_of_Time.Transfer
         /// Connect with the Server
         /// </summary>
         /// <returns>Connection could be established</returns>
-        internal async Task<bool> Connect()
+        public async Task<bool> Connect()
         {
             currentState = ConnectionState.Connecting;
             try
@@ -132,7 +132,7 @@ namespace Voice_of_Time.Transfer
         /// Breaks up Connection with Server
         /// </summary>
         /// <returns></returns>
-        internal bool Disconect()
+        public bool Disconect()
         {
             try
             {
@@ -151,7 +151,7 @@ namespace Voice_of_Time.Transfer
         /// Breaks up Connection with Server
         /// </summary>
         /// <returns></returns>
-        internal async Task<bool> DisconectAsync()
+        public async Task<bool> DisconectAsync()
         {
             try
             {
@@ -239,7 +239,7 @@ namespace Voice_of_Time.Transfer
         /// <param name="message">Message as String (Must not be null)</param>
         /// <param name="callBack">Task to perform with the reply</param>
         /// <returns></returns>
-        internal async Task<long> EnqueueItem(string? message, Func<string?, Task> callBack)
+        public async Task<long> EnqueueItem(string? message, Func<string?, Task> callBack)
         {
             if (message is null) { return -1; }
             await QueueBlock.WaitAsync();
@@ -249,6 +249,22 @@ namespace Voice_of_Time.Transfer
             QueueBlock.Release();
             return id;
         }
+
+
+        public async Task<string?> EnqueueItem(string? message)
+        {
+            string? response = "";
+
+            SemaphoreSlim responseReady = new(0, 1);
+
+            _ = await EnqueueItem(message, (lResponse) => { response = lResponse; responseReady.Release(); return Task.CompletedTask; });
+
+            await responseReady.WaitAsync();
+
+            return response;
+        }
+
+
 
         public void Dispose()
         {

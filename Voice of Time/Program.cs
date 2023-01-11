@@ -16,9 +16,13 @@ var a = await clientSocket.AutoStart();
 Console.WriteLine(a);
 Console.WriteLine(clientSocket.CurrentState);
 
-var id1 = clientSocket.EnqueueItem("1 .rN", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
-var id2 = clientSocket.EnqueueItem("2 .rN", async (msg) => { await Task.Delay(1000); Console.WriteLine(msg); });
-var id3 = clientSocket.EnqueueItem("3 .rN", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
+//var id1 = clientSocket.EnqueueItem("1 .rN", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
+//var id2 = clientSocket.EnqueueItem("2 .rN", async (msg) => { await Task.Delay(1000); Console.WriteLine(msg); });
+//var id3 = clientSocket.EnqueueItem("3 .rN", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
+
+Console.ReadLine();
+
+Console.WriteLine(await clientSocket.EnqueueItem("4 .rN"));
 
 Console.ReadLine();
 
