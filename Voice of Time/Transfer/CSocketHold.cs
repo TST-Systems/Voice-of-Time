@@ -117,9 +117,6 @@ namespace Voice_of_Time.Transfer
             }
             catch(Exception ex) 
             {
-#if DEBUG
-                throw ex;
-#endif
                 Console.WriteLine(ex.ToString());
                 currentState = ConnectionState.Broken;
                 return false;
