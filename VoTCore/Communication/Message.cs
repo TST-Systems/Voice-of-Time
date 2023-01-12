@@ -38,7 +38,7 @@ namespace VoTCore.Communication
             this.MessageString  = messageString;
             this.AuthorID       = authorID;
             this.DateOfCreation = dateOfCreation;
-            protected Status = new();
+            Status = new();
         }
 
         public override bool Equals(object? obj)
