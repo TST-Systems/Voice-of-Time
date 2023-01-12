@@ -250,6 +250,24 @@ namespace Voice_of_Time.Transfer
             return id;
         }
 
+        /// <summary>
+        /// Add a message to the Queue. This way you recive the message instead of an complety async Task
+        /// </summary>
+        /// <param name="message">Message as String (Must not be null)</param>
+        /// <returns>Response from server</returns>
+        public async Task<string?> EnqueueItem(string? message)
+        {
+            string? response = "";
+
+            SemaphoreSlim responseReady = new(0, 1);
+
+            _ = await EnqueueItem(message, (lResponse) => { response = lResponse; responseReady.Release(); return Task.CompletedTask; });
+
+            await responseReady.WaitAsync();
+
+            return response;
+        }
+
         public void Dispose()
         {
             StopHandler();
