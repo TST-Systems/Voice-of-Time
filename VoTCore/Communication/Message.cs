@@ -23,12 +23,15 @@
         /// </summary>
         public long   DateOfCreation { get; }
         
+        public MessageStatus Status{ get; }
+
         protected Message(short typeOfMessage, string messageString, long authorID, long dateOfCreation)
         {
             this.TypeOfMessage  = typeOfMessage;
             this.MessageString  = messageString;
             this.AuthorID       = authorID;
             this.DateOfCreation = dateOfCreation;
+            Status = new();
         }
 
         public override bool Equals(object? obj)
@@ -43,6 +46,11 @@
             if (this.DateOfCreation != their.DateOfCreation) return false;
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
         }
     }
 }

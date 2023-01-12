@@ -18,5 +18,10 @@ namespace VoTCore.Communication
         {
             return base.Equals(obj);
         }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
