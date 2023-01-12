@@ -30,12 +30,15 @@ namespace VoTCore.Communication
         /// </summary>
         public long   DateOfCreation { get; }
         
+        public MessageStatus Status{ get; }
+
         protected Message(short typeOfMessage, string messageString, long authorID, long dateOfCreation)
         {
             this.TypeOfMessage  = typeOfMessage;
             this.MessageString  = messageString;
             this.AuthorID       = authorID;
             this.DateOfCreation = dateOfCreation;
+            protected Status = new();
         }
 
         public override bool Equals(object? obj)
