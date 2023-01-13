@@ -1,5 +1,6 @@
 ﻿using VoTCore.Communication;
 using VoTCore.Package.Header;
+using VoTCore.Package.SData;
 
 namespace VoTCore
 {
@@ -15,6 +16,7 @@ namespace VoTCore
         {
             { BodyType.TEXT_MESSAGE, typeof(TextMessage) },
             { BodyType.FILE_MESSAGE, typeof(FileMessage) },
+            { BodyType.INT_SDATA,    typeof(SData_Int) },
         };
 
         // Transmission buffer size

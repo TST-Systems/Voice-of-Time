@@ -3,6 +3,7 @@ using VoTCore;
 using VoTCore.Communication;
 using VoTCore.Package;
 using VoTCore.Package.Header;
+using VoTCore.Package.SData;
 
 namespace VoTTest.Core
 {
@@ -253,6 +254,21 @@ namespace VoTTest.Core
             Assert.False(package2_2.Equals(null));
             Assert.False(packageNoBody1.Equals(null));
             Assert.False(packageNoBody2.Equals(null));
+        }
+
+        [Fact]
+        public void SData_Test()
+        {
+            var body = new SData_Int(rnd.Next());
+            var head = new VoTCore.Package.Header.HeaderStd(1, 0, 0, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(body, deserialized.Data);
+            Assert.Equal(head, deserialized.Header);
         }
 
     }
