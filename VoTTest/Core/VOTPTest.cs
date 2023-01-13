@@ -14,7 +14,7 @@ namespace VoTTest.Core
         public void Constructo_Test()
         {
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             var packageEmptyBody = new VOTP(header, default);
@@ -32,7 +32,7 @@ namespace VoTTest.Core
         {
             /// GENERATE PACKAGE
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             ///
@@ -101,13 +101,14 @@ namespace VoTTest.Core
         {
             /// GENERATE PACKAGE
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             ///
 
             /// Execute function
             var serialized = package.Serialize();
+            Console.WriteLine(serialized);
             var deserialized = new VOTP(serialized);
             ///
 
@@ -157,12 +158,12 @@ namespace VoTTest.Core
                 header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             }
 
-            var body1 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
-            var body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body1 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             while (body1.Equals(body2))
             {
-                body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+                body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
             }
 
             var package1_1 = new VOTP(header1, body1);

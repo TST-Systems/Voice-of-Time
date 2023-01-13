@@ -69,7 +69,7 @@ async Task send(int v, string message)
 {
     if (socket is null) return;
     Console.WriteLine($"{message} -> {v}");
-    VOTP package = new(new HeaderStd(-1, v, 0, 0), new TextMessage(0, message, -1, DateTime.Now.Ticks));
+    VOTP package = new(new HeaderStd(-1, v, 0, 0), new TextMessage(message, -1, DateTime.Now.Ticks));
     var serial = package.Serialize();
     Console.WriteLine(await socket.EnqueueItem(serial));
 }

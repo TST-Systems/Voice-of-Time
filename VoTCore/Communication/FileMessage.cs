@@ -10,13 +10,13 @@ namespace VoTCore.Communication
 
         public FileStream? File { get; }
 
-        public FileMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation, FileStream file) 
-            : base(typeOfMessage, messageString, authorID, dateOfCreation)
+        const MessageType TYPE = MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE;
+
+        public FileMessage(string messageString, long authorID, long dateOfCreation, FileStream file) 
+            : base(messageString, authorID, dateOfCreation, TYPE)
         {
             this.File = file;
         }
-        
-        public MessageType Type => MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE;
 
         public override bool Equals(object? obj)
         {
