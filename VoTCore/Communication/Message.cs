@@ -12,7 +12,7 @@ namespace VoTCore.Communication
         /// Used for de-/serialasation
         /// </summary>
         [JsonIgnore]
-        public MessageType Type { get; }
+        public BodyType Type { get; }
         /// <summary>
         /// Text part of Message
         /// Always present even if message is an image
@@ -27,7 +27,7 @@ namespace VoTCore.Communication
         /// </summary>
         public long   DateOfCreation { get; }
         
-        protected Message(string messageString, long authorID, long dateOfCreation, MessageType type)
+        protected Message(string messageString, long authorID, long dateOfCreation, BodyType type)
         {
             this.MessageString  = messageString;
             this.AuthorID       = authorID;

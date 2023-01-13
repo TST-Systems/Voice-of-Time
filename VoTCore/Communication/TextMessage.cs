@@ -7,7 +7,7 @@ namespace VoTCore.Communication
     /// </summary>
     public class TextMessage : Message, IVOTPBody
     {
-        const MessageType TYPE = MessageType.TEXT_MESSAGE;
+        const BodyType TYPE = BodyType.TEXT_MESSAGE;
 
         public TextMessage(string messageString, long authorID, long dateOfCreation) 
             : base(messageString, authorID, dateOfCreation, TYPE)

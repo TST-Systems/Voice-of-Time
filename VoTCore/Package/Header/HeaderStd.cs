@@ -6,32 +6,32 @@ namespace VoTCore.Package.Header
     {
         public HeaderStd(long senderID, long receiverID, byte messageType, byte encrypionType)
         {
-            SenderID = senderID;
-            ReceiverID = receiverID;
-            MessageType = messageType;
+            SenderID      = senderID;
+            ReceiverID    = receiverID;
+            MessageType   = messageType;
             EncrypionType = encrypionType;
         }
 
-        public short Version { get; } = 1;
+        public short Version      { get; } = 1;
 
-        public long SenderID { get; }
+        public long SenderID      { get; }
 
-        public long ReceiverID { get; }
+        public long ReceiverID    { get; }
 
-        public byte MessageType { get; }
+        public byte MessageType   { get; }
 
         public byte EncrypionType { get; }
 
         public override bool Equals(object? obj)
         {
-            if (obj == null) return false;
+            if (obj is null)                          return false;
 
-            if (obj is not HeaderStd their) return false;
+            if (obj is not HeaderStd their)           return false;
 
-            if (Version != their.Version) return false;
-            if (ReceiverID != their.ReceiverID) return false;
-            if (SenderID != their.SenderID) return false;
-            if (MessageType != their.MessageType) return false;
+            if (Version       != their.Version)       return false;
+            if (ReceiverID    != their.ReceiverID)    return false;
+            if (SenderID      != their.SenderID)      return false;
+            if (MessageType   != their.MessageType)   return false;
             if (EncrypionType != their.EncrypionType) return false;
 
             return true;

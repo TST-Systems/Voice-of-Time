@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using VoTCore;
 using VoTCore.Communication;
 using VoTCore.Package;
 using VoTCore.Package.Header;
@@ -87,8 +88,8 @@ namespace VoTTest.Core
             // Is the Preheader ok?
             var info = JsonSerializer.Deserialize<VOTPInfo?>(split[0]);
             Assert.NotNull(info);
-            Assert.Equal(default,        info.Type);
-            Assert.Equal(header.Version, info.Version);
+            Assert.Equal(BodyType.NONE, info.Type);
+            Assert.Equal(header.Version,   info.Version);
 
             // Is the Heaer ok?
             var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);

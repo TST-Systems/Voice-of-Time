@@ -5,6 +5,6 @@
         /// <summary>
         /// Type(s) of Message
         /// </summary>
-        MessageType Type { get; }
+        BodyType Type { get; }
     }
 }

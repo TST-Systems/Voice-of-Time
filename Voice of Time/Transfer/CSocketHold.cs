@@ -6,28 +6,21 @@ namespace Voice_of_Time.Transfer
 {
     internal class CSocketHold : CSocketSingle, IDisposable
     {
-        private struct QueueItem
-        {
+        private record QueueItem
+        (
             /// <summary>
             /// Message to send
             /// </summary>
-            public string Message { get; set; }
+            string Message,
             /// <summary>
             /// Function to call with when task is done 
             /// </summary>
-            public Func<string?, Task> CallBack { get; set; }
+            Func<string?, Task> CallBack,
             /// <summary>
             /// ID to track task
             /// </summary>
-            public long ID { get; } 
-
-            public QueueItem(string message, Func<string?, Task> callBack, long iD)
-            {
-                Message  = message;
-                CallBack = callBack;
-                ID       = iD;
-            }
-        }
+            long ID 
+        );
         /// <summary>
         /// Client Server Connection
         /// </summary>
@@ -177,6 +170,8 @@ namespace Voice_of_Time.Transfer
                 {
                     if (isCancelled) return;
                     var nextQueueItem = Queue.Dequeue();
+
+                    IDCurrent = nextQueueItem.ID;
 
                     var messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message + Constants.EOM);
                     var code = await Client.SendAsync(messageBytes, SocketFlags.None);
