@@ -2,29 +2,29 @@
 {
     public class MessageStatus
     {
-        private bool status_sent;
-        private bool status_received;
-        private bool status_failed;
+        private bool statusSent;
+        private bool statusReceived;
+        private bool statusFailed;
 
-
+        //debug variables
         bool serverGotMessage = false;
         bool serverReceivedReceipt = false;
 
-        public bool Status_sent { get => status_sent; }
-        public bool Status_received { get => status_received; }
-        public bool Status_failed { get => status_failed; }
+        public bool StatusSent { get => statusSent; }
+        public bool StatusReceived { get => statusReceived; }
+        public bool StatusFailed { get => statusFailed; }
 
 
-        //Staus wird der Nachricht vom Server zugewiesen
+        //Status is assigned to the message by the server
         public void AssignStatusSent()
         {
             if (serverGotMessage == true)
             {
-                status_sent = true;
+                statusSent = true;
             }
             else
             {
-                status_sent = false;
+                statusSent = false;
                 Console.WriteLine("Message couldn't be sent.");
             }
 
@@ -35,12 +35,12 @@
         {
             if (serverReceivedReceipt == true)
             {
-                status_received = true;
+                statusReceived = true;
 
             }
             else
             {
-                status_received = false;
+                statusReceived = false;
                 Console.WriteLine("Message wasn't received.");
             }
 
@@ -49,10 +49,10 @@
 
         public void AssignStatusFailed()
         {
-            if (status_sent == false && status_received == false)
+            if (statusSent == false && statusReceived == false)
             {
 
-                status_failed = true;
+                statusFailed = true;
                 Console.WriteLine("Failed.");
             }
 

@@ -23,8 +23,7 @@ namespace VoTCore
         NONE            = 0,
         TEXT_MESSAGE    = 1 << 0,
         MEDIA_MESSAGE   = 1 << 1,
-        CONTROL_MESSAGE = 1 << 2,
-        KEY_MESSAGE     = 1 << 3,
+
     }
 
     public enum MessageStatus
