@@ -1,4 +1,4 @@
-﻿namespace VoTCore.Package
+﻿namespace VoTCore.Package.Interfaces
 {
     public interface IVOTPHeader
     {

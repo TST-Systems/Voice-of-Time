@@ -1,10 +1,11 @@
-﻿using JsonSerializer = System.Text.Json.JsonSerializer;
+﻿using VoTCore.Package.Interfaces;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace VoTCore.Package
 {
     public class VOTP
     {
-        public VOTP(IVOTPHeader header, IVOTPBody? data)
+        public VOTP(IVOTPHeader header, IVOTPBody? data = null)
         {
             this.Header = header;
             this.Data = data;

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using VoTCore.Communication;
 using VoTCore.Package;
+using VoTCore.Package.Header;
 
 namespace VoTTest.Core
 {
@@ -12,7 +13,7 @@ namespace VoTTest.Core
         [Fact]
         public void Constructo_Test()
         {
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
@@ -30,7 +31,7 @@ namespace VoTTest.Core
         public void Serialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
@@ -52,7 +53,7 @@ namespace VoTTest.Core
             Assert.Equal(header.Version, info.Version);
 
             // Is the Heaer ok?
-            var json_Header = JsonSerializer.Deserialize<VOTPHeaderV1>(split[1]);
+            var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
             Assert.NotNull(json_Header);
             Assert.Equal(json_Header, header);
 
@@ -69,7 +70,7 @@ namespace VoTTest.Core
         public void Serialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -90,7 +91,7 @@ namespace VoTTest.Core
             Assert.Equal(header.Version, info.Version);
 
             // Is the Heaer ok?
-            var json_Header = JsonSerializer.Deserialize<VOTPHeaderV1>(split[1]);
+            var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
             Assert.NotNull(json_Header);
             Assert.Equal(json_Header, header);
         }
@@ -99,7 +100,7 @@ namespace VoTTest.Core
         public void Deserialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
@@ -124,7 +125,7 @@ namespace VoTTest.Core
         public void Deserialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -148,12 +149,12 @@ namespace VoTTest.Core
         public void Equal_Test()
         {
             /// GENERATE PACKAGE
-            var header1 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header1 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             while (header1.Equals(header2))
             {
-                header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+                header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             }
 
             var body1 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());

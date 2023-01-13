@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using VoTCore;
-using VoTCore.Communication;
 
 namespace Voice_of_Time_Server.Transfer
 {

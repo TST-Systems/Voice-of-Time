@@ -1,4 +1,4 @@
-﻿using VoTCore.Package;
+﻿using VoTCore.Package.Interfaces;
 
 namespace VoTCore.Communication
 {

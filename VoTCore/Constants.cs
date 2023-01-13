@@ -1,5 +1,5 @@
 ﻿using VoTCore.Communication;
-using VoTCore.Package;
+using VoTCore.Package.Header;
 
 namespace VoTCore
 {
@@ -7,7 +7,7 @@ namespace VoTCore
     {
         public readonly static Dictionary<Int16, Type> HeaderTypes = new()
         {
-            { 1, typeof(VOTPHeaderV1) },
+            { 1, typeof(HeaderStd) },
         };
 
         public readonly static Dictionary<MessageType, Type> BodyTypes   = new()

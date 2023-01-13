@@ -1,7 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Data;
 using System.Text;
-using VoTCore.Communication;
 
 namespace Voice_of_Time.Transfer
 {
