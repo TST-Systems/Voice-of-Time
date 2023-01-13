@@ -63,7 +63,7 @@ namespace VoTCore
         // Reserved
         // 0xe1 - 0xfe
 
-        NONE = 0xff
+        NONE = 0xff,
 
         // User space
         // 0x01_01 - 0xff_ff
@@ -72,5 +72,7 @@ namespace VoTCore
     public enum RequestType
     {
         IDENTITY,
+        KEY,
+        REGISTRATION,
     }
 }

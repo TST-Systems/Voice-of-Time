@@ -36,18 +36,25 @@ async Task processCommand(string? str)
             showHelp();
             break;
         case "connect":
+        case "c":
             if (commandSplit.Length > 1)
             {
                 await connect(commandSplit[1], commandSplit.Length > 2 ? Int32.Parse(commandSplit[2]) : 15050);
             }
             break;
         case "disconnect":
+        case "d":
             disconnect();
             break;
         case "send":
             if (commandSplit.Length < 3) break;
             string message = TrimMessage(commandSplit);
             await send(int.Parse(commandSplit[1]), message);
+            break;
+        case "exit":
+        case "quit":
+            if (socket is not null) disconnect();
+            Environment.Exit(0);
             break;
     }
 }
@@ -115,6 +122,12 @@ async Task connect(string host, int port = 15050)
 Guid requestServerID()
 {
 
-
+    try
+    {
+        throw new NotImplementedException();
+    }catch(Exception ex)
+    {
+        Console.WriteLine(ex.ToString());
+    }
     return Guid.NewGuid();
 }
