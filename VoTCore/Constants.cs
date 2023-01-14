@@ -10,7 +10,7 @@ namespace VoTCore
             { 1, typeof(VOTPHeaderV1) },
         };
 
-        public readonly static Dictionary<MessageType, Type> BodyTypes   = new()
+        public readonly static Dictionary<MessageType, Type> BodyTypes = new()
         {
             { MessageType.TEXT_MESSAGE,                             typeof(TextMessage) },
             { MessageType.TEXT_MESSAGE | MessageType.MEDIA_MESSAGE, typeof(FileMessage) },
@@ -20,19 +20,10 @@ namespace VoTCore
 
     public enum MessageType
     {
-        NONE            = 0,
-        TEXT_MESSAGE    = 1 << 0,
-        MEDIA_MESSAGE   = 1 << 1,
+        NONE = 0,
+        TEXT_MESSAGE = 1 << 0,
+        MEDIA_MESSAGE = 1 << 1,
 
-    }
-
-    public enum MessageStatus
-    {
-        SENT,
-        RECEIVED,
-        //OPENED,
-        FAIL,
-    
     }
 
 
