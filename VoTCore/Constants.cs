@@ -20,9 +20,11 @@ namespace VoTCore
         public const int BUFFER_SIZE_BYTE = 1024;
 
         // Transmission symbols
-        public const char EOM = (char) 3; // ASCI: ETX
-        public const char FIN = (char) 4; // ASCI: EOT
-        public const char ACK = (char) 6; // ASCI: ACK
+        public const char EOM = (char) 3;   // ASCI: ETX
+        public const char FIN = (char) 4;   // ASCI: EOT
+        public const char ACK = (char) 6;   // ASCI: ACK
+        public const char SOM = (char) 7;   // ASCI: ??
+                    //spezifishce Zahl?
 
     }
 

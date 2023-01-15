@@ -182,17 +182,32 @@ namespace Voice_of_Time.Transfer
                     if (isCancelled) return;
                     var nextQueueItem = Queue.Dequeue();
 
-                    var messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message + Constants.EOM);
+                    var messageBytes = Encoding.UTF8.GetBytes(Constants.SOM + nextQueueItem.Message + Constants.EOM);
                     var code = await Client.SendAsync(messageBytes, SocketFlags.None);
 
                     bool messageComplete = false;
                     string IncomingMessage = "";
+
+
+                    //-----------------------------------------------------------------------------
+
+                    //string IncomingMessage = ""; // <- + Erster Teil der Respnse
+
+                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+                    var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+                    var indexOfSOM = response.IndexOf(Constants.SOM);
+
+
+                    if (indexOfSOM > -1)
+                    {
+                        response = response.Remove(indexOfSOM);
+                    }//(Wenn SOM nicht vorhanden: Kommunikation abbrechen)
+
+
                     while (!messageComplete)
                     {
-                        var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                        var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
-                        var response = Encoding.UTF8.GetString(buffer, 0, received);
-
                         var indexOfEOM = response.IndexOf(Constants.EOM);
                         if (indexOfEOM > -1)
                         {
