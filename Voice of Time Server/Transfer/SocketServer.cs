@@ -68,7 +68,7 @@ namespace Voice_of_Time_Server.Transfer
                         handler.Close(); // + Fehler werfen
                         return;
                     }
-                    responseSOM = responseSOM.Remove(indexOfSOM);
+                    responseSOM = responseSOM.Remove(indexOfSOM, 1);
 
 
                     var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
@@ -101,8 +101,7 @@ namespace Voice_of_Time_Server.Transfer
                     // PROCESS
                     var answer = Function(IncomingMessage);
                     // SEND
-                    answer += Constants.EOM;
-                    var messageBytes = Encoding.UTF8.GetBytes(answer);
+                    var messageBytes = Encoding.UTF8.GetBytes(Constants.SOM + answer + Constants.EOM);
                     var code = await handler.SendAsync(messageBytes, SocketFlags.None);
                 }
             }catch(SocketException soex)
