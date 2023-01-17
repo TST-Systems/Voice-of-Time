@@ -1,7 +1,6 @@
-﻿using System.Net.Sockets;
-using System.Data;
+﻿using System.Data;
+using System.Net.Sockets;
 using System.Text;
-using VoTCore.Communication;
 
 namespace Voice_of_Time.Transfer
 {
@@ -20,13 +19,13 @@ namespace Voice_of_Time.Transfer
             /// <summary>
             /// ID to track task
             /// </summary>
-            public long ID { get; } 
+            public long ID { get; }
 
             public QueueItem(string message, Func<string?, Task> callBack, long iD)
             {
-                Message  = message;
+                Message = message;
                 CallBack = callBack;
-                ID       = iD;
+                ID = iD;
             }
         }
         /// <summary>
@@ -41,7 +40,7 @@ namespace Voice_of_Time.Transfer
         /// <summary>
         /// Blockade to stop multiple read and write operations on the queue
         /// </summary>
-        private readonly SemaphoreSlim QueueBlock  = new(1, 1);
+        private readonly SemaphoreSlim QueueBlock = new(1, 1);
         /// <summary>
         /// Blockade for handling if ther is a new item in queue
         /// </summary>
@@ -66,7 +65,7 @@ namespace Voice_of_Time.Transfer
         /// <summary>
         /// Shows if the handler is currently running
         /// </summary>
-        public bool IsRunning { get => handler != null;  }
+        public bool IsRunning { get => handler != null; }
 
         /// <summary>
         /// Current status of Client-Server connection
@@ -115,7 +114,7 @@ namespace Voice_of_Time.Transfer
             {
                 await Client.ConnectAsync(IpEndPoint);
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
 #if DEBUG
                 throw ex;
@@ -177,7 +176,7 @@ namespace Voice_of_Time.Transfer
             {
                 await itemInQueue.WaitAsync();
                 if (isCancelled) return;
-                while(Queue.Count > 0)
+                while (Queue.Count > 0)
                 {
                     if (isCancelled) return;
                     var nextQueueItem = Queue.Dequeue();
@@ -191,24 +190,37 @@ namespace Voice_of_Time.Transfer
 
                     //-----------------------------------------------------------------------------
 
-                    //string IncomingMessage = ""; // <- + Erster Teil der Respnse
-
-                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                    var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
-                    var response = Encoding.UTF8.GetString(buffer, 0, received);
-
-                    var indexOfSOM = response.IndexOf(Constants.SOM);
+                    var bufferSOM = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var receivedSOM = await Client.ReceiveAsync(bufferSOM, SocketFlags.None);
+                    var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
 
 
-                    if (indexOfSOM > -1)
+                    var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
+                    if (indexOfSOM < 0)
                     {
-                        response = response.Remove(indexOfSOM);
-                    }//(Wenn SOM nicht vorhanden: Kommunikation abbrechen)
+                        Client.Close(); // + Fehler werfen
+                        return;
+                    }
+                    else { responseSOM = responseSOM.Remove(indexOfSOM); }
+
+
+                    var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
+                    if (indexOfEOM > -1)
+                    {
+                        messageComplete = true;
+                        responseSOM = responseSOM.Remove(indexOfEOM);
+                    }
+                    IncomingMessage += responseSOM;
+
 
 
                     while (!messageComplete)
                     {
-                        var indexOfEOM = response.IndexOf(Constants.EOM);
+                        var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                        var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+                        var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+                        indexOfEOM = response.IndexOf(Constants.EOM);
                         if (indexOfEOM > -1)
                         {
                             messageComplete = true;
@@ -217,6 +229,8 @@ namespace Voice_of_Time.Transfer
                         IncomingMessage += response;
                     }
                     _ = nextQueueItem.CallBack(IncomingMessage);
+
+
                 }
             }
         }
