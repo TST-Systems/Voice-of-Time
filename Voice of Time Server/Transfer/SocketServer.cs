@@ -47,6 +47,35 @@ namespace Voice_of_Time_Server.Transfer
                     bool messageComplete = false;
                     string IncomingMessage = "";
                     // RECIVE
+
+
+
+                    //-----------------------------------------------------------------------------
+
+                    var bufferSOM = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var receivedSOM = await handler.ReceiveAsync(bufferSOM, SocketFlags.None);
+                    var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
+
+
+                    var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
+                    if (indexOfSOM < 0)
+                    {
+                        handler.Close(); // + Fehler werfen
+                        return;
+                    }
+                    else { responseSOM = responseSOM.Remove(indexOfSOM); }
+
+
+                    var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
+                    if (indexOfEOM > -1)
+                    {
+                        messageComplete = true;
+                        responseSOM = responseSOM.Remove(indexOfEOM);
+                    }
+                    IncomingMessage += responseSOM;
+
+
+
                     while (!messageComplete)
                     {
                         var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
@@ -59,21 +88,17 @@ namespace Voice_of_Time_Server.Transfer
                             break;
                         }
 
-                        var indexOfEOM = response.IndexOf(Constants.EOM);
-
+                        indexOfEOM = response.IndexOf(Constants.EOM);
                         if (indexOfEOM > -1)
                         {
                             messageComplete = true;
                             response = response.Remove(indexOfEOM);
                         }
-                        /*
-                        else if (received < Constants.BUFFER_SIZE_BYTE)
-                        {
-                            throw new Exception("End of message was not resived!");
-                        }
-                        */
                         IncomingMessage += response;
                     }
+
+  
+                    
                     // PROCESS
                     var answer = Function(IncomingMessage);
                     // SEND
