@@ -56,7 +56,7 @@ namespace Voice_of_Time_Server.Transfer
                     var receivedSOM = await handler.ReceiveAsync(bufferSOM, SocketFlags.None);
                     var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
 
-                    if (response.Length == 1 && response.StartsWith(Constants.FIN))
+                    if (responseSOM.Length == 1 && responseSOM.StartsWith(Constants.FIN))
                     {
                         EndConnection = true;
                         break;
