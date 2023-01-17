@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using VoTCore;
-using VoTCore.Communication;
 
 namespace Voice_of_Time_Server.Transfer
 {
@@ -56,7 +54,8 @@ namespace Voice_of_Time_Server.Transfer
                         if (response.Length == 1 && response.StartsWith(Constants.FIN))
                         {
                             EndConnection = true;
-                            break;
+                            handler.Close();
+                            return;
                         }
 
                         var indexOfEOM = response.IndexOf(Constants.EOM);

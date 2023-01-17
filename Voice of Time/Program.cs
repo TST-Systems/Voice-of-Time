@@ -1,134 +1,133 @@
-﻿using Voice_of_Time.Transfer;
-/*
+﻿using Voice_of_Time;
+using Voice_of_Time.Transfer;
+using VoTCore.Communication;
+using VoTCore.Package;
+using VoTCore.Package.Header;
 
-int done = 0;
-object synDone = new();
-int err = 0;
-object synErr = new();
+Dictionary<Guid, Client> keyValuePairs= new();
 
-Random rnd = new();
-int proc = 0;
+CSocketHold? socket = null;
 
-*/
-var clientSocket = new CSocketHold("84.144.245.119", 15050);
-
-var a = await clientSocket.AutoStart();
-Console.WriteLine(a);
-Console.WriteLine(clientSocket.CurrentState);
-
-var id1 = clientSocket.EnqueueItem("1 .rN", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
-var id2 = clientSocket.EnqueueItem("2 .rN", async (msg) => { await Task.Delay(1000); Console.WriteLine(msg); });
-var id3 = clientSocket.EnqueueItem("3 .rN", (msg) => { Console.WriteLine(msg); return Task.CompletedTask; });
-
-Console.ReadLine();
-
-clientSocket.Dispose();
-
-
-
-//List<List<bool>> WaitXTSuccess = new();
-
-/*
-
-string rdmString = "";
-
-for(int i = 0; i < 6_000; i++)
+while (true)
 {
-    rdmString += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-}
-
-
-
-await doStuff2(rdmString);
-
-
-*/
-
-
-/*
-for(int j = 10; j > 0; j--)
-{
-    var list = new List<bool>();
-    WaitXTSuccess.Add(list); 
-    Console.WriteLine("*********************************");
-    Console.WriteLine("Delay = " + (10 * j));
-    for (int i = 0; i < 250; i++)
-    {
-        _ = doStuff(i, list);
-        await Task.Delay(10 * j);
-    }
-}
-*/
-/*
-for(long waitTick = 500_000; waitTick >= 0; waitTick -= 50_000)
-{
-    Console.WriteLine("Ticktime: " + waitTick);
-    Task action = Task.CompletedTask;
-    var IT = 0;
-    for (int i = 0; i < 1000; i++)
-    {
-        IT = (proc + 1 - done - err);
-        action = doStuff2(i);
-        proc = i;
-        await Task.Delay(new TimeSpan((long)waitTick));
-        print();
-    }
-    await action;
-    print();
-    done = 0;
-    err = 0;
+    Console.Write(" > ");
+    var input = Console.ReadLine();
     Console.WriteLine();
-    Console.WriteLine("IT: " + IT);
+    await processCommand(input);
+    Console.WriteLine();
 }
-*/
 
-/*
-Func<Task> loopPrint = async () => {
-    while (true)
-    {
-        print();
-        await Task.Delay(1000/144);
-    }
-};
-
-_ = loopPrint();
-*/
-/*
-async Task doStuff(int i, List<bool> list)
+async Task processCommand(string? str)
 {
-    list.Add(false);
+    if (str is null or "")
+    {
+        Console.WriteLine("Command List: > help");
+        return;
+    }
+
+    var commandSplit = str.Split(' ');
+    commandSplit = commandSplit.Where(x => x != "").ToArray();
+
+    var command = commandSplit[0];
+
+    switch (command.ToLower())
+    {
+        case "help":
+            showHelp();
+            break;
+        case "connect":
+        case "c":
+            if (commandSplit.Length > 1)
+            {
+                await connect(commandSplit[1], commandSplit.Length > 2 ? Int32.Parse(commandSplit[2]) : 15050);
+            }
+            break;
+        case "disconnect":
+        case "d":
+            disconnect();
+            break;
+        case "send":
+            if (commandSplit.Length < 3) break;
+            string message = TrimMessage(commandSplit);
+            await send(int.Parse(commandSplit[1]), message);
+            break;
+        case "exit":
+        case "quit":
+            if (socket is not null) disconnect();
+            Environment.Exit(0);
+            break;
+    }
+}
+
+string TrimMessage(string?[] s)
+{
+    if (s.Length < 2) return "";
+    string solution = "";
+    for(int i = 2; i < s.Length; i++)
+    {
+        solution += s[i] + " ";
+    }
+    solution = solution.Remove(solution.Length - 1);
+    return solution;
+}
+
+
+async Task send(int v, string message)
+{
+    if (socket is null) return;
+    Console.WriteLine($"{message} -> {v}");
+    VOTP package = new(new HeaderStd(-1, v, 0, 0), new TextMessage(message, -1, DateTime.Now.Ticks));
+    var serial = package.Serialize();
+    Console.WriteLine(await socket.EnqueueItem(serial));
+}
+
+void disconnect()
+{
+    if (socket is null)
+    {
+        Console.WriteLine("Connection coudn't be closed! No connection active!");
+        return;
+    }
+    var succsess = socket.Disconect();
+    if (succsess)
+    {
+        Console.WriteLine("Successfully disconnected!");
+    }
+    else
+    {
+        Console.WriteLine("Error!");
+    }
+    socket.Dispose();
+    socket = null;
+}
+
+void showHelp()
+{
+    Console.WriteLine("*************** List of all commands ***************");
+    Console.WriteLine("connect [ip] {[port]} - connect to a server         ");
+    Console.WriteLine("disconnect            - disconnect from the server  ");
+    Console.WriteLine("send [to] [message]   - send a message to a target  ");
+}
+
+async Task connect(string host, int port = 15050)
+{
+    if (socket is not null) {Console.WriteLine("Connection already open! Reconnection..."); disconnect(); }
+    socket = new(host, port);
+    Console.WriteLine("Trying to connect to: " + $"{host}:{port}");
+    var success = await socket.AutoStart();
+    Console.WriteLine($"Connection was established: {success}");
+    Guid serverID = requestServerID();
+}
+
+Guid requestServerID()
+{
+
     try
     {
-        var echo = await clientSocket.StreamAsync(i.ToString());
-        Console.WriteLine(echo + " - Done!");
-        list[i] = true;
-    }
-    catch (Exception ex) { Console.WriteLine(i + ": " + ex.Message); };
-}*/
-/*
-void print()
-{
-    Console.Write("\rC: " + (proc + 1) + " | D: " + done + " | F: " + err + " | IT: " + (proc + 1 - done - err) + "");
-}
-
-async Task doStuff2(string i)
-{
-    try
+        throw new NotImplementedException();
+    }catch(Exception ex)
     {
-        var echo = clientSocket.StreamAsync(i);
-        lock (synDone)
-        {
-            done++;
-        }
-        Console.WriteLine(echo.Result);
+        Console.WriteLine(ex.ToString());
     }
-    catch (Exception)
-    {
-        lock (synErr)
-        {
-            err++;
-        }
-    };
+    return Guid.NewGuid();
 }
-*/
-Console.ReadLine();
