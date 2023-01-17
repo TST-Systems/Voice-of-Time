@@ -32,5 +32,10 @@ namespace VoTCore.Communication
 
             return true;
         }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
