@@ -56,6 +56,11 @@ namespace Voice_of_Time_Server.Transfer
                     var receivedSOM = await handler.ReceiveAsync(bufferSOM, SocketFlags.None);
                     var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
 
+                    if (response.Length == 1 && response.StartsWith(Constants.FIN))
+                    {
+                        EndConnection = true;
+                        break;
+                    }
 
                     var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
                     if (indexOfSOM < 0)
@@ -63,7 +68,7 @@ namespace Voice_of_Time_Server.Transfer
                         handler.Close(); // + Fehler werfen
                         return;
                     }
-                    else { responseSOM = responseSOM.Remove(indexOfSOM); }
+                    responseSOM = responseSOM.Remove(indexOfSOM);
 
 
                     var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
@@ -81,12 +86,6 @@ namespace Voice_of_Time_Server.Transfer
                         var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
                         var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
-
-                        if (response.Length == 1 && response.StartsWith(Constants.FIN))
-                        {
-                            EndConnection = true;
-                            break;
-                        }
 
                         indexOfEOM = response.IndexOf(Constants.EOM);
                         if (indexOfEOM > -1)
