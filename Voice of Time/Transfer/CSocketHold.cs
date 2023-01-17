@@ -201,7 +201,7 @@ namespace Voice_of_Time.Transfer
                         Client.Close(); // + Fehler werfen
                         return;
                     }
-                    else { responseSOM = responseSOM.Remove(indexOfSOM); }
+                    responseSOM = responseSOM.Remove(indexOfSOM);
 
 
                     var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
