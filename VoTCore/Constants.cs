@@ -12,7 +12,7 @@ namespace VoTCore
             { 2, typeof(HeaderReq) },
         };
 
-        public readonly static Dictionary<BodyType, Type> BodyTypes   = new()
+        public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
             { BodyType.TEXT_MESSAGE, typeof(TextMessage) },
             { BodyType.FILE_MESSAGE, typeof(FileMessage) },
@@ -77,4 +77,6 @@ namespace VoTCore
         KEY,
         REGISTRATION,
     }
+
+
 }

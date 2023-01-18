@@ -27,12 +27,15 @@ namespace VoTCore.Communication
         /// </summary>
         public long   DateOfCreation { get; }
         
+        public MessageStatus Status{ get; }
+        
         protected Message(string messageString, long authorID, long dateOfCreation, BodyType type)
         {
             this.MessageString  = messageString;
             this.AuthorID       = authorID;
             this.DateOfCreation = dateOfCreation;
             this.Type           = type;
+            Status = new();
         }
 
         public override bool Equals(object? obj)
@@ -46,6 +49,11 @@ namespace VoTCore.Communication
             if (this.DateOfCreation != their.DateOfCreation) return false;
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
         }
     }
 }
