@@ -233,12 +233,12 @@ namespace Voice_of_Time.Transfer
 
                     var IncomingMessageInBytes = buffer[0..received];
 
-                    if (IncomingMessageInBytes[0..tokenSOM.Length] == tokenSOM) throw new Exception("Communication not valid!");
+                    if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenSOM.Length], tokenSOM)) throw new Exception("Communication not valid!");
                     IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
 
                     while (!messageComplete)
                     {
-                        if (IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length] == tokenEOM)
+                        if (Enumerable.SequenceEqual(IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length], tokenEOM))
                         {
                             messageComplete = true;
                             IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];

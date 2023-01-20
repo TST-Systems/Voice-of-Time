@@ -18,7 +18,7 @@ namespace Voice_of_Time_Server.Transfer
 
         private long UserID = -1;
         private bool SecureCommunicationEnabled = false;
-        private bool requestEncryption          = false;
+        private bool requestEncryption = false;
 
         private RSA? UserPubKey;
         private bool CommunicationVerified = false;
@@ -54,18 +54,20 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (received < Constants.FIN.Length) throw new Exception("Connection to slow!");
 
-                    if (IncomingMessageInBytes[0..tokenFIN.Length] == tokenFIN)
+                    if (Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenFIN.Length], tokenFIN))
                     {
                         EndConnection = true;
                         return;
                     }
 
-                    if (IncomingMessageInBytes[0..tokenSOM.Length] == tokenSOM) throw new Exception("Communication not valid!");
+                    if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenSOM.Length], tokenSOM)) throw new Exception("Communication not valid!");
                     IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
 
                     while (!messageComplete)
                     {
-                        if (IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length] == tokenEOM)
+                        if (Enumerable.SequenceEqual(
+                            IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length],
+                            tokenEOM))
                         {
                             messageComplete = true;
                             IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];
@@ -118,7 +120,7 @@ namespace Voice_of_Time_Server.Transfer
                     var code = await socket.SendAsync(bytesToSend, SocketFlags.None);
                     if (requestEncryption)
                     {
-                        requestEncryption          = false;
+                        requestEncryption = false;
                         SecureCommunicationEnabled = true;
                     }
                 }
@@ -215,7 +217,7 @@ namespace Voice_of_Time_Server.Transfer
                     if (!SecureCommunicationEnabled || UserPubKey is null)
                     {
                         sendHeader = new HeaderAck(false);
-                        sendBody   = new SData_String("You need to secure the communication first!");
+                        sendBody = new SData_String("You need to secure the communication first!");
                         break;
                     }
                     var uid = ServerInfo.server.AddUser(UserPubKey);
@@ -223,7 +225,7 @@ namespace Voice_of_Time_Server.Transfer
                     CommunicationVerified = true;
 
                     sendHeader = new HeaderAck(true);
-                    sendBody   = new SData_Long(uid);
+                    sendBody = new SData_Long(uid);
                     break;
                 case RequestType.SET_USERNAME:
                     if (!CommunicationVerified)
@@ -235,7 +237,7 @@ namespace Voice_of_Time_Server.Transfer
                     if (!ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
                     {
                         sendHeader = new HeaderAck(false);
-                        sendBody   = new SData_String("You are not known!");
+                        sendBody = new SData_String("You are not known!");
                         break;
                     }
 
@@ -245,7 +247,7 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String("No new username!");
                         break;
                     }
-                    if(strBody.Data is null)
+                    if (strBody.Data is null)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("No new username!");
