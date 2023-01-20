@@ -7,7 +7,6 @@ using VoTCore.Package;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
-
 //✔️❌
 
 Dictionary<Guid, Client> userRegister = new();
