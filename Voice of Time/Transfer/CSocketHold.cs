@@ -265,6 +265,27 @@ namespace Voice_of_Time.Transfer
                         }
                         IncomingMessage += response;
                     }
+
+
+                    if (secureCommunicationEnabled)
+                    {
+                        if (CommunicationKey is null) throw new ArgumentNullException();
+
+                        using var encryptor = CommunicationKey.CreateEncryptor();
+                        using MemoryStream memoryStream = new();
+                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Read);
+
+                        var IncomingMessageInBytes = Encoding.UTF8.GetBytes(IncomingMessage);
+
+                        cryptostream.Read(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
+                        IncomingMessageInBytes = memoryStream.ToArray();
+
+                        IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
+
+                        cryptostream.Close();
+                        memoryStream.Close();
+                    }
+
                     _ = nextQueueItem.CallBack(IncomingMessage);
 
 

@@ -8,6 +8,8 @@ using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
 
+//✔️❌
+
 Dictionary<Guid, Client> userRegister = new();
 
 CSocketHold? socket = null;
@@ -209,7 +211,7 @@ async Task OpenSecureCommunication(long userID = -1)
 
     if (!resHeader.Successful)                          throw new Exception("Server didn't responded correctly");
 
-    var key = resBody.getKey();
+    var key = resBody.GetKey();
 
     socket.SetCommunicationKey(key);
 }
