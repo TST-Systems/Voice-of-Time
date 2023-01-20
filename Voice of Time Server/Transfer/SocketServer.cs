@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using VoTCore;
-using VoTCore.Communication;
 
 namespace Voice_of_Time_Server.Transfer
 {
@@ -86,8 +84,16 @@ namespace Voice_of_Time_Server.Transfer
                         var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
                         var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
+                        
+                        if (response.Length == 1 && response.StartsWith(Constants.FIN))
+                        {
+                            EndConnection = true;
+                            handler.Close();
+                            return;
+                        }
 
-                        indexOfEOM = response.IndexOf(Constants.EOM);
+                        var indexOfEOM = response.IndexOf(Constants.EOM);
+
                         if (indexOfEOM > -1)
                         {
                             messageComplete = true;

@@ -9,11 +9,11 @@ namespace VoTCore.Package
             this.Version = package.Header.Version;
             if (package.Data != null)
                 this.Type = package.Data.Type;
-            else this.Type = MessageType.NONE;
+            else this.Type = BodyType.NONE;
         }
 
         [JsonConstructor]
-        public VOTPInfo(short Version, MessageType Type)
+        public VOTPInfo(short Version, BodyType Type)
         {
             this.Version = Version;
             this.Type    = Type;
@@ -21,6 +21,6 @@ namespace VoTCore.Package
 
         public short Version { get; }
 
-        public MessageType Type { get; }
+        public BodyType Type { get; }
     }
 }

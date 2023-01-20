@@ -1,6 +1,9 @@
 ﻿using System.Text.Json;
+using VoTCore;
 using VoTCore.Communication;
 using VoTCore.Package;
+using VoTCore.Package.Header;
+using VoTCore.Package.SData;
 
 namespace VoTTest.Core
 {
@@ -12,8 +15,8 @@ namespace VoTTest.Core
         [Fact]
         public void Constructo_Test()
         {
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             var packageEmptyBody = new VOTP(header, default);
@@ -30,8 +33,8 @@ namespace VoTTest.Core
         public void Serialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             ///
@@ -52,7 +55,7 @@ namespace VoTTest.Core
             Assert.Equal(header.Version, info.Version);
 
             // Is the Heaer ok?
-            var json_Header = JsonSerializer.Deserialize<VOTPHeaderV1>(split[1]);
+            var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
             Assert.NotNull(json_Header);
             Assert.Equal(json_Header, header);
 
@@ -69,7 +72,7 @@ namespace VoTTest.Core
         public void Serialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -86,11 +89,11 @@ namespace VoTTest.Core
             // Is the Preheader ok?
             var info = JsonSerializer.Deserialize<VOTPInfo?>(split[0]);
             Assert.NotNull(info);
-            Assert.Equal(default,        info.Type);
-            Assert.Equal(header.Version, info.Version);
+            Assert.Equal(BodyType.NONE, info.Type);
+            Assert.Equal(header.Version,   info.Version);
 
             // Is the Heaer ok?
-            var json_Header = JsonSerializer.Deserialize<VOTPHeaderV1>(split[1]);
+            var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
             Assert.NotNull(json_Header);
             Assert.Equal(json_Header, header);
         }
@@ -99,14 +102,15 @@ namespace VoTTest.Core
         public void Deserialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             ///
 
             /// Execute function
             var serialized = package.Serialize();
+            Console.WriteLine(serialized);
             var deserialized = new VOTP(serialized);
             ///
 
@@ -124,7 +128,7 @@ namespace VoTTest.Core
         public void Deserialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -148,20 +152,20 @@ namespace VoTTest.Core
         public void Equal_Test()
         {
             /// GENERATE PACKAGE
-            var header1 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header1 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             while (header1.Equals(header2))
             {
-                header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+                header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             }
 
-            var body1 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
-            var body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body1 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             while (body1.Equals(body2))
             {
-                body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+                body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
             }
 
             var package1_1 = new VOTP(header1, body1);
@@ -250,6 +254,21 @@ namespace VoTTest.Core
             Assert.False(package2_2.Equals(null));
             Assert.False(packageNoBody1.Equals(null));
             Assert.False(packageNoBody2.Equals(null));
+        }
+
+        [Fact]
+        public void SData_Test()
+        {
+            var body = new SData_Int(rnd.Next());
+            var head = new VoTCore.Package.Header.HeaderStd(1, 0, 0, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(body, deserialized.Data);
+            Assert.Equal(head, deserialized.Header);
         }
 
     }
