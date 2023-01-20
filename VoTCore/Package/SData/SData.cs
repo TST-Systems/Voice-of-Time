@@ -1,4 +1,5 @@
-﻿using VoTCore.Package.Interfaces;
+﻿using System.Text.Json.Serialization;
+using VoTCore.Package.Interfaces;
 
 namespace VoTCore.Package.SData
 {
@@ -6,6 +7,7 @@ namespace VoTCore.Package.SData
     {
         public T? Data { get; }
 
+        [JsonIgnore]
         public BodyType Type { get; }
 
         protected SData(T? data, BodyType type)

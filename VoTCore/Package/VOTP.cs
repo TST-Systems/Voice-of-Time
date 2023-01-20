@@ -5,10 +5,14 @@ namespace VoTCore.Package
 {
     public class VOTP
     {
+        public IVOTPHeader Header { get; }
+
+        public IVOTPBody? Body { get; }
+
         public VOTP(IVOTPHeader header, IVOTPBody? data = null)
         {
             this.Header = header;
-            this.Data = data;
+            this.Body = data;
         }
 
         /// <summary>
@@ -64,17 +68,13 @@ namespace VoTCore.Package
                 Type bodyType = _bodyType;
                 var _body = (IVOTPBody?)JsonSerializer.Deserialize(split[2], bodyType);
                 if (_body == null) throw new ArgumentException("Body can not be converted!");
-                Data = _body;
+                Body = _body;
             }
             catch(Exception ex)
             {
                 throw new ArgumentException("Body error:\n" + ex.Message);
             }
         }
-
-        public IVOTPHeader Header { get; }
-
-        public IVOTPBody? Data { get; }
 
         public string Serialize()
         {
@@ -84,10 +84,10 @@ namespace VoTCore.Package
             serialized += JsonSerializer.Serialize(packageInfo);
             serialized += (char)0;
             serialized += JsonSerializer.Serialize(Convert.ChangeType(Header, Header.GetType()));
-            if(Data != null)
+            if(Body != null)
             {
                 serialized += (char)0;
-                serialized += JsonSerializer.Serialize(Convert.ChangeType(Data, Data.GetType()));
+                serialized += JsonSerializer.Serialize(Convert.ChangeType(Body, Body.GetType()));
             }
             return serialized;
         }
@@ -99,10 +99,10 @@ namespace VoTCore.Package
             if (obj is not VOTP their) return false;
 
             if (!this.Header.Equals(their.Header)) return false;
-            if (this.Data == null) 
-                if (their.Data == null) return true; 
+            if (this.Body == null) 
+                if (their.Body == null) return true; 
                 else                    return false;
-            if (!this.Data.Equals(their.Data))     return false;
+            if (!this.Body.Equals(their.Body))     return false;
 
             return true;
         }

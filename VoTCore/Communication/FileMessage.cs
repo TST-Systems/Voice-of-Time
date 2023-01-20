@@ -10,7 +10,7 @@ namespace VoTCore.Communication
 
         public FileStream? File { get; }
 
-        const BodyType TYPE = BodyType.FILE_MESSAGE;
+        const BodyType TYPE = BodyType.MESSAGE_FILE;
 
         public FileMessage(string messageString, long authorID, long dateOfCreation, FileStream file) 
             : base(messageString, authorID, dateOfCreation, TYPE)

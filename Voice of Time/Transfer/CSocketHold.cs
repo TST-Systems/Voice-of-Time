@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Net.Sockets;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace Voice_of_Time.Transfer
 {
@@ -19,7 +20,7 @@ namespace Voice_of_Time.Transfer
             /// <summary>
             /// ID to track task
             /// </summary>
-            long ID 
+            long ID
         );
         
         /// <summary>
@@ -70,6 +71,12 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         public ConnectionState CurrentState { get => currentState; }
 
+        private Aes? CommunicationKey           = null;
+        private bool secureCommunicationEnabled = false;
+
+        public bool CommunicationKeyIsSet      { get => CommunicationKey != null; }
+        public bool SecureCommunicationEnabled { get => secureCommunicationEnabled; }
+
 
         /// <summary>
         /// A socket for client server communication with the ability to connect once, send endlessly
@@ -95,6 +102,24 @@ namespace Voice_of_Time.Transfer
             var con = Connect();
             StartHandler();
             return await con;
+        }
+
+        internal void SetCommunicationKey (Aes key, bool enable = true)
+        {
+            CommunicationKey           = key;
+            secureCommunicationEnabled = enable;
+        }
+
+        internal void RemoveCommunicationKey()
+        {
+            CommunicationKey           = null;
+            secureCommunicationEnabled = false;
+        }
+
+        internal void SwitchSecureCommunicationState(bool enable)
+        {
+            if (CommunicationKey is null) return;
+            secureCommunicationEnabled = enable;
         }
 
         /// <summary>
@@ -172,12 +197,30 @@ namespace Voice_of_Time.Transfer
                     if (isCancelled) return;
                     var nextQueueItem = Queue.Dequeue();
 
-                    var messageBytes = Encoding.UTF8.GetBytes(Constants.SOM + nextQueueItem.Message + Constants.EOM);
-                    
+                    byte[] messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message);
+                    byte[] tokenSOM     = Encoding.UTF8.GetBytes(Constants.SOM);
+                    byte[] tokenEOM     = Encoding.UTF8.GetBytes(Constants.EOM);
+
+                    if (secureCommunicationEnabled)
+                    {
+                        if (CommunicationKey is null) throw new ArgumentNullException();
+
+                        using var encryptor = CommunicationKey.CreateEncryptor();
+                        using MemoryStream memoryStream = new();
+                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
+
+                        cryptostream.Write(messageBytes, 0, messageBytes.Length);
+                        messageBytes = memoryStream.ToArray();
+
+                        cryptostream.Close();
+                        memoryStream.Close();
+                    }
+
+                    var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
+
                     IDCurrent = nextQueueItem.ID;
                     
-                    var code = await Client.SendAsync(messageBytes, SocketFlags.None);
-
+                    var code = await Client.SendAsync(bytesToSend, SocketFlags.None);
                     bool messageComplete = false;
                     string IncomingMessage = "";
 
@@ -188,18 +231,18 @@ namespace Voice_of_Time.Transfer
                     var receivedSOM = await Client.ReceiveAsync(bufferSOM, SocketFlags.None);
                     var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
 
+                    if (responseSOM is null or "") { Client.Close(); return; }
+
 
                     var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
-                    if (indexOfSOM < 0)
-                    {
-                        Client.Close(); // + Fehler werfen
-                        return;
-                    }
-                    responseSOM = responseSOM.Remove(indexOfSOM, 1);
+
+                    if (indexOfSOM != 0) { Client.Close(); return; }
+
+                    responseSOM = responseSOM.Remove(indexOfSOM, Constants.SOM.Length);
 
 
                     var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
-                    if (indexOfEOM > -1)
+                    if (indexOfEOM == responseSOM.Length - Constants.EOM.Length)
                     {
                         messageComplete = true;
                         responseSOM = responseSOM.Remove(indexOfEOM);
@@ -215,7 +258,7 @@ namespace Voice_of_Time.Transfer
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
 
                         indexOfEOM = response.IndexOf(Constants.EOM);
-                        if (indexOfEOM > -1)
+                        if (indexOfEOM == responseSOM.Length - Constants.EOM.Length)
                         {
                             messageComplete = true;
                             response = response.Remove(indexOfEOM);

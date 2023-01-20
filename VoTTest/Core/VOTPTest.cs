@@ -1,9 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Security.Cryptography;
+using System.Text.Json;
 using VoTCore;
 using VoTCore.Communication;
 using VoTCore.Package;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
+using VoTCore.Package.SecData;
 
 namespace VoTTest.Core
 {
@@ -13,19 +15,19 @@ namespace VoTTest.Core
         readonly Random rnd = new();
 
         [Fact]
-        public void Constructo_Test()
+        public void Constructor_Test()
         {
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body   = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
-            var package = new VOTP(header, body);
-            var packageEmptyBody = new VOTP(header, default);
+            var package          = new VOTP(header, body);
+            var packageEmptyBody = new VOTP(header);
 
             Assert.Equal(header, package.Header);
-            Assert.Equal(body, package.Data);
+            Assert.Equal(body,   package.Body);
 
-            Assert.Equal(header, packageEmptyBody.Header);
-            Assert.Equal(default, packageEmptyBody.Data);
+            Assert.Equal(header,  packageEmptyBody.Header);
+            Assert.Equal(default, packageEmptyBody.Body);
         }
         
 
@@ -116,11 +118,11 @@ namespace VoTTest.Core
 
             /// Test results
             Assert.NotNull(deserialized);
-            Assert.NotNull(deserialized.Data);
+            Assert.NotNull(deserialized.Body);
             Assert.NotNull(deserialized.Header);
 
             Assert.Equal(deserialized,        package);
-            Assert.Equal(deserialized.Data,   body);
+            Assert.Equal(deserialized.Body,   body);
             Assert.Equal(deserialized.Header, header);
         }
 
@@ -140,11 +142,11 @@ namespace VoTTest.Core
 
             /// Test results
             Assert.NotNull(deserialized);
-            Assert.Null(deserialized.Data);
+            Assert.Null(deserialized.Body);
             Assert.NotNull(deserialized.Header);
 
             Assert.Equal(deserialized, package);
-            Assert.Equal(default, deserialized.Data);
+            Assert.Equal(default, deserialized.Body);
             Assert.Equal(deserialized.Header, header);
         }
 
@@ -260,15 +262,87 @@ namespace VoTTest.Core
         public void SData_Test()
         {
             var body = new SData_Int(rnd.Next());
-            var head = new VoTCore.Package.Header.HeaderStd(1, 0, 0, 0);
+            var head = new HeaderStd(1, 0, 0, 0);
 
             var package = new VOTP(head, body);
 
             var serialized = package.Serialize();
             var deserialized = new VOTP(serialized);
 
-            Assert.Equal(body, deserialized.Data);
+            Assert.Equal(body, deserialized.Body);
             Assert.Equal(head, deserialized.Header);
+        }
+
+        [Fact]
+        public void HeaderReq_Test()
+        {
+            var body = new SData_Int(rnd.Next());
+            var head = new HeaderReq(1, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(body, deserialized.Body);
+            Assert.Equal(head, deserialized.Header);
+        }
+
+        [Fact]
+        public void SecDataKeyRSA_Test()
+        {
+            var fullKey   = RSA.Create();
+            var publicKey = RSA.Create(fullKey.ExportParameters(false));
+
+
+            var publicKey2 = fullKey.ExportRSAPublicKey();
+
+            var body = new SecData_Key_RSA(publicKey, 0);
+            var head = new HeaderReq(1, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(head, deserialized.Header);
+
+            if (deserialized.Body is not SecData_Key_RSA keyData) { 
+                Assert.Fail("Body is no longer of the same type as before?");
+                return;  
+            }
+
+            var externPublicKey = RSA.Create();
+            externPublicKey.FromXmlString(keyData.PublicKeyAsXML);
+
+            var A = publicKey.ExportParameters(false);
+            var B = externPublicKey.ExportParameters(false);
+
+            Assert.Equal(A.Modulus,  B.Modulus);
+            Assert.Equal(A.Exponent, B.Exponent);
+
+            try
+            {
+                _ = publicKey.ExportParameters(true);
+                Assert.Fail("Original Public key has privat parts!");
+            }catch(Exception) { }
+
+            try
+            {
+                _ = externPublicKey.ExportParameters(true);
+                Assert.Fail("Extern Public key has privat parts!");
+            }
+            catch (Exception) { }
+
+            try
+            {
+                _ = fullKey.ExportParameters(true);
+            }
+            catch (Exception)
+            {
+                Assert.Fail("Privat key has no privat parts!");
+            }
+
         }
 
     }

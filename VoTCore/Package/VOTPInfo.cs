@@ -7,8 +7,8 @@ namespace VoTCore.Package
         public VOTPInfo(VOTP package)
         {
             this.Version = package.Header.Version;
-            if (package.Data != null)
-                this.Type = package.Data.Type;
+            if (package.Body != null)
+                this.Type = package.Body.Type;
             else this.Type = BodyType.NONE;
         }
 

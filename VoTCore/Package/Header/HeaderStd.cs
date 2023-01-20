@@ -1,4 +1,5 @@
-﻿using VoTCore.Package.Interfaces;
+﻿using System.Text.Json.Serialization;
+using VoTCore.Package.Interfaces;
 
 namespace VoTCore.Package.Header
 {
@@ -12,6 +13,7 @@ namespace VoTCore.Package.Header
             EncrypionType = encrypionType;
         }
 
+        [JsonIgnore]
         public short Version      { get; } = 1;
 
         public long SenderID      { get; }

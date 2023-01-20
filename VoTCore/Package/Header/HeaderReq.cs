@@ -1,4 +1,5 @@
-﻿using VoTCore.Package.Interfaces;
+﻿using System.Text.Json.Serialization;
+using VoTCore.Package.Interfaces;
 
 namespace VoTCore.Package.Header
 {
@@ -7,17 +8,22 @@ namespace VoTCore.Package.Header
     /// </summary>
     public class HeaderReq : IVOTPHeader
     {
-        public HeaderReq(long senderID, RequestType request)
+        public HeaderReq(long senderID, RequestType request, long? targetID = null)
         {
             SenderID = senderID;
             Request  = request;
+            TargetID = targetID;
         }
 
+        [JsonIgnore]
         public short Version { get; } = 2;
 
-        public long SenderID { get; }
+        public long  SenderID { get; }
+
+        public long? TargetID { get; }
 
         public RequestType Request { get; }
+
 
         public override bool Equals(object? obj)
         {
