@@ -236,7 +236,7 @@ namespace Voice_of_Time.Transfer
 
                     var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
 
-                    if (indexOfSOM != 0) { Client.Close(); return; }
+                    if (indexOfSOM != 0) { throw new Exception("Communication not valid!"); }
 
                     responseSOM = responseSOM.Remove(indexOfSOM, Constants.SOM.Length);
 
