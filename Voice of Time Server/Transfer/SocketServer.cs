@@ -92,7 +92,7 @@ namespace Voice_of_Time_Server.Transfer
                             return;
                         }
 
-                        var indexOfEOM = response.IndexOf(Constants.EOM);
+                        indexOfEOM = response.IndexOf(Constants.EOM);
 
                         if (indexOfEOM > -1)
                         {
