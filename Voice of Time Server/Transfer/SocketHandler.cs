@@ -80,21 +80,21 @@ namespace Voice_of_Time_Server.Transfer
                         IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
                     }
 
-
+                    string IncomingMessage;
                     if (SecureCommunicationEnabled)
                     {
                         using var encryptor = ConnectionKey.CreateEncryptor();
                         using MemoryStream memoryStream = new();
                         using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Read);
+                        using StreamReader streamReader = new(cryptostream, Encoding.UTF8);
 
-                        cryptostream.Read(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
-                        IncomingMessageInBytes = memoryStream.ToArray();
+                        memoryStream.Read(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
+                        IncomingMessage = await streamReader.ReadToEndAsync();
 
                         cryptostream.Close();
                         memoryStream.Close();
                     }
-
-                    var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
+                    else IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
 
                     // PROCESS
                     var answer = ProccessResponse(IncomingMessage);
