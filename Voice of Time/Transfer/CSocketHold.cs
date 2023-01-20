@@ -221,64 +221,52 @@ namespace Voice_of_Time.Transfer
                     IDCurrent = nextQueueItem.ID;
                     
                     var code = await Client.SendAsync(bytesToSend, SocketFlags.None);
-                    bool messageComplete = false;
-                    string IncomingMessage = "";
-
 
                     //-----------------------------------------------------------------------------
 
-                    var bufferSOM = new byte[Constants.BUFFER_SIZE_BYTE];
-                    var receivedSOM = await Client.ReceiveAsync(bufferSOM, SocketFlags.None);
-                    var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
+                    bool messageComplete = false;
 
-                    if (responseSOM is null or "") { Client.Close(); return; }
+                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
 
+                    if (received == 0) throw new Exception("No data Transfer!");
 
-                    if (!responseSOM.StartsWith(Constants.SOM, StringComparison.Ordinal)) throw new Exception("Communication not valid!");
-                    responseSOM = responseSOM.Remove(0, Constants.SOM.Length);
+                    var IncomingMessageInBytes = buffer[0..received];
 
-                    if (responseSOM.EndsWith(Constants.EOM, StringComparison.Ordinal))
-                    {
-                        messageComplete = true;
-                        responseSOM = responseSOM.Remove(responseSOM.Length - Constants.EOM.Length);
-                    }
-                    IncomingMessage += responseSOM;
-
-
+                    if (IncomingMessageInBytes[0..tokenSOM.Length] == tokenSOM) throw new Exception("Communication not valid!");
+                    IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
 
                     while (!messageComplete)
                     {
-                        var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                        var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
-                        var response = Encoding.UTF8.GetString(buffer, 0, received);
-
-                        if (response.EndsWith(Constants.EOM, StringComparison.Ordinal))
+                        if (IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length] == tokenEOM)
                         {
                             messageComplete = true;
-                            response = response.Remove(response.Length - Constants.EOM.Length);
+                            IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];
+                            break;
                         }
-                        IncomingMessage += response;
+
+                        buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                        received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+
+                        IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
                     }
 
 
-                    if (secureCommunicationEnabled)
+                    if (SecureCommunicationEnabled)
                     {
-                        if (CommunicationKey is null) throw new ArgumentNullException();
-
+                        if (CommunicationKey is null) throw new Exception("Internal Error");
                         using var encryptor = CommunicationKey.CreateEncryptor();
                         using MemoryStream memoryStream = new();
                         using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Read);
 
-                        var IncomingMessageInBytes = Encoding.UTF8.GetBytes(IncomingMessage);
-
                         cryptostream.Read(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
                         IncomingMessageInBytes = memoryStream.ToArray();
-
-                        IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
 
                         cryptostream.Close();
                         memoryStream.Close();
                     }
+
+                    var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
 
                     _ = nextQueueItem.CallBack(IncomingMessage);
 
