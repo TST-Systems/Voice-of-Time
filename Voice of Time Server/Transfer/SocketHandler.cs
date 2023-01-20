@@ -80,21 +80,21 @@ namespace Voice_of_Time_Server.Transfer
                         IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
                     }
 
-                    string IncomingMessage;
                     if (SecureCommunicationEnabled)
                     {
-                        using var encryptor = ConnectionKey.CreateEncryptor();
+                        using var encryptor = ConnectionKey.CreateDecryptor();
                         using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Read);
-                        using StreamReader streamReader = new(cryptostream, Encoding.UTF8);
+                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
 
-                        memoryStream.Read(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
-                        IncomingMessage = await streamReader.ReadToEndAsync();
+                        cryptostream.Write(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
+                        cryptostream.FlushFinalBlock();
+
+                        IncomingMessageInBytes = memoryStream.ToArray();
 
                         cryptostream.Close();
                         memoryStream.Close();
                     }
-                    else IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
+                    var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
 
                     // PROCESS
                     var answer = ProccessResponse(IncomingMessage);
@@ -109,6 +109,7 @@ namespace Voice_of_Time_Server.Transfer
                         using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
 
                         cryptostream.Write(messageBytes, 0, messageBytes.Length);
+                        cryptostream.FlushFinalBlock();
                         messageBytes = memoryStream.ToArray();
 
                         cryptostream.Close();
