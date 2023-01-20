@@ -234,10 +234,10 @@ namespace Voice_of_Time.Transfer
                     if (responseSOM is null or "") { Client.Close(); return; }
 
 
-                    if (!responseSOM.StartsWith(Constants.SOM)) throw new Exception("Communication not valid!");
+                    if (!responseSOM.StartsWith(Constants.SOM, StringComparison.Ordinal)) throw new Exception("Communication not valid!");
                     responseSOM = responseSOM.Remove(0, Constants.SOM.Length);
 
-                    if (responseSOM.EndsWith(Constants.EOM))
+                    if (responseSOM.EndsWith(Constants.EOM, StringComparison.Ordinal))
                     {
                         messageComplete = true;
                         responseSOM = responseSOM.Remove(responseSOM.Length - Constants.EOM.Length);
@@ -252,7 +252,7 @@ namespace Voice_of_Time.Transfer
                         var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-                        if (response.EndsWith(Constants.EOM))
+                        if (response.EndsWith(Constants.EOM, StringComparison.Ordinal))
                         {
                             messageComplete = true;
                             response = response.Remove(response.Length - Constants.EOM.Length);

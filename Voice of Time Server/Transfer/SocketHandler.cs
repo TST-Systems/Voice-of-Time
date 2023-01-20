@@ -45,17 +45,17 @@ namespace Voice_of_Time_Server.Transfer
                     var receivedSOM = await socket.ReceiveAsync(bufferSOM, SocketFlags.None);
                     var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
 
-                    if (responseSOM.StartsWith(Constants.FIN))
+                    if (responseSOM.StartsWith(Constants.FIN, StringComparison.Ordinal))
                     {
                         EndConnection = true;
                         return;
                     }
 
-                    if (!responseSOM.StartsWith(Constants.SOM)) throw new Exception("Communication not valid!");
+                    if (!responseSOM.StartsWith(Constants.SOM, StringComparison.Ordinal)) throw new Exception("Communication not valid!");
                     responseSOM = responseSOM.Remove(0, Constants.SOM.Length);
 
 
-                    if (responseSOM.EndsWith(Constants.EOM))
+                    if (responseSOM.EndsWith(Constants.EOM, StringComparison.Ordinal))
                     {
                         messageComplete = true;
                         responseSOM = responseSOM.Remove(responseSOM.Length - Constants.EOM.Length);
@@ -70,7 +70,7 @@ namespace Voice_of_Time_Server.Transfer
                         var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-                        if (response.EndsWith(Constants.EOM))
+                        if (response.EndsWith(Constants.EOM, StringComparison.Ordinal))
                         {
                             messageComplete = true;
                             response = response.Remove(response.Length - Constants.EOM.Length);
