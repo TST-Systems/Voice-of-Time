@@ -45,24 +45,20 @@ namespace Voice_of_Time_Server.Transfer
                     var receivedSOM = await socket.ReceiveAsync(bufferSOM, SocketFlags.None);
                     var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
 
-                    if (responseSOM.Length == 1 && responseSOM.StartsWith(Constants.FIN))
+                    if (responseSOM.StartsWith(Constants.FIN))
                     {
                         EndConnection = true;
                         return;
                     }
 
-                    var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
-
-                    if (indexOfSOM != 0) { throw new Exception("Communication not valid!"); }
-                    responseSOM = responseSOM.Remove(indexOfSOM, 1);
+                    if (!responseSOM.StartsWith(Constants.SOM)) throw new Exception("Communication not valid!");
+                    responseSOM = responseSOM.Remove(0, Constants.SOM.Length);
 
 
-                    var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
-
-                    if (indexOfEOM == responseSOM.Length - Constants.EOM.Length)
+                    if (responseSOM.EndsWith(Constants.EOM))
                     {
                         messageComplete = true;
-                        responseSOM = responseSOM.Remove(indexOfEOM);
+                        responseSOM = responseSOM.Remove(responseSOM.Length - Constants.EOM.Length);
                     }
                     IncomingMessage += responseSOM;
 
@@ -74,12 +70,10 @@ namespace Voice_of_Time_Server.Transfer
                         var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-                        indexOfEOM = response.IndexOf(Constants.EOM);
-
-                        if (indexOfEOM == responseSOM.Length - Constants.EOM.Length)
+                        if (response.EndsWith(Constants.EOM))
                         {
                             messageComplete = true;
-                            response = response.Remove(indexOfEOM);
+                            response = response.Remove(response.Length - Constants.EOM.Length);
                         }
                         IncomingMessage += response;
                     }

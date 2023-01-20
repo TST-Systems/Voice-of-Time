@@ -30,8 +30,8 @@ namespace VoTCore
         public const int BUFFER_SIZE_BYTE = 1024;
 
         // Transmission symbols
-        public const string SOM = "\u0002";   // ASCI: STX
-        public const string EOM = "\u0003";   // ASCI: ETX
+        public const string SOM = "\u0002\u0002\u0002";   // ASCI: STX
+        public const string EOM = "\u0003\u0003\u0003";   // ASCI: ETX
         public const string FIN = "\u0004";   // ASCI: EOT
         public const string ACK = "\u0005";   // ASCI: ACK
 
