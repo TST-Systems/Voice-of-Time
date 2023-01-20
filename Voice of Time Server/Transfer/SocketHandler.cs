@@ -212,6 +212,7 @@ namespace Voice_of_Time_Server.Transfer
                         }
                         UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[header.SenderID];
                     }
+                    requestEncryption = true;
                     sendHeader = new HeaderAck(true);
                     sendBody = new SecData_Key_Aes(ConnectionKey, 0);
                     break;
