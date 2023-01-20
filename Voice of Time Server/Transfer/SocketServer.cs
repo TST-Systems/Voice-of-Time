@@ -45,12 +45,46 @@ namespace Voice_of_Time_Server.Transfer
                     bool messageComplete = false;
                     string IncomingMessage = "";
                     // RECIVE
+
+
+
+                    //-----------------------------------------------------------------------------
+
+                    var bufferSOM = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var receivedSOM = await handler.ReceiveAsync(bufferSOM, SocketFlags.None);
+                    var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
+
+                    if (responseSOM.Length == 1 && responseSOM.StartsWith(Constants.FIN))
+                    {
+                        EndConnection = true;
+                        break;
+                    }
+
+                    var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
+                    if (indexOfSOM < 0)
+                    {
+                        handler.Close(); // + Fehler werfen
+                        return;
+                    }
+                    responseSOM = responseSOM.Remove(indexOfSOM, 1);
+
+
+                    var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
+                    if (indexOfEOM > -1)
+                    {
+                        messageComplete = true;
+                        responseSOM = responseSOM.Remove(indexOfEOM);
+                    }
+                    IncomingMessage += responseSOM;
+
+
+
                     while (!messageComplete)
                     {
                         var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
                         var received = await handler.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
-
+                        
                         if (response.Length == 1 && response.StartsWith(Constants.FIN))
                         {
                             EndConnection = true;
@@ -65,19 +99,15 @@ namespace Voice_of_Time_Server.Transfer
                             messageComplete = true;
                             response = response.Remove(indexOfEOM);
                         }
-                        /*
-                        else if (received < Constants.BUFFER_SIZE_BYTE)
-                        {
-                            throw new Exception("End of message was not resived!");
-                        }
-                        */
                         IncomingMessage += response;
                     }
+
+  
+                    
                     // PROCESS
                     var answer = Function(IncomingMessage);
                     // SEND
-                    answer += Constants.EOM;
-                    var messageBytes = Encoding.UTF8.GetBytes(answer);
+                    var messageBytes = Encoding.UTF8.GetBytes(Constants.SOM + answer + Constants.EOM);
                     var code = await handler.SendAsync(messageBytes, SocketFlags.None);
                 }
             }catch(SocketException soex)

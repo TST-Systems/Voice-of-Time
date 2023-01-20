@@ -1,5 +1,5 @@
-﻿using System.Net.Sockets;
-using System.Data;
+﻿using System.Data;
+using System.Net.Sockets;
 using System.Text;
 
 namespace Voice_of_Time.Transfer
@@ -21,6 +21,7 @@ namespace Voice_of_Time.Transfer
             /// </summary>
             long ID 
         );
+        
         /// <summary>
         /// Client Server Connection
         /// </summary>
@@ -33,7 +34,7 @@ namespace Voice_of_Time.Transfer
         /// <summary>
         /// Blockade to stop multiple read and write operations on the queue
         /// </summary>
-        private readonly SemaphoreSlim QueueBlock  = new(1, 1);
+        private readonly SemaphoreSlim QueueBlock = new(1, 1);
         /// <summary>
         /// Blockade for handling if ther is a new item in queue
         /// </summary>
@@ -58,7 +59,7 @@ namespace Voice_of_Time.Transfer
         /// <summary>
         /// Shows if the handler is currently running
         /// </summary>
-        public bool IsRunning { get => handler != null;  }
+        public bool IsRunning { get => handler != null; }
 
         /// <summary>
         /// Current status of Client-Server connection
@@ -107,7 +108,7 @@ namespace Voice_of_Time.Transfer
             {
                 await Client.ConnectAsync(IpEndPoint);
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 currentState = ConnectionState.Broken;
@@ -166,25 +167,54 @@ namespace Voice_of_Time.Transfer
             {
                 await itemInQueue.WaitAsync();
                 if (isCancelled) return;
-                while(Queue.Count > 0)
+                while (Queue.Count > 0)
                 {
                     if (isCancelled) return;
                     var nextQueueItem = Queue.Dequeue();
 
+                    var messageBytes = Encoding.UTF8.GetBytes(Constants.SOM + nextQueueItem.Message + Constants.EOM);
+                    
                     IDCurrent = nextQueueItem.ID;
-
-                    var messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message + Constants.EOM);
+                    
                     var code = await Client.SendAsync(messageBytes, SocketFlags.None);
 
                     bool messageComplete = false;
                     string IncomingMessage = "";
+
+
+                    //-----------------------------------------------------------------------------
+
+                    var bufferSOM = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var receivedSOM = await Client.ReceiveAsync(bufferSOM, SocketFlags.None);
+                    var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
+
+
+                    var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
+                    if (indexOfSOM < 0)
+                    {
+                        Client.Close(); // + Fehler werfen
+                        return;
+                    }
+                    responseSOM = responseSOM.Remove(indexOfSOM, 1);
+
+
+                    var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
+                    if (indexOfEOM > -1)
+                    {
+                        messageComplete = true;
+                        responseSOM = responseSOM.Remove(indexOfEOM);
+                    }
+                    IncomingMessage += responseSOM;
+
+
+
                     while (!messageComplete)
                     {
                         var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
                         var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
                         var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-                        var indexOfEOM = response.IndexOf(Constants.EOM);
+                        indexOfEOM = response.IndexOf(Constants.EOM);
                         if (indexOfEOM > -1)
                         {
                             messageComplete = true;
@@ -193,6 +223,8 @@ namespace Voice_of_Time.Transfer
                         IncomingMessage += response;
                     }
                     _ = nextQueueItem.CallBack(IncomingMessage);
+
+
                 }
             }
         }
