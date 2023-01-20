@@ -136,7 +136,6 @@ async Task<Client> RegisterClient()
         Console.Write("Username: ");
         username = Console.ReadLine();
     } while (username is null or "");
-    username = TrimMessage(username.Split(""));
 
     Console.WriteLine("Trying to register");
 
