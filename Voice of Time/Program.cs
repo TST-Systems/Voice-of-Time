@@ -11,7 +11,8 @@ using VoTCore.Package.SecData;
 
 Dictionary<Guid, Client> userRegister = new();
 
-CSocketHold? socket = null;
+CSocketHold? socket   = null;
+Client? currentClient = null;
 
 while (true)
 {
@@ -121,11 +122,57 @@ async Task connect(string host, int port = 15050)
     Console.WriteLine("Trying to connect to: " + $"{host}:{port}");
     var success = await socket.AutoStart();
     Console.WriteLine($"Connection was established: {success}");
+    Console.Write("Getting Server Identity...");
     Guid serverID = await requestServerID();
+    Console.WriteLine("done");
+    Console.WriteLine($"ID: {serverID}");
     if (!userRegister.ContainsKey(serverID))
     {
+        Console.WriteLine("Server unknown...Trying to Register");
         userRegister[serverID] = await RegisterClient();
-    } 
+        currentClient = userRegister[serverID];
+    }
+    else
+    {
+        Console.WriteLine("Server known...Trying to log in");
+        currentClient = userRegister[serverID];
+        Console.Write("Verifiying...");
+        var userIsKnown = await ValidateSelf(currentClient);
+        if(userIsKnown)
+        {
+            Console.WriteLine("done");
+            return;
+        }
+        Console.WriteLine("error");
+        Console.WriteLine("You are not known by the Server!");
+        Console.Write("Try register? ([y]/n)");
+        var anserw = Console.ReadLine();
+        if (anserw is null) throw new Exception("Somthing went very wrong!");
+        if (anserw.ToLower() == "n") { disconnect(); return; }
+        _ = connect(host, port);
+    }
+}
+
+async Task<bool> ValidateSelf(Client c)
+{
+    var head    = new HeaderReq(c.UserID, RequestType.VERIFY);
+    var body    = new SData_Long(c.UserID);
+    var package = new VOTP(head, body);
+
+    var result = new VOTP(await socket.EnqueueItem(package.Serialize()));
+
+    if (result.Header is not HeaderAck     resHeader) throw new Exception("Header wasn't expected!");
+    if (result.Body   is not SecData_Key_Aes resBody) throw new Exception("Body wasn't expected!");
+
+    if (!resHeader.Successful) return false;
+
+    resBody.DecryptData(c.UserKey);
+
+    var key = resBody.GetKey();
+
+    socket.SetCommunicationKey(key);
+
+    return true;
 }
 
 async Task<Client> RegisterClient()
