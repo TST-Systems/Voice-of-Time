@@ -93,6 +93,7 @@ namespace VoTCore
         REGISTRATION,
         COMM_KEY,
         SET_USERNAME,
+        VERIFY,
     }
 
 

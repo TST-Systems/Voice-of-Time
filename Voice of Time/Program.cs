@@ -197,7 +197,7 @@ async Task SetUsername(string username, long userID)
     if (!resHeader.Successful)                    throw new Exception("Server didn't responded correctly");
 }
 
-async Task OpenSecureCommunication(long userID = -1)
+async Task OpenSecureCommunication(RSA decryptionKey,long userID = -1)
 {
     var header = new HeaderReq(userID, RequestType.COMM_KEY);
     var toSend = new VOTP(header);
@@ -208,6 +208,8 @@ async Task OpenSecureCommunication(long userID = -1)
     if (result.Body   is not SecData_Key_Aes resBody)   throw new Exception("Body wasn't expected!");
 
     if (!resHeader.Successful)                          throw new Exception("Server didn't responded correctly");
+
+    resBody.DecryptData(decryptionKey);
 
     var key = resBody.GetKey();
 

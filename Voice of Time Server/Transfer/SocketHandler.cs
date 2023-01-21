@@ -21,7 +21,8 @@ namespace Voice_of_Time_Server.Transfer
         private bool requestEncryption = false;
 
         private RSA? UserPubKey;
-        private bool CommunicationVerified = false;
+        private bool CommunicationVerified  = false;
+        private bool requestConnectionClose = false;
 
         public SocketHandler(Socket socket)
         {
@@ -124,6 +125,7 @@ namespace Voice_of_Time_Server.Transfer
                         requestEncryption = false;
                         SecureCommunicationEnabled = true;
                     }
+                    if (requestConnectionClose) EndConnection = true;
                 }
             }
             catch (SocketException soex)
@@ -200,22 +202,75 @@ namespace Voice_of_Time_Server.Transfer
                     sendBody = new SecData_Key_RSA(ServerInfo.server.ServerKey, 0);
 
                     break;
+                case RequestType.VERIFY:
+                    if (UserID > 0)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody   = new SData_String("You are already verifiyed! Server closes the connection!");
+                        requestConnectionClose = true;
+                        break;
+                    }
+
+                    if(header.SenderID <= 0)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody   = new SData_String("Use your UserID to verify!");
+                        break;
+                    }
+
+                    if(!ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody   = new SData_String("User unknown! Register first!");
+                        break;
+                    }
+
+                    UserID = header.SenderID;
+
+                    UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[UserID];
+
+
+                    goto COMM_KEY;
                 case RequestType.COMM_KEY:
+                COMM_KEY:
+
+                    if (CommunicationVerified)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody   = new SData_String("You are already verifiyed! Server closes the connection!");
+                        requestConnectionClose = true;
+                        break;
+                    }
+
                     if (UserPubKey is null)
                     {
                         if (header.SenderID <= 0 || !ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
                         {
                             sendHeader = new HeaderAck(false);
-                            sendBody = new SData_String("Public key unknown! Please exhange your Key first!");
+                            sendBody   = new SData_String("Public key unknown! Please exhange your Key first!");
                             break;
                         }
                         UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[header.SenderID];
                     }
+
+                    // Because if he doesn't understand the key, he has to close the connection.
+                    if(typeOfRequest == RequestType.VERIFY) CommunicationVerified = true; 
+
                     requestEncryption = true;
-                    sendHeader = new HeaderAck(true);
-                    sendBody = new SecData_Key_Aes(ConnectionKey, 0);
+
+                    var preBody = new SecData_Key_Aes(ConnectionKey, 0);
+                    preBody.EncryptData(UserPubKey, UserID);
+
+                    sendHeader  = new HeaderAck(true);
+                    sendBody = preBody;
                     break;
                 case RequestType.REGISTRATION: //<- Can be attacked very easily
+                    if(UserID > 0)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody  = new SData_String("You are already logged in!");
+                        break;
+                    }
                     if (!SecureCommunicationEnabled || UserPubKey is null)
                     {
                         sendHeader = new HeaderAck(false);
@@ -225,9 +280,10 @@ namespace Voice_of_Time_Server.Transfer
                     var uid = ServerInfo.server.AddUser(UserPubKey);
 
                     CommunicationVerified = true;
+                    UserID                = uid;
 
                     sendHeader = new HeaderAck(true);
-                    sendBody = new SData_Long(uid);
+                    sendBody  = new SData_Long(uid);
                     break;
                 case RequestType.SET_USERNAME:
                     if (!CommunicationVerified)
@@ -236,7 +292,7 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String("You need to secure the communication first!");
                         break;
                     }
-                    if (!ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
+                    if (UserID <= 0)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You are not known!");
@@ -256,7 +312,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    ServerInfo.server.UserDB[header.SenderID].UserName = strBody.Data;
+                    ServerInfo.server.UserDB[UserID].UserName = strBody.Data;
 
                     sendHeader = new HeaderAck(true);
                     break;
