@@ -148,7 +148,7 @@ async Task<Client> RegisterClient()
     Console.WriteLine("done");
 
     Console.Write("Open a safe communication...");
-    await OpenSecureCommunication();
+    await OpenSecureCommunication(clientKey);
     Console.WriteLine("done");
 
     Console.Write("Getting UserID...");
