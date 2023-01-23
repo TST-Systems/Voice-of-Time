@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace VoTCore.Communication
+namespace VoTCore.Communication.Data
 {
     /// <summary>
     /// Text based message for communication between clients
@@ -17,24 +17,24 @@ namespace VoTCore.Communication
         /// Text part of Message
         /// Always present even if message is an image
         /// </summary>
-        public string MessageString  { get; }
+        public string MessageString { get; }
         /// <summary>
         /// User ID of Author
         /// </summary>
-        public long   AuthorID       { get; }
+        public long AuthorID { get; }
         /// <summary>
         /// Time of creation in milliseconds
         /// </summary>
-        public long   DateOfCreation { get; }
-        
-        public MessageStatus Status{ get; }
-        
+        public long DateOfCreation { get; }
+
+        public MessageStatus Status { get; }
+
         protected Message(string messageString, long authorID, long dateOfCreation, BodyType type)
         {
-            this.MessageString  = messageString;
-            this.AuthorID       = authorID;
-            this.DateOfCreation = dateOfCreation;
-            this.Type           = type;
+            MessageString = messageString;
+            AuthorID = authorID;
+            DateOfCreation = dateOfCreation;
+            Type = type;
             Status = new();
         }
 
@@ -44,9 +44,9 @@ namespace VoTCore.Communication
 
             if (obj is not Message their) return false;
 
-            if (this.MessageString  != their.MessageString)  return false;
-            if (this.AuthorID       != their.AuthorID)       return false;
-            if (this.DateOfCreation != their.DateOfCreation) return false;
+            if (MessageString != their.MessageString) return false;
+            if (AuthorID != their.AuthorID) return false;
+            if (DateOfCreation != their.DateOfCreation) return false;
 
             return true;
         }

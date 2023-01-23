@@ -1,4 +1,4 @@
-﻿using VoTCore.Communication;
+﻿using VoTCore.Communication.Data;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;

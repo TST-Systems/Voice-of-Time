@@ -11,7 +11,7 @@ using VoTCore.Package.SecData;
 
 Dictionary<Guid, Client> userRegister = new();
 
-CSocketHold? socket   = null;
+CSocketHold? socket = null;
 Client? currentClient = null;
 
 while (true)
@@ -53,10 +53,12 @@ async Task processCommand(string? str)
             disconnect();
             break;
         case "send":
-            if (commandSplit.Length < 3) break;
-            string message = TrimMessage(commandSplit);
-            await send(int.Parse(commandSplit[1]), message);
+            Console.WriteLine("Currently out of service!");
             break;
+        //if (commandSplit.Length < 3) break;
+        //string message = TrimMessage(commandSplit);
+        //await send(int.Parse(commandSplit[1]), message);
+        //break;
         case "exit":
         case "quit":
             if (socket is not null) disconnect();
@@ -69,7 +71,7 @@ string TrimMessage(string?[] s)
 {
     if (s.Length < 2) return "";
     string solution = "";
-    for(int i = 2; i < s.Length; i++)
+    for (int i = 2; i < s.Length; i++)
     {
         solution += s[i] + " ";
     }
@@ -77,15 +79,14 @@ string TrimMessage(string?[] s)
     return solution;
 }
 
-
-async Task send(int v, string message)
-{
-    if (socket is null) return;
-    Console.WriteLine($"{message} -> {v}");
-    VOTP package = new(new HeaderStd(-1, v, 0, 0), new TextMessage(message, -1, DateTime.Now.Ticks));
-    var serial = package.Serialize();
-    Console.WriteLine(await socket.EnqueueItem(serial));
-}
+//async task send(int v, string message)
+//{
+//    if (socket is null) return;
+//    console.writeline($"{message} -> {v}");
+//    votp package = new(new headerstd(-1, v, 0, 0), new textmessage(message, -1, datetime.now.ticks));
+//    var serial = package.serialize();
+//    console.writeline(await socket.enqueueitem(serial));
+//}
 
 void disconnect()
 {
@@ -117,7 +118,7 @@ void showHelp()
 
 async Task connect(string host, int port = 15050)
 {
-    if (socket is not null) {Console.WriteLine("Connection already open! Reconnection..."); disconnect(); }
+    if (socket is not null) { Console.WriteLine("Connection already open! Reconnection..."); disconnect(); }
     socket = new(host, port);
     Console.WriteLine("Trying to connect to: " + $"{host}:{port}");
     var success = await socket.AutoStart();
@@ -138,7 +139,7 @@ async Task connect(string host, int port = 15050)
         currentClient = userRegister[serverID];
         Console.Write("Verifiying...");
         var userIsKnown = await ValidateSelf(currentClient);
-        if(userIsKnown)
+        if (userIsKnown)
         {
             Console.WriteLine("done");
             return;
@@ -155,14 +156,14 @@ async Task connect(string host, int port = 15050)
 
 async Task<bool> ValidateSelf(Client c)
 {
-    var head    = new HeaderReq(c.UserID, RequestType.VERIFY);
-    var body    = new SData_Long(c.UserID);
+    var head = new HeaderReq(c.UserID, RequestType.VERIFY);
+    var body = new SData_Long(c.UserID);
     var package = new VOTP(head, body);
 
     var result = new VOTP(await socket.EnqueueItem(package.Serialize()));
 
-    if (result.Header is not HeaderAck     resHeader) throw new Exception("Header wasn't expected!");
-    if (result.Body   is not SecData_Key_Aes resBody) throw new Exception("Body wasn't expected!");
+    if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
+    if (result.Body is not SecData_Key_Aes resBody) throw new Exception("Body wasn't expected!");
 
     if (!resHeader.Successful) return false;
 
@@ -204,10 +205,10 @@ async Task<Client> RegisterClient()
     var recive = await socket.EnqueueItem(toSend.Serialize());
     var result = new VOTP(recive);
 
-    if (result.Header is not HeaderAck  resHeader) throw new Exception("Header wasn't expected!");
-    if (result.Body   is not SData_Long resBody)   throw new Exception("Body wasn't expected!");
+    if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
+    if (result.Body is not SData_Long resBody) throw new Exception("Body wasn't expected!");
 
-    if (!resHeader.Successful)                     throw new Exception("Server didn't responded correctly");
+    if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
 
     var userID = resBody.Data;
     Console.WriteLine("done");
@@ -220,41 +221,41 @@ async Task<Client> RegisterClient()
     Console.WriteLine($"Username  : {username}");
     Console.WriteLine($"UserID    : {userID}  ");
     Console.WriteLine($"UserKey   : [privat]  ");
-    Console.Write    ($"ServerKey : ");
+    Console.Write($"ServerKey : ");
     var sKey = serverKey.ExportParameters(false).Modulus;
     if (sKey is null) Console.WriteLine("Error");
     else Console.WriteLine(Convert.ToBase64String(sKey));
 
     Client client = new(userID, username, clientKey);
     client.AddPublicKey(0, serverKey);
-    
+
     return client;
 }
 
 async Task SetUsername(string username, long userID)
 {
     var header = new HeaderReq(userID, RequestType.SET_USERNAME);
-    var body   = new SData_String(username);
+    var body = new SData_String(username);
     var toSend = new VOTP(header, body);
     var recive = await socket.EnqueueItem(toSend.Serialize());
     var result = new VOTP(recive);
 
     if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
 
-    if (!resHeader.Successful)                    throw new Exception("Server didn't responded correctly");
+    if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
 }
 
-async Task OpenSecureCommunication(RSA decryptionKey,long userID = -1)
+async Task OpenSecureCommunication(RSA decryptionKey, long userID = -1)
 {
     var header = new HeaderReq(userID, RequestType.COMM_KEY);
     var toSend = new VOTP(header);
     var recive = await socket.EnqueueItem(toSend.Serialize());
     var result = new VOTP(recive);
 
-    if (result.Header is not HeaderAck       resHeader) throw new Exception("Header wasn't expected!");
-    if (result.Body   is not SecData_Key_Aes resBody)   throw new Exception("Body wasn't expected!");
+    if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
+    if (result.Body is not SecData_Key_Aes resBody) throw new Exception("Body wasn't expected!");
 
-    if (!resHeader.Successful)                          throw new Exception("Server didn't responded correctly");
+    if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
 
     resBody.DecryptData(decryptionKey);
 
@@ -266,15 +267,15 @@ async Task OpenSecureCommunication(RSA decryptionKey,long userID = -1)
 async Task<RSA> KeyExchangeWithServer(RSA key, long userID = -1)
 {
     var header = new HeaderReq(userID, RequestType.KEY_EXCHANGE, 0);
-    var body   = new SecData_Key_RSA(key, userID);
+    var body = new SecData_Key_RSA(key, userID);
     var toSend = new VOTP(header, body);
     var recive = await socket.EnqueueItem(toSend.Serialize());
     var result = new VOTP(recive);
 
-    if (result.Header is not HeaderAck       resHeader) throw new Exception("Header wasn't expected!");
-    if (result.Body   is not SecData_Key_RSA resBody)   throw new Exception("Body wasn't expected!");
+    if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
+    if (result.Body is not SecData_Key_RSA resBody) throw new Exception("Body wasn't expected!");
 
-    if (!resHeader.Successful)                          throw new Exception("Server didn't responded correctly");
+    if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
 
     return resBody.GetKey();
 }
@@ -283,10 +284,10 @@ async Task<Guid> requestServerID(long userID = -1)
 {
     if (socket is null) throw new Exception("no connection open");
 
-    var header  = new HeaderReq(userID, RequestType.IDENTITY);
-    var toSend  = new VOTP(header).Serialize();
+    var header = new HeaderReq(userID, RequestType.IDENTITY);
+    var toSend = new VOTP(header).Serialize();
     var recived = await socket.EnqueueItem(toSend);
-    var body    = new VOTP(recived).Body;
+    var body = new VOTP(recived).Body;
 
     if (body is not SData_Guid sDGuid) throw new Exception("Sever didn't replyed correctly");
 

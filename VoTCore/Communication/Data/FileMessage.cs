@@ -1,6 +1,6 @@
 ﻿using VoTCore.Package.Interfaces;
 
-namespace VoTCore.Communication
+namespace VoTCore.Communication.Data
 {
     /// <summary>
     /// Message with a file attached
@@ -12,10 +12,10 @@ namespace VoTCore.Communication
 
         const BodyType TYPE = BodyType.MESSAGE_FILE;
 
-        public FileMessage(string messageString, long authorID, long dateOfCreation, FileStream file) 
+        public FileMessage(string messageString, long authorID, long dateOfCreation, FileStream file)
             : base(messageString, authorID, dateOfCreation, TYPE)
         {
-            this.File = file;
+            File = file;
         }
 
         public override bool Equals(object? obj)
@@ -24,11 +24,11 @@ namespace VoTCore.Communication
 
             if (obj is not FileMessage their) return false;
 
-            if(this.File == null && their.File == null) return true;
-            if(this.File == null) return false;
+            if (File == null && their.File == null) return true;
+            if (File == null) return false;
 
 
-            if (this.File.Equals(their.File)) return false;
+            if (File.Equals(their.File)) return false;
 
             return true;
         }

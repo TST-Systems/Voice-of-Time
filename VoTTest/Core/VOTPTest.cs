@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text.Json;
 using VoTCore;
-using VoTCore.Communication;
+using VoTCore.Communication.Data;
 using VoTCore.Package;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;

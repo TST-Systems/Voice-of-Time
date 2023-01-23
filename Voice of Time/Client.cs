@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using VoTCore.Communication;
 using VoTCore.Secure;
 
 namespace Voice_of_Time

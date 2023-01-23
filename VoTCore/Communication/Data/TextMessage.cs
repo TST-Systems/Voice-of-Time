@@ -1,6 +1,6 @@
 ﻿using VoTCore.Package.Interfaces;
 
-namespace VoTCore.Communication
+namespace VoTCore.Communication.Data
 {
     /// <summary>
     /// Basic text message
@@ -9,7 +9,7 @@ namespace VoTCore.Communication
     {
         const BodyType TYPE = BodyType.MESSAGE_TEXT;
 
-        public TextMessage(string messageString, long authorID, long dateOfCreation) 
+        public TextMessage(string messageString, long authorID, long dateOfCreation)
             : base(messageString, authorID, dateOfCreation, TYPE)
         {
         }
