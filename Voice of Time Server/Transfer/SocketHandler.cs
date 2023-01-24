@@ -111,6 +111,7 @@ namespace Voice_of_Time_Server.Transfer
 
                         cryptostream.Write(messageBytes, 0, messageBytes.Length);
                         cryptostream.FlushFinalBlock();
+
                         messageBytes = memoryStream.ToArray();
 
                         cryptostream.Close();

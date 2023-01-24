@@ -142,6 +142,9 @@ async Task connect(string host, int port = 15050)
         if (userIsKnown)
         {
             Console.WriteLine("done");
+            Console.Write("Testing encryption...");
+            await testConnection(serverID, currentClient.UserID);
+            Console.WriteLine("done");
             return;
         }
         Console.WriteLine("error");
@@ -152,6 +155,13 @@ async Task connect(string host, int port = 15050)
         if (anserw.ToLower() == "n") { disconnect(); return; }
         _ = connect(host, port);
     }
+}
+
+async Task testConnection(Guid serverID, long userID)
+{
+    var newServerID = await requestServerID(userID);
+
+    if (serverID.CompareTo(newServerID) != 0) throw new Exception("Connection Invalid!"); 
 }
 
 async Task<bool> ValidateSelf(Client c)
