@@ -65,12 +65,12 @@ namespace Voice_of_Time.Cmd.Commands
 
                     // Execute a key exchange
                     Console.Write("Exchange public key with Server...");
-                    var serverKey = await KeyExchangeWithServer(clientKey, socket);
+                    var serverKey = await KeyExchangeWithServer(socket, clientKey);
                     Console.WriteLine("done");
 
                     // Open a Secure communication
                     Console.Write("Open a safe communication...");
-                    await OpenSecureCommunication(clientKey, socket);
+                    await OpenSecureCommunication(socket, clientKey);
                     Console.WriteLine("done");
 
                     // Register User on Server
@@ -91,7 +91,7 @@ namespace Voice_of_Time.Cmd.Commands
 
                     // Setting username
                     Console.Write("Setting username...");
-                    await SetUsername(username, userID, socket);
+                    await SetUsername(socket, username, userID);
                     Console.WriteLine("done");
 
                     // Saving Data of connection
@@ -113,7 +113,7 @@ namespace Voice_of_Time.Cmd.Commands
                 {
                     Console.WriteLine("Server known...Trying to log in");
                     Console.Write("Verifiying...");
-                    var userIsKnown = await ValidateSelf(client, socket);
+                    var userIsKnown = await ValidateSelf(socket, client);
                     if (!userIsKnown)
                     {
                         Console.WriteLine("error");
@@ -123,7 +123,7 @@ namespace Voice_of_Time.Cmd.Commands
                     }
                     Console.WriteLine("done");
                     Console.Write("Testing encryption...");
-                    await testConnection(serverID, client.UserID, socket);
+                    await TestConnection(socket, serverID, client.UserID);
                     Console.WriteLine("done");
                 }
                 // Register the connection
@@ -154,7 +154,7 @@ namespace Voice_of_Time.Cmd.Commands
             return sDGuid.Data;
         }
 
-        protected static async Task<RSA> KeyExchangeWithServer(RSA key, CSocketHold socket, long userID = -1)
+        protected static async Task<RSA> KeyExchangeWithServer(CSocketHold socket, RSA key, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.KEY_EXCHANGE, 0);
             var body   = new SecData_Key_RSA(key, userID);
@@ -170,7 +170,7 @@ namespace Voice_of_Time.Cmd.Commands
             return resBody.GetKey();
         }
 
-        protected static async Task OpenSecureCommunication(RSA decryptionKey, CSocketHold socket, long userID = -1)
+        protected static async Task OpenSecureCommunication(CSocketHold socket, RSA decryptionKey, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.COMM_KEY);
             var toSend = new VOTP(header);
@@ -204,7 +204,7 @@ namespace Voice_of_Time.Cmd.Commands
             return resBody.Data;
         }
 
-        async Task SetUsername(string username, long userID, CSocketHold socket)
+        protected async static Task SetUsername(CSocketHold socket, string username, long userID)
         {
             var header = new HeaderReq(userID, RequestType.SET_USERNAME);
             var body = new SData_String(username);
@@ -217,14 +217,14 @@ namespace Voice_of_Time.Cmd.Commands
             if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
         }
 
-        private static async Task testConnection(Guid serverID, long userID, CSocketHold socket)
+        protected static async Task TestConnection(CSocketHold socket, Guid serverID, long userID)
         {
             var newServerID = await RequestServerID(socket, userID);
 
             if (serverID.CompareTo(newServerID) != 0) throw new Exception("Connection Invalid!");
         }
 
-        private static async Task<bool> ValidateSelf(Client c, CSocketHold socket)
+        protected static async Task<bool> ValidateSelf(CSocketHold socket, Client c)
         {
             var head = new HeaderReq(c.UserID, RequestType.VERIFY);
             var body = new SData_Long(c.UserID);
