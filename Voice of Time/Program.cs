@@ -1,19 +1,9 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using Voice_of_Time;
-using Voice_of_Time.Transfer;
-using VoTCore.Communication;
-using VoTCore.Package;
-using VoTCore.Package.Header;
-using VoTCore.Package.SData;
-using VoTCore.Package.SecData;
+﻿using Voice_of_Time.Cmd;
 //✔️❌
 
-Dictionary<Guid, Client> userRegister = new();
+await new CommandHandler().Enable();
 
-CSocketHold? socket = null;
-Client? currentClient = null;
-
+/*
 while (true)
 {
     Console.Write(" > ");
@@ -303,3 +293,4 @@ async Task<Guid> requestServerID(long userID = -1)
 
     return sDGuid.Data;
 }
+*/
