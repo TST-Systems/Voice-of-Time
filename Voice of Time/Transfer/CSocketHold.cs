@@ -78,6 +78,8 @@ namespace Voice_of_Time.Transfer
         public bool SecureCommunicationEnabled { get => secureCommunicationEnabled; }
 
 
+        private string ReqestAddress;
+
         /// <summary>
         /// A socket for client server communication with the ability to connect once, send endlessly
         /// </summary>
@@ -89,7 +91,10 @@ namespace Voice_of_Time.Transfer
             IpEndPoint.AddressFamily,
             SocketType.Stream,
             ProtocolType.Tcp);
+
             currentState = ConnectionState.Closed;
+
+            ReqestAddress = address;
         }
 
         ~CSocketHold()
@@ -338,6 +343,12 @@ namespace Voice_of_Time.Transfer
             await responseReady.WaitAsync();
 
             return response;
+        }
+
+        public string GetIPAddress(bool realAddress = false)
+        {
+            if (realAddress) return IpAddress.ToString();
+            return ReqestAddress;
         }
 
         public void Dispose()

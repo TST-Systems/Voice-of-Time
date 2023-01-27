@@ -12,6 +12,9 @@ namespace Voice_of_Time
         private static readonly Dictionary<string, IConsoleCommand> CommandRegister = new();
         private static readonly Dictionary<string, string> AliasesRegister = new();
 
+        private static Guid? currentConnection = null;
+        internal static Guid? CurrentConnection { get => currentConnection; }
+
         #region CommandRegister
         private const string AllowedChars = "abcdefghijklmnopqrstuvwxyz0123456789_";
         /// <summary>
@@ -128,6 +131,7 @@ namespace Voice_of_Time
             {
                 throw new EntryAlreadyExistsExeption();
             }
+
             UserRegister.Add(serverID, client);
         }
 
@@ -143,15 +147,30 @@ namespace Voice_of_Time
         #endregion
 
         #region ConnectionRegister
-        internal static void AddConnection(Guid serverID, CSocketHold socket)
+        internal static void AddConnection(Guid serverID, CSocketHold socket, bool isCurrentConnection = true)
         {
             if (ConnectionRegister.ContainsKey(serverID)) throw new EntryAlreadyExistsExeption();
             ConnectionRegister.Add(serverID, socket);
+
+            if (isCurrentConnection)
+            {
+                currentConnection = serverID;
+            }
         }
 
         internal static CSocketHold? GetConnection(Guid serverID)
         {
             return ConnectionRegister.GetValueOrDefault(serverID);
+        }
+
+        internal static List<CSocketHold> GetAllConnectionSockets()
+        {
+            return ConnectionRegister.Values.ToList();
+        }
+
+        internal static List<Guid> GetAllConnectionIDs()
+        {
+            return ConnectionRegister.Keys.ToList();
         }
 
         internal static void CloseConnection(Guid serverID)
@@ -161,6 +180,11 @@ namespace Voice_of_Time
             var connection = ConnectionRegister[serverID];
             connection.Dispose();
             ConnectionRegister.Remove(serverID);
+
+            if (currentConnection.Equals(serverID))
+            {
+                currentConnection = null;
+            }
         }
         #endregion
 

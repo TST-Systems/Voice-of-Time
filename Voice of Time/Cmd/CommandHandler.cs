@@ -30,17 +30,32 @@ namespace Voice_of_Time.Cmd
         public async Task Enable()
         {
             // Register default commands
-            ClientData.TryRegisterCommand(new Help());
-            ClientData.TryRegisterCommand(new Connect());
+            LoadDefaultCommands();
 
             while (!isCanceled)
             {
-                Console.Write(" > ");
+                string selectedServer = "";
+                if(ClientData.CurrentConnection != null) 
+                {
+                    var connetion = ClientData.GetConnection((Guid)ClientData.CurrentConnection); 
+                    if(connetion != null)
+                    {
+                        selectedServer =  connetion.GetIPAddress();
+                    }
+                }
+                Console.Write(selectedServer + " > ");
                 var input = Console.ReadLine();
                 Console.WriteLine();
                 await ProcessCommand(input);
                 Console.WriteLine();
             }
+        }
+
+        private static void LoadDefaultCommands()
+        {
+            ClientData.TryRegisterCommand(new Help());
+            ClientData.TryRegisterCommand(new Connect());
+            ClientData.TryRegisterCommand(new Disconnect());
         }
 
         async Task ProcessCommand(string? str)
