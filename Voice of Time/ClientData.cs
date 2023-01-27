@@ -117,12 +117,12 @@ namespace Voice_of_Time
         #endregion
 
         #region UserRegister
-        public static Client? GetServerCient(Guid serverID)
+        internal static Client? GetServerCient(Guid serverID)
         {
             return UserRegister.GetValueOrDefault(serverID);
         }
 
-        public static void AddServerClient(Client client, Guid serverID)
+        internal static void AddServerClient(Client client, Guid serverID)
         {
             if(UserRegister.ContainsKey(serverID))
             {
@@ -131,7 +131,7 @@ namespace Voice_of_Time
             UserRegister.Add(serverID, client);
         }
 
-        public static bool TryAddServerClient(Client client, Guid serverID)
+        internal static bool TryAddServerClient(Client client, Guid serverID)
         {
             try
             {
