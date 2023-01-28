@@ -9,14 +9,14 @@ namespace Voice_of_Time.Cmd.Commands
 {
     internal class Disconnect : IConsoleCommandSync
     {
-        public string Command => "disconnect";
+        public virtual string Command => "disconnect";
 
         private readonly string[] aliases = { "d", "dct" };
-        public string[] Aliases => aliases;
+        public virtual string[] Aliases => aliases;
 
-        public string Usage => "disconnect [-all]";
+        public virtual string Usage => "disconnect [-all]";
 
-        public bool ExecuteCommand(string command, string[] args)
+        public virtual bool ExecuteCommand(string command, string[] args)
         {
             var disconnectAll = false;
             if(args.Where(x => x.ToLower() == "-all").Any())
@@ -26,13 +26,7 @@ namespace Voice_of_Time.Cmd.Commands
 
             if (disconnectAll)
             {
-                var allConections = ClientData.GetAllConnectionIDs();
-                foreach (var connection in allConections)
-                {
-                    ClientData.CloseConnection(connection);
-                }
-                Console.WriteLine("Closed all connections");
-                return true;
+                return CloseAllConections();
             }
 
             //
@@ -44,6 +38,17 @@ namespace Voice_of_Time.Cmd.Commands
             }
             ClientData.CloseConnection((Guid)currentConnectionID);
             if(ClientData.CurrentConnection is null) { Console.WriteLine("Connection was successfully closed"); } else { Console.WriteLine("An Error ocured!"); }
+            return true;
+        }
+
+        protected static bool CloseAllConections()
+        {
+            var allConections = ClientData.GetAllConnectionIDs();
+            foreach (var connection in allConections)
+            {
+                ClientData.CloseConnection(connection);
+            }
+            Console.WriteLine("Closed all connections");
             return true;
         }
     }
