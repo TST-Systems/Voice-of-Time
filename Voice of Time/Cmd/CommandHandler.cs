@@ -57,9 +57,10 @@ namespace Voice_of_Time.Cmd
             ClientData.TryRegisterCommand(new Connect());
             ClientData.TryRegisterCommand(new Disconnect());
             ClientData.TryRegisterCommand(new Select());
+            ClientData.TryRegisterCommand(new ListChats());
         }
 
-        async Task ProcessCommand(string? str)
+        static async Task ProcessCommand(string? str)
         {
             if(str is null or "") return;
             // split the message

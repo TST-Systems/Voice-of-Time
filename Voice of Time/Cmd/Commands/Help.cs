@@ -81,7 +81,7 @@ namespace Voice_of_Time.Cmd.Commands
             Console.WriteLine();
             for (int i = ((int)page - 1) * 10; i < Commands.Length && i < page * entrysPerSite; i++)
             {
-                Console.WriteLine($"{Commands[i].Command} -> {Commands[i].Usage}");
+                Console.WriteLine(string.Format("{0,-16} -> {1,-50}", Commands[i].Command.ToUpper(), Commands[i].Usage));
             }
             Console.WriteLine();
             Console.WriteLine($"Page {page}/{Math.Ceiling((double) Commands.Length / (double) entrysPerSite)}");
