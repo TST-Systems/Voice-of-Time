@@ -1,4 +1,5 @@
-﻿using Voice_of_Time.Transfer;
+﻿using System.Diagnostics;
+using Voice_of_Time.Transfer;
 using VoTCore.Exeptions;
 
 namespace Voice_of_Time
@@ -185,6 +186,18 @@ namespace Voice_of_Time
             {
                 currentConnection = null;
             }
+        }
+
+        internal static Dictionary<Guid, CSocketHold> GetConnectionRegisterCopy()
+        {
+            return new Dictionary<Guid, CSocketHold>(ConnectionRegister);
+        }
+
+        internal static bool SelectConnection(Guid serverID)
+        {
+            var entryExists = ConnectionRegister.ContainsKey(serverID);
+            if (entryExists) currentConnection = serverID;
+            return entryExists;
         }
         #endregion
 
