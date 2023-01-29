@@ -29,10 +29,35 @@ namespace Voice_of_Time_Server.Transfer
             Listener.Listen(1000);
             while (true)
             {
-                var handler = await Listener.AcceptAsync();
+                var socket = await Listener.AcceptAsync();
+                var handler = new SocketHandler(socket);
                 _ = HandleConnection(handler);
             }
         }
+
+        /*
+         SocketHandler missing?
+
+        
+
+
+
+        async Task Timeout(int sek)
+        {
+            await Task.Delay(sek * 1000);
+            if (lastMessage < DateTime.Now.Millisecond - (sek * 1000))
+            {
+
+            }
+            _=Timeout(sek);
+        }
+
+
+
+
+         
+         
+         */
 
         public async Task HandleConnection(Socket handler)
         {
