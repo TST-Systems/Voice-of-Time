@@ -1,6 +1,12 @@
 ﻿using VoTCore.Package.Interfaces;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 29.11.2022
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace VoTCore.Package
 {
     public class VOTP

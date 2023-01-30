@@ -1,8 +1,16 @@
+
 ﻿using System.Diagnostics;
 using Voice_of_Time.Transfer;
 using VoTCore.Controll;
 using VoTCore.Exeptions;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 27.01.2023
+ * 
+ * @last_change - 28.01.2023
+ */
 namespace Voice_of_Time
 {
     public static class ClientData

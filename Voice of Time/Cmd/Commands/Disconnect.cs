@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VoTCore.Controll;
+﻿using VoTCore.Controll;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 27.01.2023
+ * 
+ * @last_change - 27.01.2023
+ */
 namespace Voice_of_Time.Cmd.Commands
 {
     internal class Disconnect : IConsoleCommandSync

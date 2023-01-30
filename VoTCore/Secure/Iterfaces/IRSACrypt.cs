@@ -1,5 +1,12 @@
 ﻿using System.Security.Cryptography;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 21.01.2023
+ * 
+ * @last_change - 21.01.2023
+ */
 namespace VoTCore.Secure.Iterfaces
 {
     public interface IRSACrypt

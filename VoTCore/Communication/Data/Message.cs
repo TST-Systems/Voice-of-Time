@@ -1,5 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
+/**
+ * @author      - Timeplex, SalzstangeManga
+ * 
+ * @created     - 23.01.2023
+ * 
+ * @last_change - 23.01.2023
+ */
 namespace VoTCore.Communication.Data
 {
     /// <summary>

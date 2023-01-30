@@ -1,6 +1,13 @@
 ﻿using System.Security.Cryptography;
 using VoTCore.Secure;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 24.12.2022
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace Voice_of_Time_Server
 {
     internal class Server : PublicKeyStorage

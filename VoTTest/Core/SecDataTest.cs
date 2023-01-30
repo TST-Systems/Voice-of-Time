@@ -1,6 +1,13 @@
 ﻿using System.Security.Cryptography;
 using VoTCore.Package.SecData;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 21.01.2023
+ * 
+ * @last_change - 21.01.2023
+ */
 namespace VoTTest.Core
 {
     public class SecDataTest

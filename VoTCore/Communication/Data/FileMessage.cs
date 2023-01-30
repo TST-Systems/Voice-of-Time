@@ -1,5 +1,12 @@
 ﻿using VoTCore.Package.Interfaces;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 23.01.2023
+ * 
+ * @last_change - 23.01.2023
+ */
 namespace VoTCore.Communication.Data
 {
     /// <summary>

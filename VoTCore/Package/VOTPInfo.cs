@@ -1,5 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 11.12.2022
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace VoTCore.Package
 {
     public class VOTPInfo

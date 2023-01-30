@@ -10,6 +10,13 @@ using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
 using VoTCore.Secure;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 20.01.2023
+ * 
+ * @last_change - 24.01.2023
+ */
 namespace Voice_of_Time_Server.Transfer
 {
     internal class SocketHandler
