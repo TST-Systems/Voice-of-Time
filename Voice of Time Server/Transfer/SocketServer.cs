@@ -27,7 +27,18 @@ namespace Voice_of_Time_Server.Transfer
                 _ = handler.HandleConnection();
             }
         }
+
+        /*
+        async Task Timeout(int sek)
+        {
+            await Task.Delay(sek * 1000);
+            if (lastMessage < DateTime.Now.Millisecond - (sek * 1000))
+            {
+
+            }
+            _=Timeout(sek);
+        }
+         */
+         
     }
-
-
 }

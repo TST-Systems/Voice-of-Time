@@ -106,6 +106,7 @@ namespace Voice_of_Time.Transfer
         {
             var con = Connect();
             StartHandler();
+            _ = KeepAlive(5);
             return await con;
         }
 
@@ -358,5 +359,15 @@ namespace Voice_of_Time.Transfer
             Disconect();
             GC.SuppressFinalize(this);
         }
+
+        async Task KeepAlive(int sek)
+        {
+            while (!isCancelled)
+            {
+                await Task.Delay(sek * 1000);
+                await EnqueueItem(Constants.ACK);
+            }
+        }
+
     }
 }
