@@ -1,6 +1,4 @@
-﻿using Voice_of_Time;
-
-namespace VoTCore.Controll
+﻿namespace VoTCore.Controll
 {
     public interface IConsoleCommandSync : IConsoleCommand
     {

@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Security.Cryptography;
+using VoTCore.Secure;
 
 namespace Voice_of_Time.Transfer
 {
@@ -209,18 +210,7 @@ namespace Voice_of_Time.Transfer
                     if (secureCommunicationEnabled)
                     {
                         if (CommunicationKey is null) throw new ArgumentNullException();
-
-                        using var encryptor = CommunicationKey.CreateEncryptor();
-                        using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
-
-                        cryptostream.Write(messageBytes, 0, messageBytes.Length);
-                        cryptostream.FlushFinalBlock();
-
-                        messageBytes = memoryStream.ToArray();
-
-                        cryptostream.Close();
-                        memoryStream.Close();
+                        messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
                     }
 
                     var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
@@ -260,18 +250,8 @@ namespace Voice_of_Time.Transfer
 
                     if (SecureCommunicationEnabled)
                     {
-                        if (CommunicationKey is null) throw new Exception("Internal Error");
-                        using var encryptor = CommunicationKey.CreateDecryptor();
-                        using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
-
-                        cryptostream.Write(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
-                        cryptostream.FlushFinalBlock();
-
-                        IncomingMessageInBytes = memoryStream.ToArray();
-
-                        cryptostream.Close();
-                        memoryStream.Close();
+                        if (CommunicationKey is null) throw new Exception("Inteneral Error!");
+                        IncomingMessageInBytes = CryproManager.AesDecyrpt(CommunicationKey, IncomingMessageInBytes);
                     }
                     
                     var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);

@@ -1,4 +1,4 @@
-﻿namespace Voice_of_Time
+﻿namespace VoTCore.Controll
 {
     public interface IConsoleCommand
     {

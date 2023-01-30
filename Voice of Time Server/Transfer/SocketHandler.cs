@@ -8,6 +8,7 @@ using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
+using VoTCore.Secure;
 
 namespace Voice_of_Time_Server.Transfer
 {
@@ -83,18 +84,10 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (SecureCommunicationEnabled)
                     {
-                        using var encryptor = ConnectionKey.CreateDecryptor();
-                        using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
-
-                        cryptostream.Write(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
-                        cryptostream.FlushFinalBlock();
-
-                        IncomingMessageInBytes = memoryStream.ToArray();
-
-                        cryptostream.Close();
-                        memoryStream.Close();
+                        if (ConnectionKey is null) throw new Exception("Inteneral Error!");
+                        IncomingMessageInBytes = CryproManager.AesDecyrpt(ConnectionKey, IncomingMessageInBytes);
                     }
+
                     var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
 
                     // PROCESS
@@ -105,17 +98,8 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (SecureCommunicationEnabled)
                     {
-                        using var encryptor = ConnectionKey.CreateEncryptor();
-                        using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
-
-                        cryptostream.Write(messageBytes, 0, messageBytes.Length);
-                        cryptostream.FlushFinalBlock();
-
-                        messageBytes = memoryStream.ToArray();
-
-                        cryptostream.Close();
-                        memoryStream.Close();
+                        if (ConnectionKey is null) throw new ArgumentNullException();
+                        messageBytes = CryproManager.AesEncyrpt(ConnectionKey, messageBytes);
                     }
 
                     var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
@@ -175,7 +159,7 @@ namespace Voice_of_Time_Server.Transfer
             {
                 case RequestType.IDENTITY:
                     sendHeader = new HeaderAck(true);
-                    sendBody = new SData_Guid(ServerInfo.server.ServerIdentity);
+                    sendBody = new SData_Guid(ServerData.server.ServerIdentity);
                     break;
                 case RequestType.KEY_EXCHANGE:
                     if (body is null)
@@ -196,11 +180,11 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (header.SenderID > 0 && CommunicationVerified)
                     {
-                        ServerInfo.server.AddPublicKey(header.SenderID, UserPubKey);
+                        ServerData.server.AddPublicKey(header.SenderID, UserPubKey);
                     }
 
                     sendHeader = new HeaderAck(true);
-                    sendBody = new SecData_Key_RSA(ServerInfo.server.ServerKey, 0);
+                    sendBody = new SecData_Key_RSA(ServerData.server.ServerKey, 0);
 
                     break;
                 case RequestType.VERIFY:
@@ -219,7 +203,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    if(!ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
+                    if(!ServerData.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody   = new SData_String("User unknown! Register first!");
@@ -228,7 +212,7 @@ namespace Voice_of_Time_Server.Transfer
 
                     UserID = header.SenderID;
 
-                    UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[UserID];
+                    UserPubKey = ServerData.server.PublicKeyDictionaryCopy[UserID];
 
 
                     goto COMM_KEY;
@@ -245,13 +229,13 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (UserPubKey is null)
                     {
-                        if (header.SenderID <= 0 || !ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
+                        if (header.SenderID <= 0 || !ServerData.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
                         {
                             sendHeader = new HeaderAck(false);
                             sendBody   = new SData_String("Public key unknown! Please exhange your Key first!");
                             break;
                         }
-                        UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[header.SenderID];
+                        UserPubKey = ServerData.server.PublicKeyDictionaryCopy[header.SenderID];
                     }
 
                     // Because if he doesn't understand the key, he has to close the connection.
@@ -278,7 +262,7 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String("You need to secure the communication first!");
                         break;
                     }
-                    var uid = ServerInfo.server.AddUser(UserPubKey);
+                    var uid = ServerData.server.AddUser(UserPubKey);
 
                     CommunicationVerified = true;
                     UserID                = uid;
@@ -313,7 +297,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    ServerInfo.server.UserDB[UserID].UserName = strBody.Data;
+                    ServerData.server.UserDB[UserID].UserName = strBody.Data;
 
                     sendHeader = new HeaderAck(true);
                     break;
