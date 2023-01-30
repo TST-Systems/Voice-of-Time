@@ -1,33 +1,28 @@
 ﻿using System.Data;
 using System.Net.Sockets;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace Voice_of_Time.Transfer
 {
     internal class CSocketHold : CSocketSingle, IDisposable
     {
-        private struct QueueItem
-        {
+        private record QueueItem
+        (
             /// <summary>
             /// Message to send
             /// </summary>
-            public string Message { get; set; }
+            string Message,
             /// <summary>
             /// Function to call with when task is done 
             /// </summary>
-            public Func<string?, Task> CallBack { get; set; }
+            Func<string?, Task> CallBack,
             /// <summary>
             /// ID to track task
             /// </summary>
-            public long ID { get; }
-
-            public QueueItem(string message, Func<string?, Task> callBack, long iD)
-            {
-                Message = message;
-                CallBack = callBack;
-                ID = iD;
-            }
-        }
+            long ID
+        );
+        
         /// <summary>
         /// Client Server Connection
         /// </summary>
@@ -76,6 +71,14 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         public ConnectionState CurrentState { get => currentState; }
 
+        private Aes? CommunicationKey           = null;
+        private bool secureCommunicationEnabled = false;
+
+        public bool CommunicationKeyIsSet      { get => CommunicationKey != null; }
+        public bool SecureCommunicationEnabled { get => secureCommunicationEnabled; }
+
+
+        private string ReqestAddress;
 
         /// <summary>
         /// A socket for client server communication with the ability to connect once, send endlessly
@@ -88,7 +91,10 @@ namespace Voice_of_Time.Transfer
             IpEndPoint.AddressFamily,
             SocketType.Stream,
             ProtocolType.Tcp);
+
             currentState = ConnectionState.Closed;
+
+            ReqestAddress = address;
         }
 
         ~CSocketHold()
@@ -104,6 +110,24 @@ namespace Voice_of_Time.Transfer
             return await con;
         }
 
+        internal void SetCommunicationKey (Aes key, bool enable = true)
+        {
+            CommunicationKey           = key;
+            secureCommunicationEnabled = enable;
+        }
+
+        internal void RemoveCommunicationKey()
+        {
+            CommunicationKey           = null;
+            secureCommunicationEnabled = false;
+        }
+
+        internal void SwitchSecureCommunicationState(bool enable)
+        {
+            if (CommunicationKey is null) return;
+            secureCommunicationEnabled = enable;
+        }
+
         /// <summary>
         /// Connect with the Server
         /// </summary>
@@ -117,9 +141,6 @@ namespace Voice_of_Time.Transfer
             }
             catch (Exception ex)
             {
-#if DEBUG
-                throw ex;
-#endif
                 Console.WriteLine(ex.ToString());
                 currentState = ConnectionState.Broken;
                 return false;
@@ -182,53 +203,80 @@ namespace Voice_of_Time.Transfer
                     if (isCancelled) return;
                     var nextQueueItem = Queue.Dequeue();
 
-                    var messageBytes = Encoding.UTF8.GetBytes(Constants.SOM + nextQueueItem.Message + Constants.EOM);
-                    var code = await Client.SendAsync(messageBytes, SocketFlags.None);
+                    byte[] messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message);
+                    byte[] tokenSOM     = Encoding.UTF8.GetBytes(Constants.SOM);
+                    byte[] tokenEOM     = Encoding.UTF8.GetBytes(Constants.EOM);
 
-                    bool messageComplete = false;
-                    string IncomingMessage = "";
+                    if (secureCommunicationEnabled)
+                    {
+                        if (CommunicationKey is null) throw new ArgumentNullException();
 
+                        using var encryptor = CommunicationKey.CreateEncryptor();
+                        using MemoryStream memoryStream = new();
+                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
+
+                        cryptostream.Write(messageBytes, 0, messageBytes.Length);
+                        cryptostream.FlushFinalBlock();
+
+                        messageBytes = memoryStream.ToArray();
+
+                        cryptostream.Close();
+                        memoryStream.Close();
+                    }
+
+                    var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
+
+                    IDCurrent = nextQueueItem.ID;
+                    
+                    var code = await Client.SendAsync(bytesToSend, SocketFlags.None);
 
                     //-----------------------------------------------------------------------------
 
-                    var bufferSOM = new byte[Constants.BUFFER_SIZE_BYTE];
-                    var receivedSOM = await Client.ReceiveAsync(bufferSOM, SocketFlags.None);
-                    var responseSOM = Encoding.UTF8.GetString(bufferSOM, 0, receivedSOM);
+                    bool messageComplete = false;
 
+                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                    var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
 
-                    var indexOfSOM = responseSOM.IndexOf(Constants.SOM);
-                    if (indexOfSOM < 0)
-                    {
-                        Client.Close(); // + Fehler werfen
-                        return;
-                    }
-                    responseSOM = responseSOM.Remove(indexOfSOM, 1);
+                    if (received == 0) throw new Exception("No data Transfer!");
 
+                    var IncomingMessageInBytes = buffer[0..received];
 
-                    var indexOfEOM = responseSOM.IndexOf(Constants.EOM);
-                    if (indexOfEOM > -1)
-                    {
-                        messageComplete = true;
-                        responseSOM = responseSOM.Remove(indexOfEOM);
-                    }
-                    IncomingMessage += responseSOM;
-
-
+                    if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenSOM.Length], tokenSOM)) throw new Exception("Communication not valid!");
+                    IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
 
                     while (!messageComplete)
                     {
-                        var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                        var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
-                        var response = Encoding.UTF8.GetString(buffer, 0, received);
-
-                        indexOfEOM = response.IndexOf(Constants.EOM);
-                        if (indexOfEOM > -1)
+                        if (Enumerable.SequenceEqual(IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length], tokenEOM))
                         {
                             messageComplete = true;
-                            response = response.Remove(indexOfEOM);
+                            IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];
+                            break;
                         }
-                        IncomingMessage += response;
+
+                        buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                        received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+
+                        IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
                     }
+
+                    if (SecureCommunicationEnabled)
+                    {
+                        if (CommunicationKey is null) throw new Exception("Internal Error");
+                        using var encryptor = CommunicationKey.CreateDecryptor();
+                        using MemoryStream memoryStream = new();
+                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
+
+                        cryptostream.Write(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
+                        cryptostream.FlushFinalBlock();
+
+                        IncomingMessageInBytes = memoryStream.ToArray();
+
+                        cryptostream.Close();
+                        memoryStream.Close();
+                    }
+                    
+                    var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
+
                     _ = nextQueueItem.CallBack(IncomingMessage);
 
 
@@ -296,6 +344,12 @@ namespace Voice_of_Time.Transfer
             await responseReady.WaitAsync();
 
             return response;
+        }
+
+        public string GetIPAddress(bool realAddress = false)
+        {
+            if (realAddress) return IpAddress.ToString();
+            return ReqestAddress;
         }
 
         public void Dispose()

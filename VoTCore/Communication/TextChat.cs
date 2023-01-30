@@ -1,6 +1,6 @@
-﻿using VoTCore.Communication;
+﻿using VoTCore.Communication.Data;
 
-namespace VoTCore
+namespace VoTCore.Communication
 {
     public class TextChat
     {

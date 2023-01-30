@@ -1,18 +1,19 @@
-﻿using VoTCore.Package;
+﻿using VoTCore.Package.Interfaces;
 
-namespace VoTCore.Communication
+namespace VoTCore.Communication.Data
 {
     /// <summary>
     /// Basic text message
     /// </summary>
     public class TextMessage : Message, IVOTPBody
     {
-        public TextMessage(short typeOfMessage, string messageString, long authorID, long dateOfCreation) 
-            : base(typeOfMessage, messageString, authorID, dateOfCreation)
+        const BodyType TYPE = BodyType.MESSAGE_TEXT;
+
+        public TextMessage(string messageString, long authorID, long dateOfCreation)
+            : base(messageString, authorID, dateOfCreation, TYPE)
         {
         }
 
-        public MessageType Type => MessageType.TEXT_MESSAGE;
 
         public override bool Equals(object? obj)
         {
