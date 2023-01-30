@@ -2,6 +2,13 @@
 using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 20.01.2023
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace VoTCore.Package.SecData
 {
     public class SecData_Key_RSA : IVOTPBody

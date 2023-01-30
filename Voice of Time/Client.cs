@@ -2,6 +2,13 @@
 using VoTCore.Communication;
 using VoTCore.Secure;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 20.12.2022
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace Voice_of_Time
 {
     /// <summary>

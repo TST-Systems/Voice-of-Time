@@ -3,6 +3,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Security.Cryptography;
 
+/**
+ * @author      - Timeplex, SalzstangeManga
+ * 
+ * @created     - 09.01.2023
+ * 
+ * @last_change - 27.01.2023
+ */
 namespace Voice_of_Time.Transfer
 {
     internal class CSocketHold : CSocketSingle, IDisposable

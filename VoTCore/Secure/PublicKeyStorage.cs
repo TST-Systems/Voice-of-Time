@@ -1,5 +1,12 @@
 ﻿using System.Security.Cryptography;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 22.01.2023
+ * 
+ * @last_change - 22.01.2023
+ */
 namespace VoTCore.Secure
 {
     public class PublicKeyStorage

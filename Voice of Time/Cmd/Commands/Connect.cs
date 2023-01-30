@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using Voice_of_Time.Transfer;
+﻿using Voice_of_Time.Transfer;
 using VoTCore.Controll;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
@@ -7,6 +6,13 @@ using VoTCore.Package;
 using System.Security.Cryptography;
 using VoTCore.Package.SecData;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 27.01.2023
+ * 
+ * @last_change - 27.01.2023
+ */
 namespace Voice_of_Time.Cmd.Commands
 {
     internal class Connect : ICommandHelp, IConsoleCommandAsync

@@ -1,5 +1,12 @@
 ﻿using Voice_of_Time;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 27.01.2023
+ * 
+ * @last_change - 27.01.2023
+ */
 namespace VoTCore.Controll
 {
     public interface IConsoleCommandAsync : IConsoleCommand

@@ -1,4 +1,11 @@
-﻿namespace Voice_of_Time.Cmd.Commands
+﻿/**
+ * @author      - Timeplex
+ * 
+ * @created     - 28.01.2023
+ * 
+ * @last_change - 28.01.2023
+ */
+namespace Voice_of_Time.Cmd.Commands
 {
     internal class Exit : Disconnect
     {

@@ -1,6 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 14.01.2023
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace VoTCore.Package.SData
 {
     public abstract class SData<T> : IVOTPBody

@@ -1,4 +1,11 @@
-﻿namespace Voice_of_Time
+﻿/**
+ * @author      - Timeplex
+ * 
+ * @created     - 27.01.2023
+ * 
+ * @last_change - 27.01.2023
+ */
+namespace Voice_of_Time
 {
     public interface IConsoleCommand
     {

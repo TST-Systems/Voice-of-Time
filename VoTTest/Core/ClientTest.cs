@@ -2,6 +2,13 @@
 using Voice_of_Time;
 using VoTCore.Secure;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 22.12.2022
+ * 
+ * @last_change - 22.12.2022
+ */
 namespace VoTTest.Core
 {
     public class ClientTest

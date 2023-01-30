@@ -3,6 +3,13 @@ using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
 using VoTCore.Secure.Iterfaces;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 20.01.2023
+ * 
+ * @last_change - 21.01.2023
+ */
 namespace VoTCore.Package.SecData
 {
     public class SecData_Key_Aes : IVOTPBody, IRSACrypt

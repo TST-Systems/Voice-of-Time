@@ -2,6 +2,13 @@
 using System.Net.Sockets;
 using System.Text;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 09.01.2023
+ * 
+ * @last_change - 11.01.2023
+ */
 namespace Voice_of_Time.Transfer
 {
     internal class CSocketSingle

@@ -3,6 +3,13 @@ using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
 
+/**
+ * @author      - Timeplex, SalzstangeManga
+ * 
+ * @created     - 12.12.2022
+ * 
+ * @last_change - 20.01.2023
+ */
 namespace VoTCore
 {
     public static class Constants

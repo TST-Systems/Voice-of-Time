@@ -1,5 +1,12 @@
 ﻿using VoTCore.Communication.Data;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 23.01.2023
+ * 
+ * @last_change - 23.01.2023
+ */
 namespace VoTCore.Communication
 {
     public class TextChat
