@@ -1,6 +1,13 @@
 ﻿using System.Security.Cryptography;
 using VoTCore.Communication;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 30.01.2023
+ * 
+ * @last_change - 30.01.2023
+ */
 namespace Voice_of_Time.Communication
 {
     internal class PrivatChat : TextChat

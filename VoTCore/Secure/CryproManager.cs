@@ -5,6 +5,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 30.01.2023
+ * 
+ * @last_change - 30.01.2023
+ */
 namespace VoTCore.Secure
 {
     public static class CryproManager
