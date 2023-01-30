@@ -1,4 +1,4 @@
-﻿namespace VoTCore.Communication
+﻿namespace VoTCore.Communication.Data
 {
     public class MessageStatus
     {

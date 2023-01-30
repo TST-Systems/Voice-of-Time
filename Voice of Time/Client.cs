@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using VoTCore.Communication;
 using VoTCore.Secure;
 
 namespace Voice_of_Time
@@ -15,17 +16,17 @@ namespace Voice_of_Time
         // From the Server given unique ID
         public long UserID { get; }
         // Display Name for outher users
-        public string UserName { get; }
+        public string Username { get; }
         // Public and privat Key pair
         public RSA UserKey { get; }
         // List of all Textchats
         public List<TextChat> TextChats { get; }
 
-        public Client(long userID, string userName, RSA userKey, Dictionary<long, RSA>? publicKeyDictionary = null, List<TextChat>? textChats = null)
+        public Client(long userID, string username, RSA userKey, Dictionary<long, RSA>? publicKeyDictionary = null, List<TextChat>? textChats = null)
             : base(publicKeyDictionary)
         {
             UserID    = userID;
-            UserName  = userName  ?? throw new ArgumentNullException(nameof(userName));
+            Username  = username  ?? throw new ArgumentNullException(nameof(username));
             UserKey   = userKey   ?? throw new ArgumentNullException(nameof(userKey));
             TextChats = textChats ?? new();
         }

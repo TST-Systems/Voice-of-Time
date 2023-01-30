@@ -1,6 +1,11 @@
-﻿using System.Text.Json;
-using VoTCore.Communication;
+﻿using System.Security.Cryptography;
+using System.Text.Json;
+using VoTCore;
+using VoTCore.Communication.Data;
 using VoTCore.Package;
+using VoTCore.Package.Header;
+using VoTCore.Package.SData;
+using VoTCore.Package.SecData;
 
 namespace VoTTest.Core
 {
@@ -10,19 +15,19 @@ namespace VoTTest.Core
         readonly Random rnd = new();
 
         [Fact]
-        public void Constructo_Test()
+        public void Constructor_Test()
         {
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body   = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
-            var package = new VOTP(header, body);
-            var packageEmptyBody = new VOTP(header, default);
+            var package          = new VOTP(header, body);
+            var packageEmptyBody = new VOTP(header);
 
             Assert.Equal(header, package.Header);
-            Assert.Equal(body, package.Data);
+            Assert.Equal(body,   package.Body);
 
-            Assert.Equal(header, packageEmptyBody.Header);
-            Assert.Equal(default, packageEmptyBody.Data);
+            Assert.Equal(header,  packageEmptyBody.Header);
+            Assert.Equal(default, packageEmptyBody.Body);
         }
         
 
@@ -30,8 +35,8 @@ namespace VoTTest.Core
         public void Serialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             ///
@@ -52,7 +57,7 @@ namespace VoTTest.Core
             Assert.Equal(header.Version, info.Version);
 
             // Is the Heaer ok?
-            var json_Header = JsonSerializer.Deserialize<VOTPHeaderV1>(split[1]);
+            var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
             Assert.NotNull(json_Header);
             Assert.Equal(json_Header, header);
 
@@ -69,7 +74,7 @@ namespace VoTTest.Core
         public void Serialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -86,11 +91,11 @@ namespace VoTTest.Core
             // Is the Preheader ok?
             var info = JsonSerializer.Deserialize<VOTPInfo?>(split[0]);
             Assert.NotNull(info);
-            Assert.Equal(default,        info.Type);
-            Assert.Equal(header.Version, info.Version);
+            Assert.Equal(BodyType.NONE, info.Type);
+            Assert.Equal(header.Version,   info.Version);
 
             // Is the Heaer ok?
-            var json_Header = JsonSerializer.Deserialize<VOTPHeaderV1>(split[1]);
+            var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
             Assert.NotNull(json_Header);
             Assert.Equal(json_Header, header);
         }
@@ -99,24 +104,25 @@ namespace VoTTest.Core
         public void Deserialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
             ///
 
             /// Execute function
             var serialized = package.Serialize();
+            Console.WriteLine(serialized);
             var deserialized = new VOTP(serialized);
             ///
 
             /// Test results
             Assert.NotNull(deserialized);
-            Assert.NotNull(deserialized.Data);
+            Assert.NotNull(deserialized.Body);
             Assert.NotNull(deserialized.Header);
 
             Assert.Equal(deserialized,        package);
-            Assert.Equal(deserialized.Data,   body);
+            Assert.Equal(deserialized.Body,   body);
             Assert.Equal(deserialized.Header, header);
         }
 
@@ -124,7 +130,7 @@ namespace VoTTest.Core
         public void Deserialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -136,11 +142,11 @@ namespace VoTTest.Core
 
             /// Test results
             Assert.NotNull(deserialized);
-            Assert.Null(deserialized.Data);
+            Assert.Null(deserialized.Body);
             Assert.NotNull(deserialized.Header);
 
             Assert.Equal(deserialized, package);
-            Assert.Equal(default, deserialized.Data);
+            Assert.Equal(default, deserialized.Body);
             Assert.Equal(deserialized.Header, header);
         }
 
@@ -148,20 +154,20 @@ namespace VoTTest.Core
         public void Equal_Test()
         {
             /// GENERATE PACKAGE
-            var header1 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header1 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
 
             while (header1.Equals(header2))
             {
-                header2 = new VOTPHeaderV1(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+                header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
             }
 
-            var body1 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
-            var body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body1 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             while (body1.Equals(body2))
             {
-                body2 = new TextMessage((short)rnd.Next(), "Hello World", rnd.NextInt64(), rnd.NextInt64());
+                body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
             }
 
             var package1_1 = new VOTP(header1, body1);
@@ -250,6 +256,93 @@ namespace VoTTest.Core
             Assert.False(package2_2.Equals(null));
             Assert.False(packageNoBody1.Equals(null));
             Assert.False(packageNoBody2.Equals(null));
+        }
+
+        [Fact]
+        public void SData_Test()
+        {
+            var body = new SData_Int(rnd.Next());
+            var head = new HeaderStd(1, 0, 0, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(body, deserialized.Body);
+            Assert.Equal(head, deserialized.Header);
+        }
+
+        [Fact]
+        public void HeaderReq_Test()
+        {
+            var body = new SData_Int(rnd.Next());
+            var head = new HeaderReq(1, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(body, deserialized.Body);
+            Assert.Equal(head, deserialized.Header);
+        }
+
+        [Fact]
+        public void SecDataKeyRSA_Test()
+        {
+            var fullKey   = RSA.Create();
+            var publicKey = RSA.Create(fullKey.ExportParameters(false));
+
+
+            var publicKey2 = fullKey.ExportRSAPublicKey();
+
+            var body = new SecData_Key_RSA(publicKey, 0);
+            var head = new HeaderReq(1, 0);
+
+            var package = new VOTP(head, body);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.Equal(head, deserialized.Header);
+
+            if (deserialized.Body is not SecData_Key_RSA keyData) { 
+                Assert.Fail("Body is no longer of the same type as before?");
+                return;  
+            }
+
+            var externPublicKey = RSA.Create();
+            externPublicKey.FromXmlString(keyData.PublicKeyAsXML);
+
+            var A = publicKey.ExportParameters(false);
+            var B = externPublicKey.ExportParameters(false);
+
+            Assert.Equal(A.Modulus,  B.Modulus);
+            Assert.Equal(A.Exponent, B.Exponent);
+
+            try
+            {
+                _ = publicKey.ExportParameters(true);
+                Assert.Fail("Original Public key has privat parts!");
+            }catch(Exception) { }
+
+            try
+            {
+                _ = externPublicKey.ExportParameters(true);
+                Assert.Fail("Extern Public key has privat parts!");
+            }
+            catch (Exception) { }
+
+            try
+            {
+                _ = fullKey.ExportParameters(true);
+            }
+            catch (Exception)
+            {
+                Assert.Fail("Privat key has no privat parts!");
+            }
+
         }
 
     }
