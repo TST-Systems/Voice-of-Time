@@ -1,5 +1,3 @@
-
-﻿using System.Diagnostics;
 using Voice_of_Time.Transfer;
 using VoTCore.Controll;
 using VoTCore.Exeptions;

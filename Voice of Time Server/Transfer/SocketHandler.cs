@@ -15,7 +15,7 @@ using VoTCore.Secure;
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 30.01.2023
+ * @last_change - 01.02.2023
  */
 namespace Voice_of_Time_Server.Transfer
 {
@@ -187,7 +187,7 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (header.SenderID > 0 && CommunicationVerified)
                     {
-                        ServerData.server.AddPublicKey(header.SenderID, UserPubKey);
+                        ServerData.server.UserDB[header.SenderID].PublicKey.ChangeKey(UserPubKey);
                     }
 
                     sendHeader = new HeaderAck(true);
@@ -210,7 +210,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    if(!ServerData.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
+                    if(!ServerData.server.UserDB.ContainsKey(header.SenderID))
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody   = new SData_String("User unknown! Register first!");
@@ -219,7 +219,7 @@ namespace Voice_of_Time_Server.Transfer
 
                     UserID = header.SenderID;
 
-                    UserPubKey = ServerData.server.PublicKeyDictionaryCopy[UserID];
+                    UserPubKey = ServerData.server.UserDB[UserID].PublicKey.Key;
 
 
                     goto COMM_KEY;
@@ -236,13 +236,13 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (UserPubKey is null)
                     {
-                        if (header.SenderID <= 0 || !ServerData.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
+                        if (header.SenderID <= 0 || !ServerData.server.UserDB.ContainsKey(header.SenderID))
                         {
                             sendHeader = new HeaderAck(false);
                             sendBody   = new SData_String("Public key unknown! Please exhange your Key first!");
                             break;
                         }
-                        UserPubKey = ServerData.server.PublicKeyDictionaryCopy[header.SenderID];
+                        UserPubKey = ServerData.server.UserDB[header.SenderID].PublicKey.Key;
                     }
 
                     // Because if he doesn't understand the key, he has to close the connection.
@@ -269,7 +269,7 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String("You need to secure the communication first!");
                         break;
                     }
-                    var uid = ServerData.server.AddUser(UserPubKey);
+                    var uid = ServerData.server.AddUser(UserPubKey, ""); // TODO: Username?
 
                     CommunicationVerified = true;
                     UserID                = uid;
@@ -304,7 +304,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    ServerData.server.UserDB[UserID].UserName = strBody.Data;
+                    ServerData.server.UserDB[UserID].Username = strBody.Data;
 
                     sendHeader = new HeaderAck(true);
                     break;
