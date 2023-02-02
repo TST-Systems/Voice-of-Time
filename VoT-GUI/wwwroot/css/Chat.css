@@ -1,0 +1,176 @@
+  #Chat{
+    float: left;
+    width:calc(100% - 230px - 50px);
+    height: calc(100vh - 50px);
+    display: block;
+    box-sizing: border-box;
+  }
+  
+  #TextChat {
+    float: left;
+    display: block;
+    margin-top: 0%;
+    margin-left: 0%;
+    width:100%;
+    height: calc(100vh - 50px - 2vh - 2vh - 50px);
+    background-color: rgba(255, 255, 255, 0.090);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  #Chat textarea{
+    margin-top: calc(100vh - 50px - 2vh - 1vh - 50px);
+    margin-left: 1vh;
+    width: calc(100% - 1vh - 50px - 2vh);
+    height: calc(50px + 2vh );
+    display: block;
+  }
+  
+  #Chat button {
+    float: right;
+    display: block;
+    margin-top: calc(-50px - 1vh);
+    margin-right: 1vh;
+    width: 50px;
+    height: 50px;
+  }
+  
+  #Chat button img {
+    height: 100%;
+    width: 100%;
+  }
+
+  
+/* Message Style */ 
+  /*send Message */
+    .sendMessage {
+      float: right;
+      display: block;
+      width: 100%;
+      height: auto;
+      margin-left: 1vh;
+      margin-top: 1vh;
+      margin-bottom: 1vh;
+      margin-right: 1vh;
+    }
+
+    .sendMessageProfileImg {
+      float: right;
+      display: inline;
+      margin-left: 0vh;
+      height: 50px;
+      width: 50px;
+      border-radius: 50%;
+    }
+
+    .sendMessageData {
+      float: right;
+      display: block;
+      background-color: rgba(0, 0, 0, 0.500);
+      height: auto;
+      width: calc(100% - 50px - 3vh);
+      margin-top: 0vh;
+      margin-right: 1vh;
+      border-radius: 25px;
+      border: 2px solid black;
+    }
+
+    .sendMessageProfileName {
+      float: left;
+      display: inline;
+      width: 100%;
+      margin-left: 1vh;
+      margin-top: 0vh;
+      margin-bottom: 0vh;
+      margin-right: 0vh;
+      color:rgb(35, 50, 255) ;
+    }
+
+    .sendMessageContent {
+      float: left;
+      display: inline;
+      width: calc(100% - 1vh);
+      margin-left: 1vh;
+      margin-top: 0vh;
+      margin-bottom: 0vh;
+      margin-right: 0vh;
+      word-wrap: break-word;
+      color: rgba(255, 255, 255, 0.700);
+    }
+
+    .sendMessageTime {
+      float: right;
+      display: inline;
+      font-size: 75%;
+      margin-right: 2vh;
+      margin-bottom: 0.5vh;
+      color: rgba(255, 255, 255, 0.700);
+    }
+
+  /* receive Message */
+    .receiveMessage {
+      float: left;
+      display: block;
+      width: 100%;
+      height: auto;
+      margin-left: 1vh;
+      margin-top: 1vh;
+      margin-bottom: 1vh;
+      margin-right: 1vh;
+    }
+
+    .receiveMessageProfileImg {
+      float: left;
+      display: inline;
+      margin-left: 0vh;
+      height: 50px;
+      width: 50px;
+      border-radius: 50%;
+    }
+
+    .receiveMessageData {
+      float: left;
+      display: block;
+      background-color: rgba(0, 0, 0, 0.500);
+      height: auto;
+      width: calc(100% - 50px - 3vh);
+      margin-left: 1vh;
+      margin-top: -0.5vh;
+      border-radius: 25px;
+      border: 2px solid black;
+    }
+
+    .receiveMessageProfileName {
+      float: left;
+      display: inline;
+      width: 100%;
+      margin-left: 1vh;
+      margin-top: 0vh;
+      margin-bottom: 0vh;
+      margin-right: 0vh;
+      color:rgb(255, 150, 0) ;
+    }
+
+    .receiveMessageContent {
+      float: left;
+      display: inline;
+      width: calc(100% - 1vh);
+      margin-left: 1vh;
+      margin-top: 0vh;
+      margin-bottom: 0vh;
+      margin-right: 0vh;
+      word-wrap: break-word;
+      color: rgba(255, 255, 255, 0.700);
+    }
+
+    .receiveMessageTime {
+      float: right;
+      display: inline;
+      font-size: 75%;
+      margin-right: 2vh;
+      margin-bottom: 0.5vh;
+      color: rgba(255, 255, 255, 0.700);
+    }
+  
+
+  
