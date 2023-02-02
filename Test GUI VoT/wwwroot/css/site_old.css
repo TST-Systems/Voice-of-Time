@@ -1,0 +1,38 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.server-list {
+    min-height: 100%;
+    width:5%;
+    background-color: aqua;
+}
+
+.channel-list{
+    height: 100%;
+    width: 30%;
+    margin-left: 5%;
+    background-color: chartreuse;
+}
+
+.Chat{
+    width: 100%;
+    margin-left: 35%;
+    background-color: lightseagreen;
+}
+

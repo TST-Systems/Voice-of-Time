@@ -1,0 +1,50 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+    <header>
+        <nav class="">
+                <img src="sources/Pictures/VoT_logo.jpg">
+                <p>Voice of Time</p>
+        </nav>
+    </header>
+
+
+
+<!-- RenderBody -->
+
+<div class="Site">
+    <!-- Server List -->
+    <div class="server-list box" id="ServerList">
+    </div>
+    <!-- Chats Member -->
+    <div class="ChatMember">
+        <!-- Private and Group Chats -->
+        <p class="ChatFontHeadline">Private Chat</p>
+        <div class="privat-chat-list box privatAndChannelChats" id="ChatList">
+        </div>
+        <!-- Channel list -->
+        <p class="ChatFontHeadline">Channel</p>
+        <div class="channel-list box privatAndChannelChats" id="ChannelList">
+        </div>
+    </div>
+    <!-- Chat -->
+    <div class="box" id="Chat">
+        <div id="TextChat"></div>
+        <textarea id="MessageContent" placeholder="Type message.."></textarea>
+        <button id="Send" onclick="sendMessage()">
+            <img src="sources/Pictures/Send Button.png" height="5%" width="5%">
+        </button>
+    </div>
+
+    <div id="ContextMenuServer">
+        <p>Change Settings</p>
+        <p>Delete Server</p>
+    </div>
+
+    <div id="ServerSettings">
+    </div>
+
+</div>

@@ -1,0 +1,41 @@
+.server-list {
+    float: left;
+    display: block;
+    width:50px;
+      margin-top: 0%;
+    background-color:rgba(0, 0, 0, 0.300);
+    box-sizing: border-box;
+    height:calc(100vh - 50px);
+    overflow-y: auto;
+  }
+  
+  .server-list div {
+    display: inline-block;
+    margin-left: 0%;
+  }
+
+  
+  
+  #ServerList img {
+    margin-top: 5%;
+    margin-left: 5%;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 50%;
+  }
+  
+  #ServerList img:hover {
+    border-radius: 10%;
+  }
+
+
+  #ContextMenuServer {
+    position: absolute;
+    display: none;
+    width: 150px;
+    height: auto;
+    margin-top: 50vh;
+    margin-left: 50vh;
+    color: black;
+    background-color: white;
+  }
