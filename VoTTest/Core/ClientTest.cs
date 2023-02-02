@@ -8,7 +8,10 @@ using VoTCore.Secure;
  * @created     - 22.12.2022
  * 
  * @last_change - 22.12.2022
+ * 
+ * @Outdated    - 01.02.2022
  */
+/*
 namespace VoTTest.Core
 {
     public class ClientTest
@@ -46,3 +49,4 @@ namespace VoTTest.Core
 
     }
 }
+*/

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿/**
+ * @author      - Timeplex
+ * 
+ * @created     - 01.02.2023
+ * 
+ * @last_change - 01.02.2023
+ */
 namespace VoTCore.Algorithms
 {
     public static class Base36

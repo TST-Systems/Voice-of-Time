@@ -1,27 +1,27 @@
 ﻿using System.Security.Cryptography;
 using VoTCore.Secure;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 24.12.2022
  * 
- * @last_change - 20.01.2023
+ * @last_change - 01.02.2023
  */
 namespace Voice_of_Time_Server
 {
-    internal class Server : PublicKeyStorage
+    internal class Server
     {
         public Guid ServerIdentity { get; }
 
         public ServerConfig Config { get; }
 
-        public Dictionary<long, UserInfo> UserDB { get; }
+        public Dictionary<long, PublicClient> UserDB { get; }
 
         public RSA ServerKey { get; }
 
-        public Server(Guid? serverIdentity = null, RSA? serverKey = null, Dictionary<long, RSA>? publicKeyDictionary = null, ServerConfig? config = null, Dictionary<long, UserInfo>? userDB = null)
-            : base(publicKeyDictionary)
+        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null)
         {
             Config         = config         ?? new();
             UserDB         = userDB         ?? new();
@@ -29,7 +29,7 @@ namespace Voice_of_Time_Server
             ServerIdentity = serverIdentity ?? Guid.NewGuid();
         }
 
-        internal long AddUser(RSA userPubKey)
+        internal long AddUser(RSA userPubKey, string username)
         {
             Random rdm = new();
             long userID;
@@ -39,8 +39,7 @@ namespace Voice_of_Time_Server
             }
             while (userID <= 0 && !UserDB.ContainsKey(userID));
 
-            base.AddPublicKey(userID, userPubKey);
-            UserDB[userID] = new("Guest");
+            UserDB[userID] = new(userID, username, new(userPubKey));
 
             return userID;
         }

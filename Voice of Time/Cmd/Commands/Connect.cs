@@ -11,7 +11,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 27.01.2023
+ * @last_change - 01.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -111,7 +111,7 @@ namespace Voice_of_Time.Cmd.Commands
                     else Console.WriteLine(Convert.ToBase64String(sKey));
 
                     client = new(userID, username, clientKey);
-                    client.AddPublicKey(0, serverKey);
+                    client.UserDB.Add(0, new(0, "Server", new(serverKey)));
 
                     ClientData.AddServerClient(client, serverID);
                 }

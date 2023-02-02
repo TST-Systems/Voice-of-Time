@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using VoTCore.Algorithms;
+﻿using VoTCore.Algorithms;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 01.02.2023
+ * 
+ * @last_change - 01.02.2023
+ */
 namespace VoTTest.Core
 {
     public class Base36Test
