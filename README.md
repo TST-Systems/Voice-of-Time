@@ -95,4 +95,5 @@ None ;(
 
 <a name="faq"></a>
 ## FAQ
-WIP
+### Which OS will be supported
+Currently only Windows. But we plan to provide at least a server version for linux.
