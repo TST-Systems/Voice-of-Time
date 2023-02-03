@@ -1,3 +1,11 @@
+<a name="project-name-and-description"></a>
+# Voice-of-Time
+An open-source Voice- and Text-communication Software
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/72736935/216655933-5d5d59cc-cf2b-4756-9113-f5ee66aee9cd.png">
+</p>
+
 ## Table of Contents
 
 - [Project Name and Description](#project-name-and-description)
@@ -10,10 +18,6 @@
 - [Credits](#credits)
 - [Acknowledgments](#acknowledgments)
 - [FAQ](#faq)
-
-<a name="project-name-and-description"></a>
-# Voice-of-Time
-An open-source Voice- and Text-communication Software
 
 <a name="getting-started"></a>
 ## Getting Started
