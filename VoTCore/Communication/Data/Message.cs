@@ -1,18 +1,23 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex, SalzstangeManga
  * 
  * @created     - 23.01.2023
  * 
- * @last_change - 23.01.2023
+ * @last_change - 03.02.2023
  */
 namespace VoTCore.Communication.Data
 {
     /// <summary>
     /// Text based message for communication between clients
     /// </summary>
-    public abstract class Message
+    [Serializable]
+    [KnownType(typeof(BodyType))]
+    [KnownType(typeof(MessageStatus))]
+    public abstract class Message : ISerializable
     {
         /// <summary>
         /// Type of Message
@@ -61,6 +66,15 @@ namespace VoTCore.Communication.Data
         public override int GetHashCode()
         {
             throw new NotImplementedException();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(MessageString),  MessageString);
+            info.AddValue(nameof(AuthorID),       AuthorID);
+            info.AddValue(nameof(DateOfCreation), DateOfCreation);
+            info.AddValue(nameof(Status),         Status);
+            info.AddValue(nameof(Type),           Type);
         }
     }
 }

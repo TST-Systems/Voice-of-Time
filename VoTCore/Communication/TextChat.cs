@@ -1,17 +1,27 @@
-﻿using VoTCore.Communication.Data;
+﻿using System.Runtime.Serialization;
+using VoTCore.Communication.Data;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 23.01.2023
  * 
- * @last_change - 23.01.2023
+ * @last_change - 03.02.2023
  */
 namespace VoTCore.Communication
 {
-    public class TextChat
+    [Serializable]
+    [KnownType(typeof(List<Message>))]
+    public class TextChat : ISerializable
     {
         private readonly List<Message> messages;
+
+        protected TextChat(SerializationInfo info, StreamingContext context)
+        {
+            var _messages = info.GetValue(nameof(messages), typeof(List<Message>));
+            if (_messages is null) { messages = new List<Message>(); return; }
+            messages = (List<Message>)_messages;
+        }
 
         public TextChat()
         {
@@ -31,6 +41,11 @@ namespace VoTCore.Communication
         public List<Message> GetMessages()
         {
             return messages;
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(messages), messages);
         }
     }
 }

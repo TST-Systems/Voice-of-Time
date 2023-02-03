@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Text;
 using VoTCore.Communication;
 
 /**
@@ -6,11 +8,12 @@ using VoTCore.Communication;
  * 
  * @created     - 30.01.2023
  * 
- * @last_change - 30.01.2023
+ * @last_change - 03.02.2023
  */
 namespace Voice_of_Time.Communication
 {
-    internal class PrivatChat : TextChat
+    [Serializable]
+    internal class PrivatChat : TextChat, ISerializable
     {
         /// <summary>
         /// A List of all Participants, including self. 
@@ -30,6 +33,27 @@ namespace Voice_of_Time.Communication
         /// Communication Key for messages
         /// </summary>
         internal Aes GroupKey { get; }
+
+        protected PrivatChat(SerializationInfo info, StreamingContext context) : base(info, context) 
+        {
+            var _participants = info.GetValue(nameof(Participants), typeof(List<long>));
+            if(_participants is null) participants = new List<long>();
+            else participants = (List<long>)_participants;
+
+            ChatID = info.GetInt64(nameof(ChatID));
+
+            Title  = info.GetString(nameof(Title)) ?? throw new Exception("Title coudn't be loaded!");
+
+            var KeyUTF8 = info.GetString(nameof(GroupKey.Key)) ?? throw new Exception("Key coudn't be loaded!");
+            var IVUTF8  = info.GetString(nameof(GroupKey.IV))  ?? throw new Exception("IV coudn't be loaded!"); ;
+
+            var Key     = Encoding.UTF8.GetBytes(KeyUTF8);
+            var IV      = Encoding.UTF8.GetBytes(IVUTF8);
+
+            GroupKey = Aes.Create();
+            GroupKey.Key = Key;
+            GroupKey.IV = IV;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -58,6 +82,23 @@ namespace Voice_of_Time.Communication
         internal bool RemoveUser(long userID)
         {
             return participants.Remove(userID);
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue(nameof(Participants), Participants);
+
+            info.AddValue(nameof(ChatID), ChatID);
+
+            info.AddValue(nameof(Title), Title);
+
+            var Key = Encoding.UTF8.GetString(GroupKey.Key);
+            var IV  = Encoding.UTF8.GetString(GroupKey.IV);
+
+            info.AddValue(nameof(GroupKey.Key), Key);
+            info.AddValue(nameof(GroupKey.IV),  IV);
         }
     }
 }

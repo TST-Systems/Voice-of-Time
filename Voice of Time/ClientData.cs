@@ -1,27 +1,36 @@
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Voice_of_Time.Transfer;
 using VoTCore.Controll;
 using VoTCore.Exeptions;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 28.01.2023
+ * @last_change - 03.02.2023
  */
 namespace Voice_of_Time
 {
+    [Serializable]
     public static class ClientData
     {
-        private static readonly Dictionary<Guid, Client> UserRegister = new();
+        private static readonly Dictionary<Guid, Client> UserRegister               = new();
 
-        private static readonly Dictionary<Guid, CSocketHold> ConnectionRegister = new();
+
+        private static readonly Dictionary<Guid, CSocketHold> ConnectionRegister    = new();
 
         private static readonly Dictionary<string, IConsoleCommand> CommandRegister = new();
-        private static readonly Dictionary<string, string> AliasesRegister = new();
+        private static readonly Dictionary<string, string> AliasesRegister          = new();
 
-        private static Guid? currentConnection = null;
+        private static Guid? currentConnection                                      = null;
         internal static Guid? CurrentConnection { get => currentConnection; }
+
+        public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
         #region CommandRegister
         private const string AllowedChars = "abcdefghijklmnopqrstuvwxyz0123456789_";
@@ -130,6 +139,14 @@ namespace Voice_of_Time
         #region UserRegister
         internal static Client? GetServerCient(Guid serverID)
         {
+            if (!UserRegister.ContainsKey(serverID))
+            {
+                var serverInstace = LoadData(serverID);
+                if (serverInstace is not null)
+                {
+                    UserRegister[serverID] = serverInstace;
+                }
+            }
             return UserRegister.GetValueOrDefault(serverID);
         }
 
@@ -208,5 +225,39 @@ namespace Voice_of_Time
         }
         #endregion
 
+        #region Save & Load
+        public static void SaveData()
+        {
+            Directory.CreateDirectory(SaveFolder);
+
+            foreach(var server in UserRegister)
+            {
+                var saveFile = Path.Combine(SaveFolder, server.Key.ToString());
+
+                using FileStream stream = File.OpenWrite(saveFile);
+
+                DataContractSerializer formatter = new(typeof(Client));
+
+                formatter.WriteObject(stream, server.Value);
+
+                stream.Close();
+            }
+        }
+
+        private static Client? LoadData(Guid serverID)
+        {
+            var saveFile = Path.Combine(SaveFolder, serverID.ToString());
+
+            using FileStream stream = File.OpenRead(saveFile);
+
+            DataContractSerializer formatter = new(typeof(Client));
+
+            Client? client = (Client?)formatter.ReadObject(stream);
+
+            stream.Close();
+
+            return client;
+        }
+        #endregion
     }
 }

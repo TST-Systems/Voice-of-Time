@@ -11,7 +11,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 01.02.2023
+ * @last_change - 03.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -142,6 +142,8 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine(ex.Message);
                 return false;
             }
+
+            ClientData.SaveData();
 
             return true;
         }
