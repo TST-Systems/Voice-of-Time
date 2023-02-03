@@ -3,7 +3,7 @@
 An open-source Voice- and Text-communication Software
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/72736935/216655933-5d5d59cc-cf2b-4756-9113-f5ee66aee9cd.png">
+<img src="https://user-images.githubusercontent.com/72736935/216663183-103f73f5-9f90-4cf6-b658-bb332270406a.png">
 </p>
 
 ## Table of Contents
