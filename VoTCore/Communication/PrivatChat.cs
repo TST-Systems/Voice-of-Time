@@ -1,38 +1,41 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Buffers.Text;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using VoTCore.Communication;
+using VoTCore.Communication.Data;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 30.01.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 05.02.2023
  */
-namespace Voice_of_Time.Communication
+namespace VoTCore.Communication
 {
     [Serializable]
-    internal class PrivatChat : TextChat, ISerializable
+    [KnownType(typeof(List<long>))]
+    public class PrivatChat : TextChat, ISerializable
     {
         /// <summary>
         /// A List of all Participants, including self. 
         /// Can be used to determind the reciver of a message for a speific chat
         /// </summary>
-        internal List<long> Participants { get => new(participants); }
+        public List<long> Participants { get => new(participants); }
         private readonly List<long> participants;
         /// <summary>      
         /// ID under wich the server can recognize this chat
         /// </summary>
-        internal long ChatID { get; }
+        public long ChatID { get; }
         /// <summary>
         /// Name displayed in GUI or CMD as chat name/title
         /// </summary>
-        internal string Title { get; set; }
+        public string Title { get; set; }
         /// <summary>
         /// Communication Key for messages
         /// </summary>
-        internal Aes GroupKey { get; }
+        public Aes GroupKey { get; }
 
         protected PrivatChat(SerializationInfo info, StreamingContext context) : base(info, context) 
         {
@@ -47,8 +50,8 @@ namespace Voice_of_Time.Communication
             var KeyUTF8 = info.GetString(nameof(GroupKey.Key)) ?? throw new Exception("Key coudn't be loaded!");
             var IVUTF8  = info.GetString(nameof(GroupKey.IV))  ?? throw new Exception("IV coudn't be loaded!"); ;
 
-            var Key     = Encoding.UTF8.GetBytes(KeyUTF8);
-            var IV      = Encoding.UTF8.GetBytes(IVUTF8);
+            var Key     = Convert.FromBase64String(KeyUTF8);
+            var IV      = Convert.FromBase64String(IVUTF8);
 
             GroupKey = Aes.Create();
             GroupKey.Key = Key;
@@ -60,7 +63,7 @@ namespace Voice_of_Time.Communication
         /// <param name="participants"></param>
         /// <param name="chatID"></param>
         /// <param name="title"></param>
-        internal PrivatChat(Aes? groupkey, List<long>? participants, long chatID, string title)
+        public PrivatChat(Aes? groupkey, List<long>? participants, long chatID, string title)
         {
             this.participants = participants ?? new();
             ChatID            = chatID;
@@ -68,7 +71,7 @@ namespace Voice_of_Time.Communication
             GroupKey          = groupkey ?? Aes.Create();
         }
 
-        internal bool AddUser(long userID)
+        public bool AddUser(long userID)
         {
             if (participants.Contains(userID)) return false;
 
@@ -79,26 +82,26 @@ namespace Voice_of_Time.Communication
             return true;
         }
 
-        internal bool RemoveUser(long userID)
+        public bool RemoveUser(long userID)
         {
             return participants.Remove(userID);
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData(info, context);
-
             info.AddValue(nameof(Participants), Participants);
 
             info.AddValue(nameof(ChatID), ChatID);
 
             info.AddValue(nameof(Title), Title);
 
-            var Key = Encoding.UTF8.GetString(GroupKey.Key);
-            var IV  = Encoding.UTF8.GetString(GroupKey.IV);
+            var Key = Convert.ToBase64String(GroupKey.Key);
+            var IV  = Convert.ToBase64String(GroupKey.IV);
 
             info.AddValue(nameof(GroupKey.Key), Key);
             info.AddValue(nameof(GroupKey.IV),  IV);
+
+            base.GetObjectData(info, context);
         }
     }
 }

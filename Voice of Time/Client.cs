@@ -10,7 +10,7 @@ using VoTCore.User;
  * 
  * @created     - 20.12.2022
  * 
- * @last_change - 03.02.2023
+ * @last_change - 05.02.2023
  */
 namespace Voice_of_Time
 {
@@ -71,7 +71,9 @@ namespace Voice_of_Time
             info.AddValue(nameof(UserID),    UserID);
             info.AddValue(nameof(Username),  Username);
             info.AddValue(nameof(UserKey),   KeyAsXML);
+
             info.AddValue(nameof(TextChats), TextChats);
+
             info.AddValue(nameof(UserDB),    UserDB);
 
         }

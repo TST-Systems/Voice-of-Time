@@ -6,12 +6,13 @@ using VoTCore.Communication.Data;
  * 
  * @created     - 23.01.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 05.02.2023
  */
 namespace VoTCore.Communication
 {
     [Serializable]
     [KnownType(typeof(List<Message>))]
+    [KnownType(typeof(PrivatChat))]
     public class TextChat : ISerializable
     {
         private readonly List<Message> messages;

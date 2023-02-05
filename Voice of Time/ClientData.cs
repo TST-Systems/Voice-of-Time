@@ -12,7 +12,7 @@ using VoTCore.User;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 05.02.2023
  */
 namespace Voice_of_Time
 {
@@ -247,6 +247,8 @@ namespace Voice_of_Time
         private static Client? LoadData(Guid serverID)
         {
             var saveFile = Path.Combine(SaveFolder, serverID.ToString());
+
+            if(!File.Exists(saveFile)) return null;
 
             using FileStream stream = File.OpenRead(saveFile);
 

@@ -7,7 +7,7 @@ using VoTCore.User;
  * 
  * @created     - 23.01.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 05.02.2023
  */
 namespace VoTCore.Communication.Data
 {
@@ -17,6 +17,8 @@ namespace VoTCore.Communication.Data
     [Serializable]
     [KnownType(typeof(BodyType))]
     [KnownType(typeof(MessageStatus))]
+    [KnownType(typeof(FileMessage))]
+    [KnownType(typeof(TextMessage))]
     public abstract class Message : ISerializable
     {
         /// <summary>
@@ -41,13 +43,29 @@ namespace VoTCore.Communication.Data
 
         public MessageStatus Status { get; }
 
+        protected Message(SerializationInfo info, StreamingContext context)
+        {
+            Type           = (BodyType)(info.GetValue(nameof(Type), typeof(BodyType)) 
+                ?? throw new Exception("Message coudn't be laoded!"));
+
+            MessageString  = info.GetString(nameof(MessageString)) 
+                ?? throw new Exception("Message coudn't be laoded!");
+
+            AuthorID       = info.GetInt64(nameof(AuthorID));
+
+            DateOfCreation = info.GetInt64(nameof(DateOfCreation));
+
+            Status         = (MessageStatus)(info.GetValue(nameof(Status), typeof(MessageStatus)) 
+                ?? throw new Exception("Message coudn't be laoded!"));
+        }
+
         protected Message(string messageString, long authorID, long dateOfCreation, BodyType type)
         {
-            MessageString = messageString;
-            AuthorID = authorID;
+            MessageString  = messageString;
+            AuthorID       = authorID;
             DateOfCreation = dateOfCreation;
-            Type = type;
-            Status = new();
+            Type           = type;
+            Status         = new();
         }
 
         public override bool Equals(object? obj)
@@ -68,7 +86,7 @@ namespace VoTCore.Communication.Data
             throw new NotImplementedException();
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue(nameof(MessageString),  MessageString);
             info.AddValue(nameof(AuthorID),       AuthorID);
