@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
 
 /**
@@ -20,6 +21,7 @@ namespace VoTCore.Communication.Data
 
         public TextMessage(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
+        [JsonConstructor]
         public TextMessage(string messageString, long authorID, long dateOfCreation)
             : base(messageString, authorID, dateOfCreation, TYPE)
         {
