@@ -91,7 +91,7 @@ namespace VoTCore
 
         // Combined Packages
         // 0xe1 - 0xfe
-        PRIVAT_CHAT_INVITE = 0xe1;
+        PRIVAT_CHAT_INVITE = 0xe1,
 
         NONE = 0xff,
 
