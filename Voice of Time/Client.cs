@@ -2,7 +2,6 @@
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using VoTCore.Communication;
-using VoTCore.Secure;
 using VoTCore.User;
 
 /**

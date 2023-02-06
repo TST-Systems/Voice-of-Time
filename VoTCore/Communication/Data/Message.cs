@@ -1,6 +1,5 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using VoTCore.User;
 
 /**
  * @author      - Timeplex, SalzstangeManga

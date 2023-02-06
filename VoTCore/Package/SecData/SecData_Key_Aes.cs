@@ -1,14 +1,16 @@
 ﻿using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using VoTCore.Exeptions;
 using VoTCore.Package.Interfaces;
 using VoTCore.Secure.Iterfaces;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 21.01.2023
+ * @last_change - 06.02.2023
  */
 namespace VoTCore.Package.SecData
 {
@@ -73,6 +75,13 @@ namespace VoTCore.Package.SecData
             keyAsB64 = Convert.ToBase64String(key);
             iVAsB64  = Convert.ToBase64String(iv);
         }
+
+        public void EncryptData(PublicClient target) 
+        {
+            if (target.PublicKey is null) throw new PublicKeyMissingExeption(target);
+            EncryptData(target.PublicKey.Key, target.ID);
+        }
+
 
         public void DecryptData(RSA rsa)
         {

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using VoTCore.Communication.Data;
 
 /**
@@ -15,6 +16,7 @@ namespace VoTCore.Communication
     [KnownType(typeof(PrivatChat))]
     public class TextChat : ISerializable
     {
+        [JsonIgnore]
         private readonly List<Message> messages;
 
         protected TextChat(SerializationInfo info, StreamingContext context)

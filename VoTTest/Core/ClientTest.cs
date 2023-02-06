@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography;
-using Voice_of_Time;
-using VoTCore.Secure;
-
+﻿
 /**
  * @author      - Timeplex
  * 

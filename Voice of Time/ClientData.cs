@@ -1,11 +1,7 @@
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Voice_of_Time.Transfer;
 using VoTCore.Controll;
 using VoTCore.Exeptions;
-using VoTCore.User;
 
 /**
  * @author      - Timeplex

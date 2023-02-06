@@ -1,4 +1,6 @@
-﻿using VoTCore.Communication.Data;
+﻿using VoTCore.Communication;
+using VoTCore.Communication.Data;
+using VoTCore.Package.Combient;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
@@ -8,7 +10,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 20.01.2023
+ * @last_change - 06.02.2023
  */
 namespace VoTCore
 {
@@ -23,14 +25,16 @@ namespace VoTCore
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
-            { BodyType.MESSAGE_TEXT,    typeof(TextMessage)     },
-            { BodyType.MESSAGE_FILE,    typeof(FileMessage)     },
-            { BodyType.SDATA_INT,       typeof(SData_Int)       },
-            { BodyType.SDATA_LONG,      typeof(SData_Long)      },
-            { BodyType.SDATA_GUID,      typeof(SData_Guid)      },
-            { BodyType.SDATA_STRING,    typeof(SData_String)    },
-            { BodyType.SECDATA_KEY_RSA, typeof(SecData_Key_RSA) },
-            { BodyType.SECDATA_KEY_AES, typeof(SecData_Key_Aes) },
+            { BodyType.MESSAGE_TEXT,        typeof(TextMessage)     },
+            { BodyType.MESSAGE_FILE,        typeof(FileMessage)     },
+            { BodyType.SDATA_INT,           typeof(SData_Int)       },
+            { BodyType.SDATA_LONG,          typeof(SData_Long)      },
+            { BodyType.SDATA_GUID,          typeof(SData_Guid)      },
+            { BodyType.SDATA_STRING,        typeof(SData_String)    },
+            { BodyType.SECDATA_KEY_RSA,     typeof(SecData_Key_RSA) },
+            { BodyType.SECDATA_KEY_AES,     typeof(SecData_Key_Aes) },
+            { BodyType.PRIVAT_CHAT,         typeof(PrivatChat)      },
+            { BodyType.PRIVAT_CHAT_INVITE,  typeof(PrivatChatInvite)},
         };
 
         // Transmission buffer size
@@ -80,11 +84,14 @@ namespace VoTCore
         SECDATA_KEY_RSA = 0xa1, 
         SECDATA_KEY_AES = 0x1b,
 
-        // Reserved
+        // Chats
         // 0xc1 - 0xdf
+        PRIVAT_CHAT = 0xc1,
 
-        // Reserved
+
+        // Combined Packages
         // 0xe1 - 0xfe
+        PRIVAT_CHAT_INVITE = 0xe1;
 
         NONE = 0xff,
 

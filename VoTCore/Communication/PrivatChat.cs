@@ -1,28 +1,27 @@
-﻿using System.Buffers.Text;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Security.Cryptography;
-using System.Text;
-using VoTCore.Communication;
-using VoTCore.Communication.Data;
+using System.Text.Json.Serialization;
+using VoTCore.Package.Interfaces;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 30.01.2023
  * 
- * @last_change - 05.02.2023
+ * @last_change - 06.02.2023
  */
 namespace VoTCore.Communication
 {
     [Serializable]
     [KnownType(typeof(List<long>))]
-    public class PrivatChat : TextChat, ISerializable
+    public class PrivatChat : TextChat, ISerializable, IVOTPBody
     {
         /// <summary>
         /// A List of all Participants, including self. 
         /// Can be used to determind the reciver of a message for a speific chat
         /// </summary>
         public List<long> Participants { get => new(participants); }
+        [JsonIgnore]
         private readonly List<long> participants;
         /// <summary>      
         /// ID under wich the server can recognize this chat
@@ -35,7 +34,22 @@ namespace VoTCore.Communication
         /// <summary>
         /// Communication Key for messages
         /// </summary>
+        [JsonIgnore]
         public Aes GroupKey { get; }
+        [JsonIgnore]
+        public bool GroupKeyIsSet = false;
+
+        [JsonIgnore]
+        public BodyType Type => BodyType.PRIVAT_CHAT;
+
+        [JsonConstructor]
+        protected PrivatChat(List<long> Participants, long chatID, string title) 
+        {
+            participants = Participants;
+            ChatID = chatID;
+            Title = title;
+            GroupKey = Aes.Create();
+        }
 
         protected PrivatChat(SerializationInfo info, StreamingContext context) : base(info, context) 
         {
@@ -56,6 +70,8 @@ namespace VoTCore.Communication
             GroupKey = Aes.Create();
             GroupKey.Key = Key;
             GroupKey.IV = IV;
+
+            GroupKeyIsSet = true;
         }
         /// <summary>
         /// 
@@ -69,6 +85,8 @@ namespace VoTCore.Communication
             ChatID            = chatID;
             Title             = title;
             GroupKey          = groupkey ?? Aes.Create();
+
+            GroupKeyIsSet = true;
         }
 
         public bool AddUser(long userID)
