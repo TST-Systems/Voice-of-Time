@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
+using VoTCore.Secure;
 
 /**
  * @author      - Timeplex
@@ -42,6 +43,12 @@ namespace VoTCore.Package.SecData
             }
             catch(CryptographicException) { }
             PublicKeyAsXML = publicKeyAsXML;
+            SourceID       = sourceID;
+        }
+
+        public SecData_Key_RSA(PublicRSA publicKey, long sourceID)
+        {
+            PublicKeyAsXML = publicKey.Key.ToXmlString(false);
             SourceID       = sourceID;
         }
 
