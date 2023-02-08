@@ -1,6 +1,5 @@
 ﻿using VoTCore.Communication;
 using VoTCore.Communication.Data;
-using VoTCore.Package.Combient;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
@@ -25,16 +24,15 @@ namespace VoTCore
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
-            { BodyType.MESSAGE_TEXT,        typeof(TextMessage)     },
-            { BodyType.MESSAGE_FILE,        typeof(FileMessage)     },
-            { BodyType.SDATA_INT,           typeof(SData_Int)       },
-            { BodyType.SDATA_LONG,          typeof(SData_Long)      },
-            { BodyType.SDATA_GUID,          typeof(SData_Guid)      },
-            { BodyType.SDATA_STRING,        typeof(SData_String)    },
-            { BodyType.SECDATA_KEY_RSA,     typeof(SecData_Key_RSA) },
-            { BodyType.SECDATA_KEY_AES,     typeof(SecData_Key_Aes) },
-            { BodyType.PRIVAT_CHAT,         typeof(PrivatChat)      },
-            { BodyType.PRIVAT_CHAT_INVITE,  typeof(PrivatChatInvite)},
+            { BodyType.MESSAGE_TEXT,        typeof(TextMessage)      },
+            { BodyType.MESSAGE_FILE,        typeof(FileMessage)      },
+            { BodyType.SDATA_INT,           typeof(SData_Int)        },
+            { BodyType.SDATA_LONG,          typeof(SData_Long)       },
+            { BodyType.SDATA_GUID,          typeof(SData_Guid)       },
+            { BodyType.SDATA_STRING,        typeof(SData_String)     },
+            { BodyType.SECDATA_KEY_RSA,     typeof(SecData_Key_RSA)  },
+            { BodyType.SECDATA_KEY_AES,     typeof(SecData_Key_Aes)  },
+            { BodyType.PRIVAT_CHAT,         typeof(PrivatChat)       },
         };
 
         // Transmission buffer size
@@ -89,9 +87,8 @@ namespace VoTCore
         PRIVAT_CHAT = 0xc1,
 
 
-        // Combined Packages
+        // Reserved
         // 0xe1 - 0xfe
-        PRIVAT_CHAT_INVITE = 0xe1,
 
         NONE = 0xff,
 
@@ -108,6 +105,7 @@ namespace VoTCore
         COMM_KEY,
         SET_USERNAME,
         VERIFY,
+        GET_PUBLIC_USER,
     }
 
 
