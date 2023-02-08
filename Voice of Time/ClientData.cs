@@ -26,6 +26,13 @@ namespace Voice_of_Time
         private static Guid? currentConnection                                      = null;
         internal static Guid? CurrentConnection { get => currentConnection; }
 
+        internal static Client? CurrentClient { 
+            get { 
+                if (CurrentConnection != null) 
+                    return UserRegister[(Guid)CurrentConnection]; 
+                return null; 
+            } }
+
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
         #region CommandRegister
