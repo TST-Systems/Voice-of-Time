@@ -2,26 +2,26 @@
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
+using VoTCore.Secure.Iterfaces;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 30.01.2023
  * 
- * @last_change - 06.02.2023
+ * @last_change - 08.02.2023
  */
 namespace VoTCore.Communication
 {
     [Serializable]
     [KnownType(typeof(List<long>))]
-    public class PrivatChat : TextChat, ISerializable, IVOTPBody
+    public class PrivatChat : TextChat, ISerializable, IVOTPBody, IRSACrypt
     {
         /// <summary>
         /// A List of all Participants, including self. 
         /// Can be used to determind the reciver of a message for a speific chat
         /// </summary>
         public List<long> Participants { get => new(participants); }
-        [JsonIgnore]
         private readonly List<long> participants;
         /// <summary>      
         /// ID under wich the server can recognize this chat
@@ -34,21 +34,22 @@ namespace VoTCore.Communication
         /// <summary>
         /// Communication Key for messages
         /// </summary>
-        [JsonIgnore]
-        public Aes GroupKey { get; }
-        [JsonIgnore]
-        public bool GroupKeyIsSet = false;
+        public byte[] GroupKey { get; }
 
         [JsonIgnore]
         public BodyType Type => BodyType.PRIVAT_CHAT;
 
+        private long? cryptedReciver;
+        public long CryptedReciver { get { if (cryptedReciver is null) return -1; return (long)cryptedReciver; } }
+
         [JsonConstructor]
-        protected PrivatChat(List<long> Participants, long chatID, string title) 
+        public PrivatChat(List<long> participants, long chatID, string title, long cryptedReciver, byte[] groupkey) 
         {
-            participants = Participants;
-            ChatID = chatID;
-            Title = title;
-            GroupKey = Aes.Create();
+            this.participants   = participants;
+            ChatID              = chatID;
+            Title               = title;
+            GroupKey            = groupkey;
+            this.cryptedReciver = cryptedReciver;
         }
 
         protected PrivatChat(SerializationInfo info, StreamingContext context) : base(info, context) 
@@ -61,17 +62,11 @@ namespace VoTCore.Communication
 
             Title  = info.GetString(nameof(Title)) ?? throw new Exception("Title coudn't be loaded!");
 
-            var KeyUTF8 = info.GetString(nameof(GroupKey.Key)) ?? throw new Exception("Key coudn't be loaded!");
-            var IVUTF8  = info.GetString(nameof(GroupKey.IV))  ?? throw new Exception("IV coudn't be loaded!"); ;
+            var KeyUTF8 = info.GetString(nameof(GroupKey)) ?? throw new Exception("Key coudn't be loaded!");
 
             var Key     = Convert.FromBase64String(KeyUTF8);
-            var IV      = Convert.FromBase64String(IVUTF8);
 
-            GroupKey = Aes.Create();
-            GroupKey.Key = Key;
-            GroupKey.IV = IV;
-
-            GroupKeyIsSet = true;
+            GroupKey = Key;
         }
         /// <summary>
         /// 
@@ -79,14 +74,12 @@ namespace VoTCore.Communication
         /// <param name="participants"></param>
         /// <param name="chatID"></param>
         /// <param name="title"></param>
-        public PrivatChat(Aes? groupkey, List<long>? participants, long chatID, string title)
+        public PrivatChat(long chatID, string title, List<long>? participants = null, byte[]? groupkey = null)
         {
             this.participants = participants ?? new();
             ChatID            = chatID;
             Title             = title;
-            GroupKey          = groupkey ?? Aes.Create();
-
-            GroupKeyIsSet = true;
+            GroupKey          = groupkey ?? Aes.Create().Key;
         }
 
         public bool AddUser(long userID)
@@ -113,13 +106,21 @@ namespace VoTCore.Communication
 
             info.AddValue(nameof(Title), Title);
 
-            var Key = Convert.ToBase64String(GroupKey.Key);
-            var IV  = Convert.ToBase64String(GroupKey.IV);
+            var Key = Convert.ToBase64String(GroupKey);
 
-            info.AddValue(nameof(GroupKey.Key), Key);
-            info.AddValue(nameof(GroupKey.IV),  IV);
+            info.AddValue(nameof(GroupKey), Key);
 
             base.GetObjectData(info, context);
+        }
+
+        public void EncryptData(RSA key, long revicerID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DecryptData(RSA key)
+        {
+            throw new NotImplementedException();
         }
     }
 }
