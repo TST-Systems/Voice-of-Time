@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using VoTCore.Secure;
 
 /**
@@ -26,6 +27,13 @@ namespace VoTCore.User
             if(username is not null or "") Username = username;
 
             PublicKey = (PublicRSA?) info.GetValue(nameof(PublicKey), typeof(PublicRSA));
+        }
+
+        [JsonConstructor]
+        protected PublicClient(long iD, string username, System.Security.Cryptography.RSA rSA)
+        {
+            ID = iD;
+            Username = username;
         }
 
         public PublicClient(long iD, string username, PublicRSA publicKey)

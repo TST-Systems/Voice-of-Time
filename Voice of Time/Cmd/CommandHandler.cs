@@ -57,7 +57,7 @@ namespace Voice_of_Time.Cmd
             }
         }
 
-        private static void LoadDefaultCommands()
+        protected virtual void LoadDefaultCommands()
         {
             ClientData.TryRegisterCommand(new Help());
             ClientData.TryRegisterCommand(new Connect());
@@ -65,6 +65,7 @@ namespace Voice_of_Time.Cmd
             ClientData.TryRegisterCommand(new Select());
             ClientData.TryRegisterCommand(new ListChats());
             ClientData.TryRegisterCommand(new Exit());
+            ClientData.TryRegisterCommand(new Chat());
         }
 
         static async Task ProcessCommand(string? str)
