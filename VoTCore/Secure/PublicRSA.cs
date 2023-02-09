@@ -38,6 +38,11 @@ namespace VoTCore.Secure
             this.key = lKey;
         }
 
+        public PublicRSA()
+        {
+            key = RSA.Create();
+        }
+
         public void ChangeKey(RSA key)
         {
             this.key.ImportParameters(key.ExportParameters(false));

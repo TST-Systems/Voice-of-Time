@@ -5,13 +5,14 @@ using VoTCore.Controll;
 using VoTCore.Package;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
+using VoTCore.Package.SecData;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 28.01.2023
+ * @last_change - 09.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -155,7 +156,7 @@ namespace Voice_of_Time.Cmd.Commands
 
         private static async Task<bool> TryGettingUserAsync(long senderID, long targetID)
         {
-            if (ClientData.CurrentConnection is null) return false;
+            if (ClientData.CurrentClient is null || ClientData.CurrentConnection is null) return false;
 
             var header  = new HeaderReq(senderID, RequestType.GET_PUBLIC_USER);
             var body    = new SData_Long(targetID);
@@ -166,14 +167,14 @@ namespace Voice_of_Time.Cmd.Commands
             var result = new VOTP(await connection.EnqueueItem(package.Serialize()));
 
             if (result.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
-            if (result.Body is null) return false;
-            if (result.Body is not SData_Long resBody) throw new Exception("Server didn't responded correctly!");
-
             if (resHeader.Successful is false) return false;
-            if (resBody.Data < 0) return false;
 
+            if (result.Body is null) return false;
+            if (result.Body is not SecData_ClientShare resBody) throw new Exception("Server didn't responded correctly!");
 
-            return false;
+            var UserEntry = resBody.GetPublicClient();
+
+            return ClientData.CurrentClient.AppendOrOverridePublicClint(UserEntry);
         }
     }
 }

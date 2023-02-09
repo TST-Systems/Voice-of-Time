@@ -1,12 +1,15 @@
 ﻿using System.Security.Cryptography;
+using System.Text.Json;
 using VoTCore.Package.SecData;
+using VoTCore.Secure;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 21.01.2023
  * 
- * @last_change - 21.01.2023
+ * @last_change - 09.02.2023
  */
 namespace VoTTest.Core
 {
@@ -43,6 +46,20 @@ namespace VoTTest.Core
             aesKeyEncrypted = body.GetKey();
             Assert.True(Enumerable.SequenceEqual(key, aesKeyEncrypted.Key));
             Assert.True(Enumerable.SequenceEqual(iv, aesKeyEncrypted.IV));
+        }
+
+        [Fact]
+        public void TestClientShare()
+        {
+            var PublicKey    = new PublicRSA();
+            var PublicClient = new PublicClient(12345, "Someone", PublicKey);
+            var ShareBody    = new SecData_ClientShare(PublicClient);
+
+            var serialized   = JsonSerializer.Serialize(ShareBody);
+            var deserialized = JsonSerializer.Deserialize<SecData_ClientShare>(serialized);
+
+            Assert.Equal(PublicClient.Username, deserialized.Username);
+            Assert.Equal(PublicClient.ID,       deserialized.SourceID);
         }
     }
 }

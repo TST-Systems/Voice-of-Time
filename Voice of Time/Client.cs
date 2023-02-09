@@ -9,7 +9,7 @@ using VoTCore.User;
  * 
  * @created     - 20.12.2022
  * 
- * @last_change - 05.02.2023
+ * @last_change - 09.02.2023
  */
 namespace Voice_of_Time
 {
@@ -61,6 +61,23 @@ namespace Voice_of_Time
             UserKey   = userKey   ?? throw new ArgumentNullException(nameof(userKey));
             TextChats = textChats ?? new();
             UserDB    = userDB    ?? new();
+        }
+
+        public bool AppendPublicClient(PublicClient publicClient)
+        {
+            var id = publicClient.ID;
+            if (id < 0) return false;
+            if (UserDB.ContainsKey(id)) return false;
+            UserDB.Add(id, publicClient);
+            return true;
+        }
+
+        public bool AppendOrOverridePublicClint(PublicClient publicClient)
+        {
+            var id = publicClient.ID;
+            if (id < 0) return false;
+            UserDB[id] = publicClient;
+            return true;
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)

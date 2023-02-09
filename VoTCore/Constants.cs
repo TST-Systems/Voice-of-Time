@@ -9,7 +9,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 06.02.2023
+ * @last_change - 09.02.2023
  */
 namespace VoTCore
 {
@@ -24,15 +24,16 @@ namespace VoTCore
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
-            { BodyType.MESSAGE_TEXT,        typeof(TextMessage)      },
-            { BodyType.MESSAGE_FILE,        typeof(FileMessage)      },
-            { BodyType.SDATA_INT,           typeof(SData_Int)        },
-            { BodyType.SDATA_LONG,          typeof(SData_Long)       },
-            { BodyType.SDATA_GUID,          typeof(SData_Guid)       },
-            { BodyType.SDATA_STRING,        typeof(SData_String)     },
-            { BodyType.SECDATA_KEY_RSA,     typeof(SecData_Key_RSA)  },
-            { BodyType.SECDATA_KEY_AES,     typeof(SecData_Key_Aes)  },
-            { BodyType.PRIVAT_CHAT,         typeof(PrivatChat)       },
+            { BodyType.MESSAGE_TEXT,                typeof(TextMessage)        },
+            { BodyType.MESSAGE_FILE,                typeof(FileMessage)        },
+            { BodyType.SDATA_INT,                   typeof(SData_Int)          },
+            { BodyType.SDATA_LONG,                  typeof(SData_Long)         },
+            { BodyType.SDATA_GUID,                  typeof(SData_Guid)         },
+            { BodyType.SDATA_STRING,                typeof(SData_String)       },
+            { BodyType.SECDATA_KEY_RSA,             typeof(SecData_Key_RSA)    },
+            { BodyType.SECDATA_KEY_AES,             typeof(SecData_Key_Aes)    },
+            { BodyType.PRIVAT_CHAT,                 typeof(PrivatChat)         },
+            { BodyType.SECDATA_PUBLIC_CLIENT_SHARE, typeof(SecData_ClientShare)},
         };
 
         // Transmission buffer size
@@ -76,11 +77,12 @@ namespace VoTCore
         // Reserved
         // 0x81 - 0x9f
 
-        // Security Data
-        SECDATA         = 0xa0,
+        // Secure Data
+        SECDATA                     = 0xa0,
         // 0xa1 - 0xbf
-        SECDATA_KEY_RSA = 0xa1, 
-        SECDATA_KEY_AES = 0x1b,
+        SECDATA_KEY_RSA             = 0xa1, 
+        SECDATA_KEY_AES             = 0x1b,
+        SECDATA_PUBLIC_CLIENT_SHARE = 0x1c,
 
         // Chats
         // 0xc1 - 0xdf

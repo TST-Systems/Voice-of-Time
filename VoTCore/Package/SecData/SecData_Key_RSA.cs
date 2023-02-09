@@ -18,7 +18,7 @@ namespace VoTCore.Package.SecData
         public long   SourceID { get; }
 
         [JsonIgnore]
-        public BodyType Type => BodyType.SECDATA_KEY_RSA;
+        public virtual BodyType Type => BodyType.SECDATA_KEY_RSA;
 
         public SecData_Key_RSA(RSA publicKey, long sourceID)
         {

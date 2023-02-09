@@ -15,7 +15,7 @@ using VoTCore.Secure;
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 01.02.2023
+ * @last_change - 09.02.2023
  */
 namespace Voice_of_Time_Server.Transfer
 {
@@ -307,6 +307,28 @@ namespace Voice_of_Time_Server.Transfer
                     ServerData.server.UserDB[UserID].Username = strBody.Data;
 
                     sendHeader = new HeaderAck(true);
+                    break;
+                case RequestType.GET_PUBLIC_USER:
+                    if (!CommunicationVerified)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String("You need to be Verified to use this function!");
+                        break;
+                    }
+                    if (sendBody is not SData_Long longBody)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"Wrong Body! Need to be a {nameof(SData_Long)}");
+                        break;
+                    }
+                    if (!ServerData.server.UserDB.ContainsKey(longBody.Data))
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"User with the ID: {longBody.Data} is unknown!");
+                        break;
+                    }
+                    sendHeader = new HeaderAck(true);
+                    sendBody = new SecData_ClientShare(ServerData.server.UserDB[longBody.Data]);
                     break;
             }
 
