@@ -1,5 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text.Json;
+using VoTCore.Package;
+using VoTCore.Package.Header;
 using VoTCore.Package.SecData;
 using VoTCore.Secure;
 using VoTCore.User;
@@ -60,6 +62,23 @@ namespace VoTTest.Core
 
             Assert.Equal(PublicClient.Username, deserialized.Username);
             Assert.Equal(PublicClient.ID,       deserialized.SourceID);
+        }
+
+        [Fact]
+        public void TestClientShareVOTP()
+        {
+            var PublicKey = new PublicRSA();
+            var PublicClient = new PublicClient(12345, "Someone", PublicKey);
+            var ShareBody = new SecData_ClientShare(PublicClient);
+
+            var header = new HeaderAck(true);
+            var package = new VOTP(header, ShareBody);
+
+            var serialized = package.Serialize();
+            var deserialized = new VOTP(serialized);
+
+            Assert.True(deserialized.Header is HeaderAck);
+            Assert.True(deserialized.Body is SecData_ClientShare);
         }
     }
 }
