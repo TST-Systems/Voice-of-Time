@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using Voice_of_Time_Server.Shared;
 using VoTCore;
 using VoTCore.Package;
 using VoTCore.Package.AData;

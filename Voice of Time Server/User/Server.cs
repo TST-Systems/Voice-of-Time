@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using Voice_of_Time_Server.Config;
 using VoTCore.User;
 
 /**
@@ -8,7 +9,7 @@ using VoTCore.User;
  * 
  * @last_change - 01.02.2023
  */
-namespace Voice_of_Time_Server
+namespace Voice_of_Time_Server.User
 {
     internal class Server
     {
@@ -22,9 +23,9 @@ namespace Voice_of_Time_Server
 
         public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null)
         {
-            Config         = config         ?? new();
-            UserDB         = userDB         ?? new();
-            ServerKey      = serverKey      ?? RSA.Create();
+            Config = config ?? new();
+            UserDB = userDB ?? new();
+            ServerKey = serverKey ?? RSA.Create();
             ServerIdentity = serverIdentity ?? Guid.NewGuid();
         }
 

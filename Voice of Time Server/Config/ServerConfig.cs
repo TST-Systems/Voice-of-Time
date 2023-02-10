@@ -7,7 +7,7 @@
  * 
  * @last_change - 05.01.2023
  */
-namespace Voice_of_Time_Server
+namespace Voice_of_Time_Server.Config
 {
     internal class ServerConfig
     {
@@ -27,9 +27,9 @@ namespace Voice_of_Time_Server
         {
             DisplayName = displayName;
             Description = description;
-            Password    = password;
-            Version     = "alpha_0.1";
-            Port        = port;
+            Password = password;
+            Version = "alpha_0.1";
+            Port = port;
         }
     }
 }
