@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using VoTCore;
 using VoTCore.Package;
+using VoTCore.Package.AData;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
@@ -329,6 +330,16 @@ namespace Voice_of_Time_Server.Transfer
                     }
                     sendHeader = new HeaderAck(true);
                     sendBody = new SecData_ClientShare(ServerData.server.UserDB[longBody.Data]);
+                    break;
+                case RequestType.GET_USERID_LIST:
+                    if (!CommunicationVerified)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String("You need to be Verified to use this function!");
+                        break;
+                    }
+                    sendHeader = new HeaderAck(true);
+                    sendBody = new AData_Long(ServerData.server.UserDB.Keys.ToArray());
                     break;
             }
 

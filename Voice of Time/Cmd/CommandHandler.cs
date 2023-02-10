@@ -7,7 +7,7 @@ using VoTCore.Controll;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 28.01.2023
+ * @last_change - 10.02.2023
  */
 namespace Voice_of_Time.Cmd
 {
@@ -54,6 +54,8 @@ namespace Voice_of_Time.Cmd
                 Console.WriteLine();
                 await ProcessCommand(input);
                 Console.WriteLine();
+
+                ClientData.SaveData();
             }
         }
 
@@ -66,6 +68,7 @@ namespace Voice_of_Time.Cmd
             ClientData.TryRegisterCommand(new ListChats());
             ClientData.TryRegisterCommand(new Exit());
             ClientData.TryRegisterCommand(new Chat());
+            ClientData.TryRegisterCommand(new Users());
         }
 
         static async Task ProcessCommand(string? str)
