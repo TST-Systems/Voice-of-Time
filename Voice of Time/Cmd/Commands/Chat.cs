@@ -1,4 +1,5 @@
 ﻿using Voice_of_Time.Shared;
+using Voice_of_Time.Shared.Functions;
 using VoTCore.Algorithms;
 using VoTCore.Controll;
 using VoTCore.Package;
@@ -143,7 +144,7 @@ namespace Voice_of_Time.Cmd.Commands
             {
                 if (currentClient.UserDB.ContainsKey(particepent)) continue;
 
-                if (await TryGettingUserAsync(currentClient.UserID, particepent)) continue;
+                if (await Requests.TryGettingUserAsync(currentClient.UserID, particepent)) continue;
 
                 Console.WriteLine($"User: #{Base36.Encode(particepent)} coudn't be found");
 
@@ -151,29 +152,6 @@ namespace Voice_of_Time.Cmd.Commands
             }
             
             return true;
-        }
-
-        private static async Task<bool> TryGettingUserAsync(long senderID, long targetID)
-        {
-            if (ClientData.CurrentClient is null || ClientData.CurrentConnection is null) return false;
-
-            var header  = new HeaderReq(senderID, RequestType.GET_PUBLIC_USER);
-            var body    = new SData_Long(targetID);
-            var package = new VOTP(header, body);
-
-            var connection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception("Connection is not Registert!");
-
-            var result = new VOTP(await connection.EnqueueItem(package.Serialize()));
-
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
-            if (resHeader.Successful is false) return false;
-
-            if (result.Body is null) return false;
-            if (result.Body is not SecData_ClientShare resBody) throw new Exception("Server didn't responded correctly!");
-
-            var UserEntry = resBody.GetPublicClient();
-
-            return ClientData.CurrentClient.AppendOrOverridePublicClint(UserEntry);
         }
     }
 }

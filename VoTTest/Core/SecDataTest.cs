@@ -11,7 +11,7 @@ using VoTCore.User;
  * 
  * @created     - 21.01.2023
  * 
- * @last_change - 09.02.2023
+ * @last_change - 10.02.2023
  */
 namespace VoTTest.Core
 {
@@ -34,7 +34,7 @@ namespace VoTTest.Core
             SecData_Key_Aes body = new(aesKey, sender);
 
             body.EncryptData(rsaKey, reciver);
-            Aes aesKeyEncrypted = Aes.Create();
+            Aes aesKeyEncrypted;
 
             try
             {
@@ -42,7 +42,8 @@ namespace VoTTest.Core
 
                 Assert.False(Enumerable.SequenceEqual(key, aesKeyEncrypted.Key));
                 Assert.False(Enumerable.SequenceEqual(iv, aesKeyEncrypted.IV));
-            }catch(Exception) { }
+            }
+            catch (Exception) { }
 
             body.DecryptData(rsaKey);
             aesKeyEncrypted = body.GetKey();

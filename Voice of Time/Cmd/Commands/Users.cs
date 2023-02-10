@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Voice_of_Time.Shared;
+using Voice_of_Time.Shared.Functions;
 using VoTCore.Algorithms;
 using VoTCore.Controll;
 using VoTCore.Package;
@@ -48,7 +49,7 @@ namespace Voice_of_Time.Cmd.Commands
                 return false; 
             }
 
-            List<long> userID = await RequestAllUserIDs();
+            List<long> userID = await Requests.RequestAllUserIDs();
 
             var loadingBar = new LoadingBar(userID.Count);
             var stopwatch = new Stopwatch();
@@ -58,7 +59,7 @@ namespace Voice_of_Time.Cmd.Commands
 
             foreach (var user in userID)
             {
-                var suc = await TryGettingUserAsync(currentClient.UserID, user);
+                var suc = await Requests.TryGettingUserAsync(currentClient.UserID, user);
                 if(suc)
                 {
                     loadingBar.Update(loadingBar.CurrentStep + 1);
@@ -90,47 +91,6 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine(pattern, Base36.Encode(client.ID), client.Username, client.PublicKey is not null);
             }
             return true;
-        }
-
-        private async Task<List<long>> RequestAllUserIDs()
-        {
-            var currentClient = ClientData.CurrentClient ?? throw new Exception("No activ connection!");
-
-            var head       = new HeaderReq(ClientData.CurrentClient.UserID, RequestType.GET_USERID_LIST);
-            var package    = new VOTP(head);
-            var result     = await (ClientData.GetConnection(ClientData.CurrentConnection ?? throw new Exception("No activ connection")) ?? throw new Exception("No activ connection")).EnqueueItem(package.Serialize());
-            var resPackage = new VOTP(result);
-
-            if(resPackage.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
-            if(resHeader.Successful is false) throw new Exception("Server couldn't responded correctly!");
-
-            if (resPackage.Body is not AData_Long resBody) throw new Exception("Server didn't responded correctly!");
-
-            return new(resBody.Data);
-        }
-
-        // Dupplicat from Chat
-        private static async Task<bool> TryGettingUserAsync(long senderID, long targetID)
-        {
-            if (ClientData.CurrentClient is null || ClientData.CurrentConnection is null) return false;
-
-            var header = new HeaderReq(senderID, RequestType.GET_PUBLIC_USER);
-            var body = new SData_Long(targetID);
-            var package = new VOTP(header, body);
-
-            var connection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception("Connection is not Registert!");
-
-            var result = new VOTP(await connection.EnqueueItem(package.Serialize()));
-
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
-            if (resHeader.Successful is false) return false;
-
-            if (result.Body is null) return false;
-            if (result.Body is not SecData_ClientShare resBody) throw new Exception("Server didn't responded correctly!");
-
-            var UserEntry = resBody.GetPublicClient();
-
-            return ClientData.CurrentClient.AppendOrOverridePublicClint(UserEntry);
         }
     }
 }
