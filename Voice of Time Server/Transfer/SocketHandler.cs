@@ -316,7 +316,7 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String("You need to be Verified to use this function!");
                         break;
                     }
-                    if (sendBody is not SData_Long longBody)
+                    if (body is not SData_Long longBody)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String($"Wrong Body! Need to be a {nameof(SData_Long)}");
