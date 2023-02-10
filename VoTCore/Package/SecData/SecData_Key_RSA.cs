@@ -8,7 +8,7 @@ using VoTCore.Secure;
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 20.01.2023
+ * @last_change - 10.02.2023
  */
 namespace VoTCore.Package.SecData
 {
