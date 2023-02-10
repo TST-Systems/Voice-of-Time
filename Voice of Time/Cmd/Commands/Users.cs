@@ -1,4 +1,5 @@
-﻿using VoTCore.Algorithms;
+﻿using System.Diagnostics;
+using VoTCore.Algorithms;
 using VoTCore.Controll;
 using VoTCore.Package;
 using VoTCore.Package.AData;
@@ -6,6 +7,13 @@ using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
 
+/**
+ * @author      - Timeplex
+ * 
+ * @created     - 08.02.2023
+ * 
+ * @last_change - 10.02.2023
+ */
 namespace Voice_of_Time.Cmd.Commands
 {
     internal class Users : IConsoleCommandAsync
@@ -23,20 +31,28 @@ namespace Voice_of_Time.Cmd.Commands
 
             if (args[0].ToLower() == "list")
             {
-                await RequestAllUser();
+                return await RequestAllUser();
             }
 
             return false;
         }
 
-        private async Task RequestAllUser()
+        private async Task<bool> RequestAllUser()
         {
+            var currentClient = ClientData.CurrentClient;
+
+            if (currentClient == null) 
+            {
+                Console.WriteLine("You need to connect to a Server first!"); 
+                return false; 
+            }
+
             List<long> userID = await RequestAllUserIDs();
 
             var loadingBar = new LoadingBar(userID.Count);
+            var stopwatch = new Stopwatch();
 
-            var currentClient = ClientData.CurrentClient ?? throw new Exception("No activ connection!");
-
+            stopwatch.Start();
             loadingBar.Start();
 
             foreach (var user in userID)
@@ -55,20 +71,24 @@ namespace Voice_of_Time.Cmd.Commands
             }
 
             loadingBar.Stop();
+            stopwatch.Stop();
+
+            Console.WriteLine($"Time passed: {stopwatch.Elapsed.TotalMilliseconds}ms\n");
 
             var userList = new List<long>(currentClient.UserDB.Keys);
             userList.Sort();
 
-            var pattern = "{0,12}|{1}";
+            var pattern = "{0,16}|{1,-32}|{2}";
 
-            Console.WriteLine(pattern, "ID", "Username");
-            Console.WriteLine(pattern, "------------", "------------");
+            Console.WriteLine(pattern, "ID", "Username", "Has Public Key");
+            Console.WriteLine(pattern, "----------------", "--------------------------------", "----------------");
 
             foreach (var pubClient in userList)
             {
                 var client = currentClient.UserDB[pubClient];
-                Console.WriteLine(pattern, Base36.Encode(client.ID), client.Username);
+                Console.WriteLine(pattern, Base36.Encode(client.ID), client.Username, client.PublicKey is not null);
             }
+            return true;
         }
 
         private async Task<List<long>> RequestAllUserIDs()
