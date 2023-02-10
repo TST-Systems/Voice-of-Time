@@ -14,7 +14,9 @@ namespace VoTCore.Package.SecData
 {
     public class SecData_Key_RSA : IVOTPBody
     {
-        public string PublicKeyAsXML { get; }
+        public byte[] Modulus  { get; }
+        public byte[] Exponent { get; }
+
         public long   SourceID { get; }
 
         [JsonIgnore]
@@ -22,8 +24,10 @@ namespace VoTCore.Package.SecData
 
         public SecData_Key_RSA(RSA publicKey, long sourceID)
         {
-            PublicKeyAsXML = publicKey.ToXmlString(false);
-            SourceID       = sourceID;
+            var KeyInfo = publicKey.ExportParameters(false);
+            Modulus     = KeyInfo.Modulus  ?? Array.Empty<byte>();
+            Exponent    = KeyInfo.Exponent ?? Array.Empty<byte>();
+            SourceID    = sourceID;
         }
 
         /// <summary>
@@ -32,30 +36,25 @@ namespace VoTCore.Package.SecData
         /// <param name="keyXML">Public key as XML</param>
         /// <param name="sourceID">User/Group from with the key originates</param>
         [JsonConstructor]
-        public SecData_Key_RSA(string publicKeyAsXML, long sourceID)
+        public SecData_Key_RSA(byte[] modulus, byte[] exponent, long sourceID)
         {
-            var testRSAKey = RSA.Create();
-            testRSAKey.FromXmlString(publicKeyAsXML);
-            try
-            {
-                _ = testRSAKey.ExportParameters(true);
-                throw new Exception();
-            }
-            catch(CryptographicException) { }
-            PublicKeyAsXML = publicKeyAsXML;
-            SourceID       = sourceID;
+            Modulus  = modulus;
+            Exponent = exponent;
+            SourceID = sourceID;
         }
 
-        public SecData_Key_RSA(PublicRSA publicKey, long sourceID)
-        {
-            PublicKeyAsXML = publicKey.Key.ToXmlString(false);
-            SourceID       = sourceID;
-        }
+        public SecData_Key_RSA(PublicRSA publicKey, long sourceID) : this(publicKey.Key, sourceID) { }
 
         public RSA GetKey()
-        { 
-            var Key = RSA.Create();
-            Key.FromXmlString(PublicKeyAsXML);
+        {
+            var KeyParameter = new RSAParameters
+            {
+                Modulus  = Modulus,
+                Exponent = Exponent
+            };
+
+            var Key = RSA.Create(KeyParameter);
+
             return Key;
         }
     }

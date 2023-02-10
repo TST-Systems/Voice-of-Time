@@ -26,7 +26,7 @@ namespace VoTCore.Package.SecData
         }
 
         [JsonConstructor]
-        public SecData_ClientShare(string publicKeyAsXML, long sourceID, string username) : base(publicKeyAsXML, sourceID)
+        public SecData_ClientShare(byte[] modulus, byte[] exponent, long sourceID, string username) : base(modulus, exponent, sourceID)
         {
             Username = username;
         }

@@ -25,18 +25,18 @@ namespace VoTTest.Core
         public void Constructor_Test()
         {
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var body   = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
-            var package          = new VOTP(header, body);
+            var package = new VOTP(header, body);
             var packageEmptyBody = new VOTP(header);
 
             Assert.Equal(header, package.Header);
-            Assert.Equal(body,   package.Body);
+            Assert.Equal(body, package.Body);
 
-            Assert.Equal(header,  packageEmptyBody.Header);
+            Assert.Equal(header, packageEmptyBody.Header);
             Assert.Equal(default, packageEmptyBody.Body);
         }
-        
+
 
         [Fact]
         public void Serialize_Normal_Test()
@@ -60,7 +60,7 @@ namespace VoTTest.Core
             // Is the Preheader ok?
             var info = JsonSerializer.Deserialize<VOTPInfo?>(split[0]);
             Assert.NotNull(info);
-            Assert.Equal(body.Type,      info.Type);
+            Assert.Equal(body.Type, info.Type);
             Assert.Equal(header.Version, info.Version);
 
             // Is the Heaer ok?
@@ -99,7 +99,7 @@ namespace VoTTest.Core
             var info = JsonSerializer.Deserialize<VOTPInfo?>(split[0]);
             Assert.NotNull(info);
             Assert.Equal(BodyType.NONE, info.Type);
-            Assert.Equal(header.Version,   info.Version);
+            Assert.Equal(header.Version, info.Version);
 
             // Is the Heaer ok?
             var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);
@@ -128,8 +128,8 @@ namespace VoTTest.Core
             Assert.NotNull(deserialized.Body);
             Assert.NotNull(deserialized.Header);
 
-            Assert.Equal(deserialized,        package);
-            Assert.Equal(deserialized.Body,   body);
+            Assert.Equal(deserialized, package);
+            Assert.Equal(deserialized.Body, body);
             Assert.Equal(deserialized.Header, header);
         }
 
@@ -188,7 +188,7 @@ namespace VoTTest.Core
 
             /// Test results
             // Crossover Test
-            Assert.Equal   (package1_1, package1_1);
+            Assert.Equal(package1_1, package1_1);
             Assert.NotEqual(package1_1, package1_2);
             Assert.NotEqual(package1_1, package2_1);
             Assert.NotEqual(package1_1, package2_2);
@@ -196,7 +196,7 @@ namespace VoTTest.Core
             Assert.NotEqual(package1_1, packageNoBody2);
 
             Assert.NotEqual(package1_2, package1_1);
-            Assert.Equal   (package1_2, package1_2);
+            Assert.Equal(package1_2, package1_2);
             Assert.NotEqual(package1_2, package2_1);
             Assert.NotEqual(package1_2, package2_2);
             Assert.NotEqual(package1_2, packageNoBody1);
@@ -204,7 +204,7 @@ namespace VoTTest.Core
 
             Assert.NotEqual(package2_1, package1_1);
             Assert.NotEqual(package2_1, package1_2);
-            Assert.Equal   (package2_1, package2_1);
+            Assert.Equal(package2_1, package2_1);
             Assert.NotEqual(package2_1, package2_2);
             Assert.NotEqual(package2_1, packageNoBody1);
             Assert.NotEqual(package2_1, packageNoBody2);
@@ -212,7 +212,7 @@ namespace VoTTest.Core
             Assert.NotEqual(package2_2, package1_1);
             Assert.NotEqual(package2_2, package1_2);
             Assert.NotEqual(package2_2, package2_1);
-            Assert.Equal   (package2_2, package2_2);
+            Assert.Equal(package2_2, package2_2);
             Assert.NotEqual(package2_2, packageNoBody1);
             Assert.NotEqual(package2_2, packageNoBody2);
 
@@ -220,7 +220,7 @@ namespace VoTTest.Core
             Assert.NotEqual(packageNoBody1, package1_2);
             Assert.NotEqual(packageNoBody1, package2_1);
             Assert.NotEqual(packageNoBody1, package2_2);
-            Assert.Equal   (packageNoBody1, packageNoBody1);
+            Assert.Equal(packageNoBody1, packageNoBody1);
             Assert.NotEqual(packageNoBody1, packageNoBody2);
 
             Assert.NotEqual(packageNoBody2, package1_1);
@@ -228,7 +228,7 @@ namespace VoTTest.Core
             Assert.NotEqual(packageNoBody2, package2_1);
             Assert.NotEqual(packageNoBody2, package2_2);
             Assert.NotEqual(packageNoBody2, packageNoBody1);
-            Assert.Equal   (packageNoBody2, packageNoBody2);
+            Assert.Equal(packageNoBody2, packageNoBody2);
 
             // Intern variable Test
             Assert.False(package1_1.Equals(header1));
@@ -298,11 +298,8 @@ namespace VoTTest.Core
         [Fact]
         public void SecDataKeyRSA_Test()
         {
-            var fullKey   = RSA.Create();
+            var fullKey = RSA.Create();
             var publicKey = RSA.Create(fullKey.ExportParameters(false));
-
-
-            var publicKey2 = fullKey.ExportRSAPublicKey();
 
             var body = new SecData_Key_RSA(publicKey, 0);
             var head = new HeaderReq(1, 0);
@@ -314,43 +311,26 @@ namespace VoTTest.Core
 
             Assert.Equal(head, deserialized.Header);
 
-            if (deserialized.Body is not SecData_Key_RSA keyData) { 
+            if (deserialized.Body is not SecData_Key_RSA keyData)
+            {
                 Assert.Fail("Body is no longer of the same type as before?");
-                return;  
+                return;
             }
 
-            var externPublicKey = RSA.Create();
-            externPublicKey.FromXmlString(keyData.PublicKeyAsXML);
+            var externPublicKey = keyData.GetKey();
 
             var A = publicKey.ExportParameters(false);
             var B = externPublicKey.ExportParameters(false);
 
-            Assert.Equal(A.Modulus,  B.Modulus);
+            Assert.Equal(A.Modulus, B.Modulus);
             Assert.Equal(A.Exponent, B.Exponent);
 
-            try
-            {
-                _ = publicKey.ExportParameters(true);
-                Assert.Fail("Original Public key has privat parts!");
-            }catch(Exception) { }
-
-            try
-            {
-                _ = externPublicKey.ExportParameters(true);
-                Assert.Fail("Extern Public key has privat parts!");
-            }
-            catch (Exception) { }
-
-            try
-            {
-                _ = fullKey.ExportParameters(true);
-            }
-            catch (Exception)
-            {
-                Assert.Fail("Privat key has no privat parts!");
-            }
-
+            Assert.Null(B.D);
+            Assert.Null(B.DP);
+            Assert.Null(B.DQ);
+            Assert.Null(B.InverseQ);
+            Assert.Null(B.P);
+            Assert.Null(B.Q);
         }
-
     }
 }
