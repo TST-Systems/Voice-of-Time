@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Voice_of_Time.Shared;
 using VoTCore.Algorithms;
 using VoTCore.Controll;
 using VoTCore.Package;

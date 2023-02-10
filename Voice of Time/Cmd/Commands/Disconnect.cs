@@ -1,4 +1,5 @@
-﻿using VoTCore.Controll;
+﻿using Voice_of_Time.Shared;
+using VoTCore.Controll;
 
 /**
  * @author      - Timeplex

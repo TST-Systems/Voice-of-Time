@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Voice_of_Time.Cmd.Commands;
+using Voice_of_Time.Shared;
 using VoTCore.Controll;
 
 /**

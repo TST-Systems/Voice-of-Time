@@ -11,7 +11,7 @@ using VoTCore.User;
  * 
  * @last_change - 09.02.2023
  */
-namespace Voice_of_Time
+namespace Voice_of_Time.User
 {
     /// <summary>
     /// Server bound Client Identity
@@ -41,26 +41,26 @@ namespace Voice_of_Time
         [JsonConstructor]
         protected Client(SerializationInfo info, StreamingContext context)
         {
-            UserID       = info.GetInt64(nameof(UserID));
+            UserID = info.GetInt64(nameof(UserID));
 
-            Username     = info.GetString(nameof(Username)) ?? throw new Exception(nameof(Username) + " coudn't be loaded!");
+            Username = info.GetString(nameof(Username)) ?? throw new Exception(nameof(Username) + " coudn't be loaded!");
 
-            var keyAsXML = info.GetString(nameof(UserKey))  ?? throw new Exception(nameof(UserKey) +  " coudn't be loaded!");
-            UserKey      = RSA.Create();
+            var keyAsXML = info.GetString(nameof(UserKey)) ?? throw new Exception(nameof(UserKey) + " coudn't be loaded!");
+            UserKey = RSA.Create();
             UserKey.FromXmlString(keyAsXML);
 
-            TextChats    = (List<TextChat>?)                info.GetValue(nameof(TextChats), typeof(List<TextChat>))              ?? new();
+            TextChats = (List<TextChat>?)info.GetValue(nameof(TextChats), typeof(List<TextChat>)) ?? new();
 
-            UserDB       = (Dictionary<long, PublicClient>?)info.GetValue(nameof(UserDB), typeof(Dictionary<long, PublicClient>)) ?? new();
+            UserDB = (Dictionary<long, PublicClient>?)info.GetValue(nameof(UserDB), typeof(Dictionary<long, PublicClient>)) ?? new();
         }
 
         public Client(long userID, string username, RSA userKey, List<TextChat>? textChats = null, Dictionary<long, PublicClient>? userDB = null)
         {
-            UserID    = userID;
-            Username  = username  ?? throw new ArgumentNullException(nameof(username));
-            UserKey   = userKey   ?? throw new ArgumentNullException(nameof(userKey));
+            UserID = userID;
+            Username = username ?? throw new ArgumentNullException(nameof(username));
+            UserKey = userKey ?? throw new ArgumentNullException(nameof(userKey));
             TextChats = textChats ?? new();
-            UserDB    = userDB    ?? new();
+            UserDB = userDB ?? new();
         }
 
         public bool AppendPublicClient(PublicClient publicClient)
@@ -84,13 +84,13 @@ namespace Voice_of_Time
         {
             var KeyAsXML = UserKey.ToXmlString(true);
 
-            info.AddValue(nameof(UserID),    UserID);
-            info.AddValue(nameof(Username),  Username);
-            info.AddValue(nameof(UserKey),   KeyAsXML);
+            info.AddValue(nameof(UserID), UserID);
+            info.AddValue(nameof(Username), Username);
+            info.AddValue(nameof(UserKey), KeyAsXML);
 
             info.AddValue(nameof(TextChats), TextChats);
 
-            info.AddValue(nameof(UserDB),    UserDB);
+            info.AddValue(nameof(UserDB), UserDB);
 
         }
     }

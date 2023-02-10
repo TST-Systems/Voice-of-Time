@@ -5,6 +5,8 @@ using VoTCore.Package.SData;
 using VoTCore.Package;
 using System.Security.Cryptography;
 using VoTCore.Package.SecData;
+using Voice_of_Time.Shared;
+using Voice_of_Time.User;
 
 /**
  * @author      - Timeplex

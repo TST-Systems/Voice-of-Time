@@ -1,5 +1,6 @@
 using System.Runtime.Serialization;
 using Voice_of_Time.Transfer;
+using Voice_of_Time.User;
 using VoTCore.Controll;
 using VoTCore.Exeptions;
 
@@ -10,28 +11,31 @@ using VoTCore.Exeptions;
  * 
  * @last_change - 05.02.2023
  */
-namespace Voice_of_Time
+namespace Voice_of_Time.Shared
 {
     [Serializable]
     public static class ClientData
     {
-        private static readonly Dictionary<Guid, Client> UserRegister               = new();
+        private static readonly Dictionary<Guid, Client> UserRegister = new();
 
 
-        private static readonly Dictionary<Guid, CSocketHold> ConnectionRegister    = new();
+        private static readonly Dictionary<Guid, CSocketHold> ConnectionRegister = new();
 
         private static readonly Dictionary<string, IConsoleCommand> CommandRegister = new();
-        private static readonly Dictionary<string, string> AliasesRegister          = new();
+        private static readonly Dictionary<string, string> AliasesRegister = new();
 
-        private static Guid? currentConnection                                      = null;
+        private static Guid? currentConnection = null;
         internal static Guid? CurrentConnection { get => currentConnection; }
 
-        internal static Client? CurrentClient { 
-            get { 
-                if (CurrentConnection != null) 
-                    return UserRegister[(Guid)CurrentConnection]; 
-                return null; 
-            } }
+        internal static Client? CurrentClient
+        {
+            get
+            {
+                if (CurrentConnection != null)
+                    return UserRegister[(Guid)CurrentConnection];
+                return null;
+            }
+        }
 
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
@@ -115,7 +119,7 @@ namespace Voice_of_Time
                 RegisterCommand(executer);
             }
             catch (EntryAlreadyExistsExeption) { return false; }
-            catch (UnauthorizedCharExeption)   { return false; }
+            catch (UnauthorizedCharExeption) { return false; }
             return true;
         }
 
@@ -123,7 +127,7 @@ namespace Voice_of_Time
         {
             command = command.ToLower();
             var realCommand = AliasesRegister.GetValueOrDefault(command);
-            if(realCommand is null) return null;
+            if (realCommand is null) return null;
             return CommandRegister[realCommand];
         }
 
@@ -155,7 +159,7 @@ namespace Voice_of_Time
 
         internal static void AddServerClient(Client client, Guid serverID)
         {
-            if(UserRegister.ContainsKey(serverID))
+            if (UserRegister.ContainsKey(serverID))
             {
                 throw new EntryAlreadyExistsExeption();
             }
@@ -169,7 +173,7 @@ namespace Voice_of_Time
             {
                 AddServerClient(client, serverID);
             }
-            catch(EntryAlreadyExistsExeption) { return false; }
+            catch (EntryAlreadyExistsExeption) { return false; }
             return true;
         }
         #endregion
@@ -233,7 +237,7 @@ namespace Voice_of_Time
         {
             Directory.CreateDirectory(SaveFolder);
 
-            foreach(var server in UserRegister)
+            foreach (var server in UserRegister)
             {
                 var saveFile = Path.Combine(SaveFolder, server.Key.ToString());
 
@@ -251,7 +255,7 @@ namespace Voice_of_Time
         {
             var saveFile = Path.Combine(SaveFolder, serverID.ToString());
 
-            if(!File.Exists(saveFile)) return null;
+            if (!File.Exists(saveFile)) return null;
 
             using FileStream stream = File.OpenRead(saveFile);
 
