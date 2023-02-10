@@ -11,7 +11,8 @@ namespace VoTCore.Algorithms
     {
         public readonly int Steps;
 
-        private int CurrentStep;
+        private int currentStep;
+        public int CurrentStep { get => currentStep; }
 
         private bool IsActive = false;
 
@@ -25,7 +26,6 @@ namespace VoTCore.Algorithms
         public void Start()
         {
             if (IsActive) return;
-            CurrentStep = 0;
             CurrentLenght = Console.WindowWidth;
             IsActive = true;
             Draw();
@@ -34,7 +34,7 @@ namespace VoTCore.Algorithms
         public void Update(int currentStep)
         {
             if (!IsActive) return;
-            CurrentStep   = currentStep;
+            this.currentStep = currentStep;
             CurrentLenght = Console.WindowWidth;
             Draw();
         }
@@ -50,7 +50,6 @@ namespace VoTCore.Algorithms
             if (!IsActive) return;
             CurrentLenght = 0;
             Clear();
-            IsActive = false;
         }
 
         private void Draw()
@@ -93,6 +92,7 @@ namespace VoTCore.Algorithms
             }
 
             Console.Write('\r');
+            IsActive = false;
         }
     }
 }
