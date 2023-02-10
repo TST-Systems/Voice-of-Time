@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿/**
+ * @author      - Timeplex
+ * 
+ * @created     - 09.02.2023
+ * 
+ * @last_change - 09.02.2023
+ */
 namespace VoTCore.Algorithms
 {
     public class LoadingBar

@@ -1,5 +1,6 @@
 ﻿using VoTCore.Communication;
 using VoTCore.Communication.Data;
+using VoTCore.Package.AData;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
@@ -9,7 +10,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 09.02.2023
+ * @last_change - 10.02.2023
  */
 namespace VoTCore
 {
@@ -24,16 +25,17 @@ namespace VoTCore
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
-            { BodyType.MESSAGE_TEXT,                typeof(TextMessage)        },
-            { BodyType.MESSAGE_FILE,                typeof(FileMessage)        },
-            { BodyType.SDATA_INT,                   typeof(SData_Int)          },
-            { BodyType.SDATA_LONG,                  typeof(SData_Long)         },
-            { BodyType.SDATA_GUID,                  typeof(SData_Guid)         },
-            { BodyType.SDATA_STRING,                typeof(SData_String)       },
-            { BodyType.SECDATA_KEY_RSA,             typeof(SecData_Key_RSA)    },
-            { BodyType.SECDATA_KEY_AES,             typeof(SecData_Key_Aes)    },
-            { BodyType.PRIVAT_CHAT,                 typeof(PrivatChat)         },
-            { BodyType.SECDATA_PUBLIC_CLIENT_SHARE, typeof(SecData_ClientShare)},
+            { BodyType.MESSAGE_TEXT,                typeof(TextMessage)         },
+            { BodyType.MESSAGE_FILE,                typeof(FileMessage)         },
+            { BodyType.SDATA_INT,                   typeof(SData_Int)           },
+            { BodyType.SDATA_LONG,                  typeof(SData_Long)          },
+            { BodyType.SDATA_GUID,                  typeof(SData_Guid)          },
+            { BodyType.SDATA_STRING,                typeof(SData_String)        },
+            { BodyType.ADATA_LONG,                  typeof(AData_Long)          },
+            { BodyType.SECDATA_KEY_RSA,             typeof(SecData_Key_RSA)     },
+            { BodyType.SECDATA_KEY_AES,             typeof(SecData_Key_Aes)     },
+            { BodyType.SECDATA_PUBLIC_CLIENT_SHARE, typeof(SecData_ClientShare) },
+            { BodyType.PRIVAT_CHAT,                 typeof(PrivatChat)          },
         };
 
         // Transmission buffer size
@@ -42,9 +44,8 @@ namespace VoTCore
         // Transmission symbols
         public const string SOM = "\u0002\u0002\u0002";   // ASCI: STX
         public const string EOM = "\u0003\u0003\u0003";   // ASCI: ETX
-        public const string FIN = "\u0004";   // ASCI: EOT
-        public const string ACK = "\u0005";   // ASCI: ACK
-
+        public const string FIN = "\u0004";               // ASCI: EOT
+        public const string ACK = "\u0005";               // ASCI: ACK // Unused
 
     }
 
@@ -71,8 +72,10 @@ namespace VoTCore
         SDATA_STRING = 0x44,
         SDATA_GUID   = 0x50,
 
-        // Reserved
+        // Array Data
+        ADATA       = 0x60,
         // 0x61 - 0x7f
+        ADATA_LONG  = 0x62,
 
         // Reserved
         // 0x81 - 0x9f
@@ -108,6 +111,7 @@ namespace VoTCore
         SET_USERNAME,
         VERIFY,
         GET_PUBLIC_USER,
+        GET_USERID_LIST,
     }
 
 
