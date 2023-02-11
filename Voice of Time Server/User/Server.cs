@@ -18,15 +18,17 @@ namespace Voice_of_Time_Server.User
         public ServerConfig Config { get; }
 
         public Dictionary<long, PublicClient> UserDB { get; }
+        public Dictionary<long, List<long>>   ChatDB { get; }
 
         public RSA ServerKey { get; }
 
-        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null)
+        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<long>> chatDB = null)
         {
-            Config = config ?? new();
-            UserDB = userDB ?? new();
-            ServerKey = serverKey ?? RSA.Create();
-            ServerIdentity = serverIdentity ?? Guid.NewGuid();
+            Config          = config ?? new();
+            UserDB          = userDB ?? new();
+            ServerKey       = serverKey ?? RSA.Create();
+            ServerIdentity  = serverIdentity ?? Guid.NewGuid();
+            ChatDB          = chatDB;
         }
 
         internal long AddUser(RSA userPubKey, string username)
@@ -35,13 +37,28 @@ namespace Voice_of_Time_Server.User
             long userID;
             do
             {
-                userID = rdm.NextInt64();
+                userID = rdm.Next(1, 100); // <- Just for Test Reasons // rdm.Next() 
             }
-            while (userID <= 0 && !UserDB.ContainsKey(userID));
+            while (!UserDB.ContainsKey(userID) && !ChatDB.ContainsKey(userID));
 
             UserDB[userID] = new(userID, username, new(userPubKey));
 
             return userID;
         }
-    }
+
+        internal long AddChat(long creator)
+        {
+            Random rdm = new();
+
+            long chatID;
+            do
+            {
+                chatID = rdm.NextInt64(((long)int.MaxValue) + 1, long.MaxValue);
+            }
+            while (!UserDB.ContainsKey(chatID) && !ChatDB.ContainsKey(chatID));
+
+            ChatDB[chatID] = new(new long[] { creator });
+
+            return chatID;
+        }
 }

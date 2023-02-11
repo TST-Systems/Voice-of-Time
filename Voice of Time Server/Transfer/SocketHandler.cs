@@ -160,9 +160,20 @@ namespace Voice_of_Time_Server.Transfer
         private string ProccessRequest(HeaderReq header, IVOTPBody? body)
         {
             IVOTPHeader? sendHeader = null;
-            IVOTPBody? sendBody = null;
+            IVOTPBody? sendBody     = null;
 
             var typeOfRequest = header.Request;
+
+            // Prechecks
+            var userID = header.SenderID;
+            if(userID != UserID)
+            {
+                sendHeader             = new HeaderAck(false);
+                sendBody               = new SData_String("Wrong UserID! Disconecting!");
+                requestConnectionClose = true;
+                goto END;
+            }
+            //
 
             switch (typeOfRequest)
             {
@@ -271,13 +282,13 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String("You need to secure the communication first!");
                         break;
                     }
-                    var uid = ServerData.server.AddUser(UserPubKey, ""); // TODO: Username?
+                    var uid = ServerData.server.AddUser(UserPubKey, "");
 
                     CommunicationVerified = true;
                     UserID                = uid;
 
                     sendHeader = new HeaderAck(true);
-                    sendBody  = new SData_Long(uid);
+                    sendBody   = new SData_Long(uid);
                     break;
                 case RequestType.SET_USERNAME:
                     if (!CommunicationVerified)
@@ -342,7 +353,22 @@ namespace Voice_of_Time_Server.Transfer
                     sendHeader = new HeaderAck(true);
                     sendBody = new AData_Long(ServerData.server.UserDB.Keys.ToArray());
                     break;
+                case RequestType.REGISTER_PRIVAT_CHAT:
+                    if (!CommunicationVerified)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String("You need to be Verified to use this function!");
+                        break;
+                    }
+
+                    var chatID = ServerData.server.AddChat(UserID);
+
+                    sendHeader = new HeaderAck(true);
+                    sendBody   = new SData_Long(chatID);
+                    break;
             }
+
+            END:
 
             if (sendHeader is null) throw new Exception("Unknown request!");
 
