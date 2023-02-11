@@ -24,11 +24,11 @@ namespace Voice_of_Time_Server.User
 
         public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<long>> chatDB = null)
         {
-            Config = config ?? new();
-            UserDB = userDB ?? new();
-            ServerKey = serverKey ?? RSA.Create();
-            ServerIdentity = serverIdentity ?? Guid.NewGuid();
-            ChatDB = chatDB;
+            Config          = config ?? new();
+            UserDB          = userDB ?? new();
+            ChatDB          = chatDB ?? new();
+            ServerKey       = serverKey      ?? RSA.Create();
+            ServerIdentity  = serverIdentity ?? Guid.NewGuid();
         }
 
         internal long AddUser(RSA userPubKey, string username)
@@ -39,7 +39,7 @@ namespace Voice_of_Time_Server.User
             {
                 userID = rdm.Next(1, 100); // <- Just for Test Reasons // rdm.Next() 
             }
-            while (!UserDB.ContainsKey(userID) && !ChatDB.ContainsKey(userID));
+            while (UserDB.ContainsKey(userID) || ChatDB.ContainsKey(userID));
 
             UserDB[userID] = new(userID, username, new(userPubKey));
 
@@ -55,7 +55,7 @@ namespace Voice_of_Time_Server.User
             {
                 chatID = rdm.NextInt64(((long)int.MaxValue) + 1, long.MaxValue);
             }
-            while (!UserDB.ContainsKey(chatID) && !ChatDB.ContainsKey(chatID));
+            while (UserDB.ContainsKey(chatID) || ChatDB.ContainsKey(chatID));
 
             ChatDB[chatID] = new(new long[] { creator });
 
