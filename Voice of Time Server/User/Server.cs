@@ -18,11 +18,11 @@ namespace Voice_of_Time_Server.User
         public ServerConfig Config { get; }
 
         public Dictionary<long, PublicClient> UserDB { get; }
-        public Dictionary<long, List<long>> ChatDB { get; }
+        public Dictionary<long, List<(long, ChatState)>> ChatDB { get; }
 
         public RSA ServerKey { get; }
 
-        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<long>> chatDB = null)
+        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<(long, ChatState)>>? chatDB = null)
         {
             Config          = config ?? new();
             UserDB          = userDB ?? new();
@@ -37,7 +37,11 @@ namespace Voice_of_Time_Server.User
             long userID;
             do
             {
-                userID = rdm.Next(1, 100); // <- Just for Test Reasons // rdm.Next() 
+#if DEBUG
+                userID = rdm.Next(1, 100);
+#else
+                userID = rdm.Next(101, int.MaxValue); // Reserverd IDs: 0-1-100
+#endif
             }
             while (UserDB.ContainsKey(userID) || ChatDB.ContainsKey(userID));
 
@@ -57,7 +61,10 @@ namespace Voice_of_Time_Server.User
             }
             while (UserDB.ContainsKey(chatID) || ChatDB.ContainsKey(chatID));
 
-            ChatDB[chatID] = new(new long[] { creator });
+            ChatDB[chatID] = new()
+            {
+                (creator, ChatState.ADMIN | ChatState.MEMBER)
+            };
 
             return chatID;
         }
