@@ -7,7 +7,7 @@ using VoTCore.User;
  * 
  * @created     - 24.12.2022
  * 
- * @last_change - 01.02.2023
+ * @last_change - 11.02.2023
  */
 namespace Voice_of_Time_Server.User
 {
@@ -18,17 +18,17 @@ namespace Voice_of_Time_Server.User
         public ServerConfig Config { get; }
 
         public Dictionary<long, PublicClient> UserDB { get; }
-        public Dictionary<long, List<long>>   ChatDB { get; }
+        public Dictionary<long, List<long>> ChatDB { get; }
 
         public RSA ServerKey { get; }
 
         public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<long>> chatDB = null)
         {
-            Config          = config ?? new();
-            UserDB          = userDB ?? new();
-            ServerKey       = serverKey ?? RSA.Create();
-            ServerIdentity  = serverIdentity ?? Guid.NewGuid();
-            ChatDB          = chatDB;
+            Config = config ?? new();
+            UserDB = userDB ?? new();
+            ServerKey = serverKey ?? RSA.Create();
+            ServerIdentity = serverIdentity ?? Guid.NewGuid();
+            ChatDB = chatDB;
         }
 
         internal long AddUser(RSA userPubKey, string username)
@@ -61,4 +61,5 @@ namespace Voice_of_Time_Server.User
 
             return chatID;
         }
+    }
 }
