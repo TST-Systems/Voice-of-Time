@@ -9,7 +9,7 @@ using VoTCore.Exeptions;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 05.02.2023
+ * @last_change - 11.02.2023
  */
 namespace Voice_of_Time.Shared
 {
@@ -38,6 +38,17 @@ namespace Voice_of_Time.Shared
         }
 
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
+
+        internal static (CSocketHold, Client, Guid) GetCurrentConnection()
+        {            
+            var serverID = currentConnection       ?? throw new Exception("No acctiv connection!");
+            var socket   = GetConnection(serverID) ?? throw new Exception("Internal Error: No Connection to current Server!");
+            var client   = CurrentClient           ?? throw new Exception("Internal Errir: No Client for current Servert!");
+
+            return (socket, client, serverID);
+        }
+
+
 
         #region CommandRegister
         private const string AllowedChars = "abcdefghijklmnopqrstuvwxyz0123456789_";

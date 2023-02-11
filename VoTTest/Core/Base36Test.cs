@@ -26,7 +26,7 @@ namespace VoTTest.Core
             var longMinEncoded = Base36.Encode(longMin);
             var longMinDecoded = Base36.Decode(longMinEncoded);
 
-            Assert.Equal(0, longMinDecoded); // <- Doc: Base32 Min=0 => X < 0 --> 0
+            Assert.Equal(0, longMinDecoded); // <- Doc: Base36 Min=0 => X < 0 --> 0
 
             // Test Zero
             var Zero = 0;

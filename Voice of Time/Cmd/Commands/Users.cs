@@ -3,18 +3,13 @@ using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using VoTCore.Algorithms;
 using VoTCore.Controll;
-using VoTCore.Package;
-using VoTCore.Package.AData;
-using VoTCore.Package.Header;
-using VoTCore.Package.SData;
-using VoTCore.Package.SecData;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 08.02.2023
  * 
- * @last_change - 10.02.2023
+ * @last_change - 11.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -49,6 +44,8 @@ namespace Voice_of_Time.Cmd.Commands
                 return false; 
             }
 
+            var (socket, client, _) = ClientData.GetCurrentConnection();
+
             List<long> userID = await Requests.RequestAllUserIDs();
 
             var loadingBar = new LoadingBar(userID.Count);
@@ -59,7 +56,7 @@ namespace Voice_of_Time.Cmd.Commands
 
             foreach (var user in userID)
             {
-                var suc = await Requests.TryGettingUserAsync(currentClient.UserID, user);
+                var suc = await Requests.TryGettingUserAsync(socket, client, user);
                 if(suc)
                 {
                     loadingBar.Update(loadingBar.CurrentStep + 1);
@@ -85,10 +82,10 @@ namespace Voice_of_Time.Cmd.Commands
             Console.WriteLine(pattern, "ID", "Username", "Has Public Key");
             Console.WriteLine(pattern, "----------------", "--------------------------------", "----------------");
 
-            foreach (var pubClient in userList)
+            foreach (var pubClientID in userList)
             {
-                var client = currentClient.UserDB[pubClient];
-                Console.WriteLine(pattern, Base36.Encode(client.ID), client.Username, client.PublicKey is not null);
+                var pubClient = currentClient.UserDB[pubClientID];
+                Console.WriteLine(pattern, Base36.Encode(pubClient.ID), pubClient.Username, pubClient.PublicKey is not null);
             }
             return true;
         }

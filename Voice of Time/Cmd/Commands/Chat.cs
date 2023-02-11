@@ -2,17 +2,13 @@
 using Voice_of_Time.Shared.Functions;
 using VoTCore.Algorithms;
 using VoTCore.Controll;
-using VoTCore.Package;
-using VoTCore.Package.Header;
-using VoTCore.Package.SData;
-using VoTCore.Package.SecData;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 09.02.2023
+ * @last_change - 11.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -86,6 +82,9 @@ namespace Voice_of_Time.Cmd.Commands
                 return true; 
             }
 
+            var (socket, client, _) = ClientData.GetCurrentConnection();
+
+
             Console.WriteLine("Please Enter User(s) to invide by (,) devided (ID: #ZZZZ or Nick: Peter):");
             var input = Console.ReadLine();
 
@@ -96,8 +95,6 @@ namespace Voice_of_Time.Cmd.Commands
             }
 
             var userList = input.Split(',');
-
-            if (userList.Length > 0) { userList = userList.Append(input).ToArray(); }
 
             for (int i = 0; i < userList.Length; i++)
             {
@@ -135,21 +132,23 @@ namespace Voice_of_Time.Cmd.Commands
             particepents.Sort();
             particepents = particepents.Distinct().ToList();
 
-            //
-            var currentClient = ClientData.CurrentClient;
-            if (currentClient is null) throw new Exception("Connection was closed during operation!");
-
             // Check if users exist when not try to find out if user exists
             foreach (var particepent in particepents)
             {
-                if (currentClient.UserDB.ContainsKey(particepent)) continue;
+                if (client.UserDB.ContainsKey(particepent)) continue;
 
-                if (await Requests.TryGettingUserAsync(currentClient.UserID, particepent)) continue;
+                if (await Requests.TryGettingUserAsync(socket, client, particepent)) continue;
 
                 Console.WriteLine($"User: #{Base36.Encode(particepent)} coudn't be found");
 
                 particepents.Remove(particepent);
             }
+
+            // Get ChatID from Server
+            var chatID = await Requests.GetChatID(socket, client.UserID);
+
+
+
             
             return true;
         }

@@ -10,7 +10,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 10.02.2023
+ * @last_change - 11.02.2023
  */
 namespace VoTCore
 {
@@ -112,6 +112,7 @@ namespace VoTCore
         VERIFY,
         GET_PUBLIC_USER,
         GET_USERID_LIST,
+        REGISTER_PRIVAT_CHAT,
     }
 
 

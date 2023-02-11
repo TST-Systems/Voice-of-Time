@@ -6,31 +6,68 @@ using System.Security.Cryptography;
 using VoTCore.Package.SecData;
 using Voice_of_Time.User;
 using VoTCore.Package.AData;
+using VoTCore.Package.Interfaces;
+using VoTCore.Exeptions;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 10.02.2023
  * 
- * @last_change - 10.02.2023
+ * @last_change - 11.02.2023
  */
 namespace Voice_of_Time.Shared.Functions
 {
     internal static class Requests
     {
+        #region Process Helper
+        private static async Task<T> RequestPackageHandler<T>(CSocketHold socket, VOTP package) where T : IVOTPBody
+        {
+            if (!socket.IsRunning) throw new Exception("Connection is currently closed!");
+
+            var serialized = package.Serialize();
+
+            var serverAnser = await socket.EnqueueItem(serialized);
+
+            var resultPackage = new VOTP(serverAnser);
+
+            // Check if Header is ok
+            if (resultPackage.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
+            if (resHeader.Successful is false)
+            {
+                string additionalInfo = "";
+
+                if (resultPackage.Body is SData_String messageWrapper) additionalInfo += "\n" + messageWrapper.Data;
+
+                throw new Exception("Server coudn't Process the Request!" + additionalInfo);
+            }
+
+            // Check if Data is ok
+            if (resultPackage.Body is null) throw new PackageBodyNullException("Server anserwed with no data");
+            if (resultPackage.Body is not T resBody) throw new Exception($"Server anserwed with wrong output : {resultPackage.Body.GetType().Name}");
+
+            return resBody;
+        }
+
+        private static async Task RequestPackageHandler(CSocketHold socket, VOTP package)
+        {
+            try
+            {
+                _ = await RequestPackageHandler<IVOTPBody>(socket, package);
+                throw new Exception("Server respnded with not requested Data!");
+            }
+            catch (PackageBodyNullException) { }
+        }
+        #endregion
+
         public static async Task<Guid> RequestServerID(CSocketHold socket, long userID = -1)
         {
-            var header  = new HeaderReq(userID, RequestType.IDENTITY);
+            var header = new HeaderReq(userID, RequestType.IDENTITY);
+            var toSend = new VOTP(header);
 
-            var toSend  = new VOTP(header).Serialize();
+            var result = await RequestPackageHandler<SData_Guid>(socket, toSend);
 
-            var recived = await socket.EnqueueItem(toSend);
-
-            var body    = new VOTP(recived).Body;
-
-            if (body is not SData_Guid sDGuid) throw new Exception("Sever didn't replyed correctly");
-
-            return sDGuid.Data;
+            return result.Data;
         }
 
         public static async Task<RSA> KeyExchangeWithServer(CSocketHold socket, RSA key, long userID = -1)
@@ -40,62 +77,42 @@ namespace Voice_of_Time.Shared.Functions
 
             var toSend = new VOTP(header, body);
 
-            var recive = await socket.EnqueueItem(toSend.Serialize());
-            var result = new VOTP(recive);
+            var result = await RequestPackageHandler<SecData_Key_RSA>(socket, toSend);
 
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
-            if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
-
-            if (result.Body is not SecData_Key_RSA resBody) throw new Exception("Body wasn't expected!");
-
-            return resBody.GetKey();
+            return result.GetKey();
         }
 
         public static async Task OpenSecureCommunication(CSocketHold socket, RSA decryptionKey, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.COMM_KEY);
             var toSend = new VOTP(header);
-            var recive = await socket.EnqueueItem(toSend.Serialize());
-            var result = new VOTP(recive);
 
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
-            if (result.Body is not SecData_Key_Aes resBody) throw new Exception("Body wasn't expected!");
+            var result = await RequestPackageHandler<SecData_Key_Aes>(socket, toSend);
 
-            if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
+            result.DecryptData(decryptionKey);
 
-            resBody.DecryptData(decryptionKey);
-
-            var key = resBody.GetKey();
+            var key = result.GetKey();
 
             socket.SetCommunicationKey(key);
         }
-
+            
         public static async Task<long> RegisterClient(CSocketHold socket)
         {
             var header = new HeaderReq(-1, RequestType.REGISTRATION);
             var toSend = new VOTP(header);
-            var recive = await socket.EnqueueItem(toSend.Serialize());
-            var result = new VOTP(recive);
 
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
-            if (result.Body is not SData_Long resBody) throw new Exception("Body wasn't expected!");
+            var result = await RequestPackageHandler<SData_Long>(socket, toSend);
 
-            if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
-
-            return resBody.Data;
+            return result.Data;
         }
 
         public async static Task SetUsername(CSocketHold socket, string username, long userID)
         {
             var header = new HeaderReq(userID, RequestType.SET_USERNAME);
-            var body = new SData_String(username);
+            var body   = new SData_String(username);
             var toSend = new VOTP(header, body);
-            var recive = await socket.EnqueueItem(toSend.Serialize());
-            var result = new VOTP(recive);
 
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
-
-            if (!resHeader.Successful) throw new Exception("Server didn't responded correctly");
+            await RequestPackageHandler(socket, toSend);
         }
 
         public static async Task TestConnection(CSocketHold socket, Guid serverID, long userID)
@@ -105,22 +122,17 @@ namespace Voice_of_Time.Shared.Functions
             if (serverID.CompareTo(newServerID) != 0) throw new Exception("Connection Invalid!");
         }
 
-        public static async Task<bool> ValidateSelf(CSocketHold socket, Client c)
+        public static async Task<bool> ValidateSelf(CSocketHold socket, Client client)
         {
-            var head = new HeaderReq(c.UserID, RequestType.VERIFY);
-            var body = new SData_Long(c.UserID);
-            var package = new VOTP(head, body);
+            var header = new HeaderReq(client.UserID, RequestType.VERIFY);
+            var body   = new SData_Long(client.UserID);
+            var toSend = new VOTP(header, body);
 
-            var result = new VOTP(await socket.EnqueueItem(package.Serialize()));
+            var result = await RequestPackageHandler<SecData_Key_Aes>(socket, toSend);
 
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Header wasn't expected!");
-            if (result.Body is not SecData_Key_Aes resBody) throw new Exception("Body wasn't expected!");
+            result.DecryptData(client.UserKey);
 
-            if (!resHeader.Successful) return false;
-
-            resBody.DecryptData(c.UserKey);
-
-            var key = resBody.GetKey();
+            var key = result.GetKey();
 
             socket.SetCommunicationKey(key);
 
@@ -144,27 +156,29 @@ namespace Voice_of_Time.Shared.Functions
             return new(resBody.Data);
         }
 
-        public static async Task<bool> TryGettingUserAsync(long senderID, long targetID)
+        public static async Task<bool> TryGettingUserAsync(CSocketHold socket, Client sender, long targetID)
         {
-            if (ClientData.CurrentClient is null || ClientData.CurrentConnection is null) return false;
+            var header = new HeaderReq(sender.UserID, RequestType.GET_PUBLIC_USER);
+            var body   = new SData_Long(targetID);
+            var toSend = new VOTP(header, body);
 
-            var header = new HeaderReq(senderID, RequestType.GET_PUBLIC_USER);
-            var body = new SData_Long(targetID);
-            var package = new VOTP(header, body);
+            var result = await RequestPackageHandler<SecData_ClientShare>(socket, toSend);
 
-            var connection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception("Connection is not Registert!");
+            var UserEntry = result.GetPublicClient();
 
-            var result = new VOTP(await connection.EnqueueItem(package.Serialize()));
+            return sender.AppendOrOverridePublicClint(UserEntry);
+        }
 
-            if (result.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
-            if (resHeader.Successful is false) return false;
+        public static async Task<long> GetChatID(CSocketHold socket, long userID)
+        {
+            if (userID <= 0) return -1;
 
-            if (result.Body is null) return false;
-            if (result.Body is not SecData_ClientShare resBody) throw new Exception("Server didn't responded correctly!");
+            var header  = new HeaderReq(userID, RequestType.REGISTER_PRIVAT_CHAT);
+            var package = new VOTP(header);
 
-            var UserEntry = resBody.GetPublicClient();
+            var result = await RequestPackageHandler<SData_Long>(socket, package);
 
-            return ClientData.CurrentClient.AppendOrOverridePublicClint(UserEntry);
+            return result.Data;
         }
     }
 }
