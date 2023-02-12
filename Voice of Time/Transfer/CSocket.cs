@@ -286,7 +286,7 @@ namespace Voice_of_Time.Transfer
 
         public void StartHandler()
         {
-            if(Client is null) return;
+            if (Client is null) Connect();
             StartWriter();
             StartReader();
         }

@@ -32,7 +32,7 @@ namespace VoTCore.Package
         public VOTPInfo(string json)
         {
             var split = json.Split('\0');
-            if (split.Length >= 2 && split.Length <= 3) throw new SerializationException("String is not a VOTP!");
+            if (split.Length > 3 || split.Length < 2) throw new SerializationException("String is not a VOTP!");
 
             var copy = JsonSerializer.Deserialize<VOTPInfo>(split[0]);
             if (copy is null) throw new SerializationException("Package Info can not be deserialized!");
