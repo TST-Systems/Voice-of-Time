@@ -100,6 +100,7 @@ namespace VoTTest.Core
             Assert.NotNull(info);
             Assert.Equal(BodyType.NONE, info.Type);
             Assert.Equal(header.Version, info.Version);
+            Assert.Equal(package.PackageID, info.PackageID);
 
             // Is the Heaer ok?
             var json_Header = JsonSerializer.Deserialize<HeaderStd>(split[1]);

@@ -5,7 +5,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
  * 
  * @created     - 29.11.2022
  * 
- * @last_change - 20.01.2023
+ * @last_change - 12.02.2023
  */
 namespace VoTCore.Package
 {
@@ -14,6 +14,8 @@ namespace VoTCore.Package
         public IVOTPHeader Header { get; }
 
         public IVOTPBody? Body { get; }
+
+        public long PackageID { get; set; } = -1;
 
         public VOTP(IVOTPHeader header, IVOTPBody? data = null)
         {
@@ -44,7 +46,7 @@ namespace VoTCore.Package
                 var _vOTPInfo = JsonSerializer.Deserialize<VOTPInfo>(split[0]);
                 if (_vOTPInfo == null) throw new ArgumentException("Json does not meet the requirements");
                 vOTPInfo = _vOTPInfo;
-
+                PackageID = vOTPInfo.PackageID;
             }
             catch(Exception ex) {
                 throw new ArgumentException("Preheader error:\n" + ex.Message);

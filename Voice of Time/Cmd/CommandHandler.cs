@@ -8,7 +8,7 @@ using VoTCore.Controll;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 10.02.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Cmd
 {
@@ -47,7 +47,7 @@ namespace Voice_of_Time.Cmd
                     var connetion = ClientData.GetConnection((Guid)ClientData.CurrentConnection); 
                     if(connetion != null)
                     {
-                        selectedServer =  connetion.GetIPAddress();
+                        selectedServer =  connetion.Address;
                     }
                 }
                 Console.Write(selectedServer + " > ");

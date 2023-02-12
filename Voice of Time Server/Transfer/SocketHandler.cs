@@ -17,14 +17,15 @@ using VoTCore.Secure;
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 11.02.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time_Server.Transfer
 {
     internal class SocketHandler
     {
-        private readonly Socket socket;
-        private readonly Aes ConnectionKey = Aes.Create();
+        private readonly TcpClient socket;
+        private readonly NetworkStream stream;
+        private readonly Aes CommunicationKey = Aes.Create();
 
         private long UserID = -1;
         private bool SecureCommunicationEnabled = false;
@@ -34,106 +35,134 @@ namespace Voice_of_Time_Server.Transfer
         private bool CommunicationVerified  = false;
         private bool requestConnectionClose = false;
 
-        public SocketHandler(Socket socket)
+        private bool EndConnection = false;
+
+        private byte[] TokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
+        private byte[] TokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
+        private byte[] TokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
+
+        private Thread? Reader;
+
+        public SocketHandler(TcpClient socket)
         {
             this.socket = socket;
-        }
+            stream = socket.GetStream();
 
-        internal protected virtual async Task HandleConnection()
-        {
-            bool EndConnection = false;
-            byte[] tokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
-            byte[] tokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
-            byte[] tokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
 
-            if (socket.RemoteEndPoint is not IPEndPoint userEndPoint) throw new Exception("Invalied connection!");
+            if (socket.Client.RemoteEndPoint is not IPEndPoint userEndPoint) throw new Exception("Invalied connection!");
             Console.WriteLine(userEndPoint.Address.ToString() + ": User connected");
 
-            try
+            StartReader();
+        }
+
+
+
+        private void StartReader()
+        {
+            Reader = new Thread(() =>
             {
-                while (!EndConnection)
+                byte[] buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                try
                 {
-                    //RECIVE
-                    bool messageComplete = false;
-
-                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                    var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
-
-                    if (received == 0) throw new Exception("No data Transfer!");
-
-                    var IncomingMessageInBytes = buffer[0..received];
-
-                    if (received < Constants.FIN.Length) throw new Exception("Connection to slow!");
-
-                    if (Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenFIN.Length], tokenFIN))
+                    while (!EndConnection)
                     {
-                        EndConnection = true;
-                        return;
-                    }
+                        bool messageComplete = false;
 
-                    if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenSOM.Length], tokenSOM)) throw new Exception("Communication not valid!");
-                    IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
+                        int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
-                    while (!messageComplete)
-                    {
-                        if (Enumerable.SequenceEqual(
-                            IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length],
-                            tokenEOM))
+                        if (bytesRead == 0) throw new Exception("Server didn't send Data!");
+
+                        var IncomingMessageInBytes = buffer[0..bytesRead];
+
+                        if (bytesRead < Constants.FIN.Length) throw new Exception("Connection to slow!");
+
+                        if (Enumerable.SequenceEqual(IncomingMessageInBytes[0..TokenFIN.Length], TokenFIN))
                         {
-                            messageComplete = true;
-                            IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];
-                            break;
+                            return;
                         }
 
-                        buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                        received = await socket.ReceiveAsync(buffer, SocketFlags.None);
+                        if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..TokenSOM.Length], TokenSOM)) throw new Exception("Communication not valid!");
+                        IncomingMessageInBytes = IncomingMessageInBytes[TokenSOM.Length..];
 
-                        IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
+                        while (!messageComplete)
+                        {
+                            if (Enumerable.SequenceEqual(
+                                IncomingMessageInBytes[(IncomingMessageInBytes.Length - TokenEOM.Length)..IncomingMessageInBytes.Length],
+                                TokenEOM))
+                            {
+                                messageComplete = true;
+                                IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - TokenEOM.Length)];
+                                break;
+                            }
+
+                            buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                            bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                            IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..bytesRead]).ToArray();
+                        }
+
+                        if (SecureCommunicationEnabled)
+                        {
+                            if (CommunicationKey is null) throw new Exception("Inteneral Error!");
+                            IncomingMessageInBytes = CryproManager.AesDecyrpt(CommunicationKey, IncomingMessageInBytes);
+                        }
+
+                        var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
+
+                        // PROCESS
+                        var process = new Thread(() => WriteMessage(ProccessResponse(IncomingMessage)));
+                        process.Start();
                     }
-
-                    if (SecureCommunicationEnabled)
-                    {
-                        if (ConnectionKey is null) throw new Exception("Inteneral Error!");
-                        IncomingMessageInBytes = CryproManager.AesDecyrpt(ConnectionKey, IncomingMessageInBytes);
-                    }
-
-                    var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
-
-                    // PROCESS
-                    var answer = ProccessResponse(IncomingMessage);
-
-                    // SEND
-                    byte[] messageBytes = Encoding.UTF8.GetBytes(answer);
-
-                    if (SecureCommunicationEnabled)
-                    {
-                        if (ConnectionKey is null) throw new ArgumentNullException();
-                        messageBytes = CryproManager.AesEncyrpt(ConnectionKey, messageBytes);
-                    }
-
-                    var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
-
-                    var code = await socket.SendAsync(bytesToSend, SocketFlags.None);
-                    if (requestEncryption)
-                    {
-                        requestEncryption = false;
-                        SecureCommunicationEnabled = true;
-                    }
-                    if (requestConnectionClose) EndConnection = true;
                 }
-            }
-            catch (SocketException soex)
+                catch (IOException soex)
+                {
+                    Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + soex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Connection Error:");
+                    Console.WriteLine(ex.ToString());
+                }
+                finally
+                {
+                    Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": User disconnected");
+                    EndConnection = true;
+                    socket.Close();
+                }
+                return;
+            });
+            Reader.Name = ((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ":Reader";
+            Reader.Start();
+        }
+
+
+        private void WriteMessage(string message)
+        {
+            try
             {
-                Console.WriteLine(userEndPoint.Address.ToString() + ": " + soex.Message);
+                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+
+                if (SecureCommunicationEnabled)
+                {
+                    if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
+                    messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
+                }
+
+                var bytesToSend = TokenSOM.Concat(messageBytes).Concat(TokenEOM).ToArray();
+
+                stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+                if (requestEncryption)
+                {
+                    requestEncryption = false;
+                    SecureCommunicationEnabled = true;
+                }
+                if (requestConnectionClose) EndConnection = true;
             }
-            catch (Exception ex)
+            catch (IOException ex)
             {
-                Console.WriteLine("Connection Error:");
-                Console.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                Console.WriteLine(userEndPoint.Address.ToString() + ": User disconnected");
+                Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + ex.Message);
+                EndConnection = true;
                 socket.Close();
             }
             return;
@@ -148,7 +177,7 @@ namespace Voice_of_Time_Server.Transfer
             switch (package.Header)
             {
                 case HeaderReq req:
-                    response = ProccessRequest(req, package.Body);
+                    response = ProccessRequest(req, package.Body, package.PackageID);
                     break;
             }
 
@@ -157,7 +186,7 @@ namespace Voice_of_Time_Server.Transfer
             return response;
         }
 
-        private string ProccessRequest(HeaderReq header, IVOTPBody? body)
+        private string ProccessRequest(HeaderReq header, IVOTPBody? body, long packageID)
         {
             IVOTPHeader? sendHeader = null;
             IVOTPBody? sendBody     = null;
@@ -166,7 +195,7 @@ namespace Voice_of_Time_Server.Transfer
 
             // Prechecks
             var userID = header.SenderID;
-            if(userID != UserID)
+            if(userID != UserID && header.Request != RequestType.VERIFY)
             {
                 sendHeader             = new HeaderAck(false);
                 sendBody               = new SData_String("Wrong UserID! Disconecting!");
@@ -263,7 +292,7 @@ namespace Voice_of_Time_Server.Transfer
 
                     requestEncryption = true;
 
-                    var preBody = new SecData_Key_Aes(ConnectionKey, 0);
+                    var preBody = new SecData_Key_Aes(CommunicationKey, 0);
                     preBody.EncryptData(UserPubKey, UserID);
 
                     sendHeader  = new HeaderAck(true);
@@ -373,6 +402,7 @@ namespace Voice_of_Time_Server.Transfer
             if (sendHeader is null) throw new Exception("Unknown request!");
 
             VOTP sendPackage = new(sendHeader, sendBody);
+            sendPackage.PackageID = packageID;
             return sendPackage.Serialize();
         }
     }
