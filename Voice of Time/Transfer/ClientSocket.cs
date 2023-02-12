@@ -156,8 +156,16 @@ namespace Voice_of_Time.Transfer
                 while (!isCancelled)
                 {
                     bool messageComplete = false;
-
-                    int bytesRead = Stream.Read(buffer, 0, buffer.Length);
+                    int bytesRead = 0;
+                    try
+                    {
+                        bytesRead = Stream.Read(buffer, 0, buffer.Length);
+                    }
+                    catch(IOException)
+                    {
+                        Dispose();
+                        return;
+                    }
 
                     if (bytesRead == 0) throw new Exception("Server didn't send Data!");
 
