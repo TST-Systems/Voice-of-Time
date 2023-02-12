@@ -14,22 +14,16 @@ using VoTCore.Exeptions;
  * 
  * @created     - 10.02.2023
  * 
- * @last_change - 11.02.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Shared.Functions
 {
     internal static class Requests
     {
         #region Process Helper
-        private static async Task<T> RequestPackageHandler<T>(CSocketHold socket, VOTP package) where T : IVOTPBody
+        private static async Task<T> RequestPackageHandler<T>(ClientSocket socket, VOTP package) where T : IVOTPBody
         {
-            if (!socket.IsRunning) throw new Exception("Connection is currently closed!");
-
-            var serialized = package.Serialize();
-
-            var serverAnser = await socket.EnqueueItem(serialized);
-
-            var resultPackage = new VOTP(serverAnser);
+            var resultPackage = await socket.EnqueueItem(package);
 
             // Check if Header is ok
             if (resultPackage.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
@@ -49,7 +43,7 @@ namespace Voice_of_Time.Shared.Functions
             return resBody;
         }
 
-        private static async Task RequestPackageHandler(CSocketHold socket, VOTP package)
+        private static async Task RequestPackageHandler(ClientSocket socket, VOTP package)
         {
             try
             {
@@ -60,7 +54,7 @@ namespace Voice_of_Time.Shared.Functions
         }
         #endregion
 
-        public static async Task<Guid> RequestServerID(CSocketHold socket, long userID = -1)
+        public static async Task<Guid> RequestServerID(ClientSocket socket, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.IDENTITY);
             var toSend = new VOTP(header);
@@ -70,7 +64,7 @@ namespace Voice_of_Time.Shared.Functions
             return result.Data;
         }
 
-        public static async Task<RSA> KeyExchangeWithServer(CSocketHold socket, RSA key, long userID = -1)
+        public static async Task<RSA> KeyExchangeWithServer(ClientSocket socket, RSA key, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.KEY_EXCHANGE, 0);
             var body   = new SecData_Key_RSA(key, userID);
@@ -82,7 +76,7 @@ namespace Voice_of_Time.Shared.Functions
             return result.GetKey();
         }
 
-        public static async Task OpenSecureCommunication(CSocketHold socket, RSA decryptionKey, long userID = -1)
+        public static async Task OpenSecureCommunication(ClientSocket socket, RSA decryptionKey, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.COMM_KEY);
             var toSend = new VOTP(header);
@@ -96,7 +90,7 @@ namespace Voice_of_Time.Shared.Functions
             socket.SetCommunicationKey(key);
         }
             
-        public static async Task<long> RegisterClient(CSocketHold socket)
+        public static async Task<long> RegisterClient(ClientSocket socket)
         {
             var header = new HeaderReq(-1, RequestType.REGISTRATION);
             var toSend = new VOTP(header);
@@ -106,7 +100,7 @@ namespace Voice_of_Time.Shared.Functions
             return result.Data;
         }
 
-        public async static Task SetUsername(CSocketHold socket, string username, long userID)
+        public async static Task SetUsername(ClientSocket socket, string username, long userID)
         {
             var header = new HeaderReq(userID, RequestType.SET_USERNAME);
             var body   = new SData_String(username);
@@ -115,14 +109,14 @@ namespace Voice_of_Time.Shared.Functions
             await RequestPackageHandler(socket, toSend);
         }
 
-        public static async Task TestConnection(CSocketHold socket, Guid serverID, long userID)
+        public static async Task TestConnection(ClientSocket socket, Guid serverID, long userID)
         {
             var newServerID = await Requests.RequestServerID(socket, userID);
 
             if (serverID.CompareTo(newServerID) != 0) throw new Exception("Connection Invalid!");
         }
 
-        public static async Task<bool> ValidateSelf(CSocketHold socket, Client client)
+        public static async Task<bool> ValidateSelf(ClientSocket socket, Client client)
         {
             var header = new HeaderReq(client.UserID, RequestType.VERIFY);
             var body   = new SData_Long(client.UserID);
@@ -145,8 +139,7 @@ namespace Voice_of_Time.Shared.Functions
 
             var head = new HeaderReq(ClientData.CurrentClient.UserID, RequestType.GET_USERID_LIST);
             var package = new VOTP(head);
-            var result = await (ClientData.GetConnection(ClientData.CurrentConnection ?? throw new Exception("No activ connection")) ?? throw new Exception("No activ connection")).EnqueueItem(package.Serialize());
-            var resPackage = new VOTP(result);
+            var resPackage = await (ClientData.GetConnection(ClientData.CurrentConnection ?? throw new Exception("No activ connection")) ?? throw new Exception("No activ connection")).EnqueueItem(package);
 
             if (resPackage.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
             if (resHeader.Successful is false) throw new Exception("Server couldn't responded correctly!");
@@ -156,7 +149,7 @@ namespace Voice_of_Time.Shared.Functions
             return new(resBody.Data);
         }
 
-        public static async Task<bool> TryGettingUserAsync(CSocketHold socket, Client sender, long targetID)
+        public static async Task<bool> TryGettingUserAsync(ClientSocket socket, Client sender, long targetID)
         {
             var header = new HeaderReq(sender.UserID, RequestType.GET_PUBLIC_USER);
             var body   = new SData_Long(targetID);
@@ -169,7 +162,7 @@ namespace Voice_of_Time.Shared.Functions
             return sender.AppendOrOverridePublicClint(UserEntry);
         }
 
-        public static async Task<long> GetChatID(CSocketHold socket, long userID)
+        public static async Task<long> GetChatID(ClientSocket socket, long userID)
         {
             if (userID <= 0) return -1;
 

@@ -9,7 +9,7 @@ using VoTCore.Exeptions;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 11.02.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Shared
 {
@@ -19,7 +19,7 @@ namespace Voice_of_Time.Shared
         private static readonly Dictionary<Guid, Client> UserRegister = new();
 
 
-        private static readonly Dictionary<Guid, CSocketHold> ConnectionRegister = new();
+        private static readonly Dictionary<Guid, ClientSocket> ConnectionRegister = new();
 
         private static readonly Dictionary<string, IConsoleCommand> CommandRegister = new();
         private static readonly Dictionary<string, string> AliasesRegister = new();
@@ -39,7 +39,7 @@ namespace Voice_of_Time.Shared
 
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
-        internal static (CSocketHold, Client, Guid) GetCurrentConnection()
+        internal static (ClientSocket, Client, Guid) GetCurrentConnection()
         {            
             var serverID = currentConnection       ?? throw new Exception("No acctiv connection!");
             var socket   = GetConnection(serverID) ?? throw new Exception("Internal Error: No Connection to current Server!");
@@ -190,7 +190,7 @@ namespace Voice_of_Time.Shared
         #endregion
 
         #region ConnectionRegister
-        internal static void AddConnection(Guid serverID, CSocketHold socket, bool isCurrentConnection = true)
+        internal static void AddConnection(Guid serverID, ClientSocket socket, bool isCurrentConnection = true)
         {
             if (ConnectionRegister.ContainsKey(serverID)) throw new EntryAlreadyExistsExeption();
             ConnectionRegister.Add(serverID, socket);
@@ -201,12 +201,12 @@ namespace Voice_of_Time.Shared
             }
         }
 
-        internal static CSocketHold? GetConnection(Guid serverID)
+        internal static ClientSocket? GetConnection(Guid serverID)
         {
             return ConnectionRegister.GetValueOrDefault(serverID);
         }
 
-        internal static List<CSocketHold> GetAllConnectionSockets()
+        internal static List<ClientSocket> GetAllConnectionSockets()
         {
             return ConnectionRegister.Values.ToList();
         }
@@ -230,9 +230,9 @@ namespace Voice_of_Time.Shared
             }
         }
 
-        internal static Dictionary<Guid, CSocketHold> GetConnectionRegisterCopy()
+        internal static Dictionary<Guid, ClientSocket> GetConnectionRegisterCopy()
         {
-            return new Dictionary<Guid, CSocketHold>(ConnectionRegister);
+            return new Dictionary<Guid, ClientSocket>(ConnectionRegister);
         }
 
         internal static bool SelectConnection(Guid serverID)

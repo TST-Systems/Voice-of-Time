@@ -10,7 +10,7 @@ using Voice_of_Time.Shared.Functions;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -36,8 +36,8 @@ namespace Voice_of_Time.Cmd.Commands
                 // Connection to server
                 int port = args.Length > 1 ? Int32.Parse(args[1]) : 15050;
                 Console.Write($"Connection to Server: {args[0]}:{port} ...");
-                CSocketHold socket = new(args[0], port);
-                await socket.AutoStart();
+                ClientSocket socket = new(args[0], port);
+                socket.StartHandler();
                 Console.WriteLine("done");
 
                 // Getting server Identity

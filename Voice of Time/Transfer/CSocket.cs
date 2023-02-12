@@ -3,17 +3,19 @@ using System.Net.Sockets;
 using System.Text;
 using System.Security.Cryptography;
 using VoTCore.Secure;
+using VoTCore.Package;
+using System.Text.Json;
 
 /**
  * @author      - Timeplex, SalzstangeManga
  * 
  * @created     - 09.01.2023
  * 
- * @last_change - 30.01.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Transfer
 {
-    internal class CSocketHold : CSocketSingle, IDisposable
+    internal class ClientSocket : IDisposable
     {
         private record QueueItem
         (
@@ -30,11 +32,12 @@ namespace Voice_of_Time.Transfer
             /// </summary>
             long ID
         );
-        
+
         /// <summary>
         /// Client Server Connection
         /// </summary>
-        private Socket Client { get; }
+        private TcpClient?     Client;
+        private NetworkStream? Stream;
 
         /// <summary>
         /// Queue of open Tasks
@@ -49,26 +52,17 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         private readonly SemaphoreSlim itemInQueue = new(0, 1);
 
+        private readonly Dictionary<long, Func<string?, Task>> CallBackRegister = new();
+
+
         /// <summary>
         /// ID for new items
         /// </summary>
         private long IDNew = 0;
         /// <summary>
-        /// ID of currently processed Task
-        /// </summary>
-        private long IDCurrent = -1;
-        /// <summary>
         /// Signal to show that the current handler has to stop
         /// </summary>
         private bool isCancelled = false;
-        /// <summary>
-        /// Current Message handler
-        /// </summary>
-        private Task? handler;
-        /// <summary>
-        /// Shows if the handler is currently running
-        /// </summary>
-        public bool IsRunning { get => handler != null; }
 
         /// <summary>
         /// Current status of Client-Server connection
@@ -85,36 +79,23 @@ namespace Voice_of_Time.Transfer
         public bool CommunicationKeyIsSet      { get => CommunicationKey != null; }
         public bool SecureCommunicationEnabled { get => secureCommunicationEnabled; }
 
-
-        private string ReqestAddress;
+        public readonly string Address;
+        public readonly int    Port;
 
         /// <summary>
         /// A socket for client server communication with the ability to connect once, send endlessly
         /// </summary>
         /// <param name="address">Ip addess / Domain of the server</param>
         /// <param name="port">Port of the server</param>
-        internal CSocketHold(string address, int port) : base(address, port)
+        internal ClientSocket(string address, int port)
         {
-            Client = new(
-            IpEndPoint.AddressFamily,
-            SocketType.Stream,
-            ProtocolType.Tcp);
-
-            currentState = ConnectionState.Closed;
-
-            ReqestAddress = address;
+            Address = address;
+            Port = port;
         }
 
-        ~CSocketHold()
+        ~ClientSocket()
         {
             Dispose();
-        }
-
-        internal async Task<bool> AutoStart()
-        {
-            var con = Connect();
-            StartHandler();
-            return await con;
         }
 
         internal void SetCommunicationKey (Aes key, bool enable = true)
@@ -135,24 +116,10 @@ namespace Voice_of_Time.Transfer
             secureCommunicationEnabled = enable;
         }
 
-        /// <summary>
-        /// Connect with the Server
-        /// </summary>
-        /// <returns>Connection could be established</returns>
-        internal async Task<bool> Connect()
+        internal bool Connect()
         {
-            currentState = ConnectionState.Connecting;
-            try
-            {
-                await Client.ConnectAsync(IpEndPoint);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                currentState = ConnectionState.Broken;
-                return false;
-            }
-            currentState = ConnectionState.Open;
+            if (Client is not null) return false;
+            Client = new(Address, Port);
             return true;
         }
 
@@ -162,87 +129,56 @@ namespace Voice_of_Time.Transfer
         /// <returns></returns>
         internal bool Disconect()
         {
-            try
-            {
-                var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
-                var fin_code = Client.Send(fin_byte, SocketFlags.None);
-                Client.Close();
-            }
-            catch
-            {
-                return false;
-            }
+            if (Client is null) return false;
+            if (Stream is null) return false;
+            var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
+            Stream.Write(fin_byte, 0, fin_byte.Length);
+            Client.Close();
+            Client = null;
             return true;
         }
 
-        /// <summary>
-        /// Breaks up Connection with Server
-        /// </summary>
-        /// <returns></returns>
-        internal async Task<bool> DisconectAsync()
-        {
-            try
-            {
-                var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
-                var fin_code = await Client.SendAsync(fin_byte, SocketFlags.None);
-                Client.Close();
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
+        Thread? Reader;
 
-
-        /// <summary>
-        /// Task handler
-        /// </summary>
-        /// <returns></returns>
-        private async Task QueueHandler()
+        private void StartReader()
         {
-            while (!isCancelled)
+            if (Reader is not null) return;
+            if (Client is null) throw new Exception("You need to open a connection first!");
+            Stream ??= Client.GetStream();
+
+            Reader = new Thread(() => 
             {
-                await itemInQueue.WaitAsync();
-                if (isCancelled) return;
-                while (Queue.Count > 0)
+                byte[] tokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
+                byte[] tokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
+                byte[] tokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
+
+                byte[] buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                while (!isCancelled)
                 {
-                    if (isCancelled) return;
-                    var nextQueueItem = Queue.Dequeue();
-
-                    byte[] messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message);
-                    byte[] tokenSOM     = Encoding.UTF8.GetBytes(Constants.SOM);
-                    byte[] tokenEOM     = Encoding.UTF8.GetBytes(Constants.EOM);
-
-                    if (secureCommunicationEnabled)
-                    {
-                        if (CommunicationKey is null) throw new ArgumentNullException();
-                        messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
-                    }
-
-                    var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
-
-                    IDCurrent = nextQueueItem.ID;
-                    
-                    var code = await Client.SendAsync(bytesToSend, SocketFlags.None);
-
-                    //-----------------------------------------------------------------------------
-
                     bool messageComplete = false;
 
-                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                    var received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+                    int bytesRead = Stream.Read(buffer, 0, buffer.Length);
 
-                    if (received == 0) throw new Exception("No data Transfer!");
+                    if (bytesRead == 0) throw new Exception("Server didn't send Data!");
 
-                    var IncomingMessageInBytes = buffer[0..received];
+                    var IncomingMessageInBytes = buffer[0..bytesRead];
+
+                    if (bytesRead < Constants.FIN.Length) throw new Exception("Connection to slow!");
+
+                    if (Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenFIN.Length], tokenFIN))
+                    {
+                        Dispose();
+                        return;
+                    }
 
                     if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenSOM.Length], tokenSOM)) throw new Exception("Communication not valid!");
                     IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
 
                     while (!messageComplete)
                     {
-                        if (Enumerable.SequenceEqual(IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length], tokenEOM))
+                        if (Enumerable.SequenceEqual(
+                            IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length],
+                            tokenEOM))
                         {
                             messageComplete = true;
                             IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];
@@ -250,9 +186,9 @@ namespace Voice_of_Time.Transfer
                         }
 
                         buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                        received = await Client.ReceiveAsync(buffer, SocketFlags.None);
+                        bytesRead = Stream.Read(buffer, 0, buffer.Length);
 
-                        IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
+                        IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..bytesRead]).ToArray();
                     }
 
                     if (SecureCommunicationEnabled)
@@ -260,41 +196,99 @@ namespace Voice_of_Time.Transfer
                         if (CommunicationKey is null) throw new Exception("Inteneral Error!");
                         IncomingMessageInBytes = CryproManager.AesDecyrpt(CommunicationKey, IncomingMessageInBytes);
                     }
-                    
+
                     var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
 
-                    _ = nextQueueItem.CallBack(IncomingMessage);
-
-
+                    // PROCESS
+                    var process = new Thread(() => ProccessMessage(IncomingMessage));
+                    process.Start();
                 }
-            }
+            });
+            Reader.Start();
         }
 
         /// <summary>
-        /// Start the Handler if not active
+        /// {XYZ}  -> Callback(?) / Handling
         /// </summary>
-        public void StartHandler()
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private void ProccessMessage(string message)
         {
-            handler ??= QueueHandler();
+            var packageInfo = new VOTPInfo(message);
+
+            var packageID   = packageInfo.PackageID;
+
+            if (!CallBackRegister.ContainsKey(packageID)) throw new NotImplementedException();
+
+            _ = CallBackRegister[packageID](message);
+
+            CallBackRegister.Remove(packageID);
+        }
+
+
+        Thread? Writer;
+
+        /// <summary>
+        /// Task handler
+        /// </summary>
+        /// <returns></returns>
+        private void StartWriter()
+        {
+            if (Writer is not null) return;
+            if (Client is null) throw new Exception("You need to open a connection first!");
+            Stream ??= Client.GetStream();
+
+            Writer = new Thread(async () =>
+            {
+                while (!isCancelled)
+                {
+                    await itemInQueue.WaitAsync();
+                    if (isCancelled) return;
+                    while (Queue.Count > 0)
+                    {
+                        if (isCancelled) return;
+                        var nextQueueItem = Queue.Dequeue();
+
+                        byte[] messageBytes = Encoding.UTF8.GetBytes(nextQueueItem.Message);
+                        byte[] tokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
+                        byte[] tokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
+
+                        if (secureCommunicationEnabled)
+                        {
+                            if (CommunicationKey is null) throw new ArgumentNullException();
+                            messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
+                        }
+
+                        var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
+
+                        Stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+                        CallBackRegister.Add(nextQueueItem.ID, nextQueueItem.CallBack);
+                    }
+                }
+            });
+            Writer.Start();
         }
 
         /// <summary>
         /// Stops the current Handler
         /// </summary>
-        public async void StopHandler()
+        public void StopHandler()
         {
-            // Check if handler is running
-            if (handler is null) return;
             // Set stoptoken
             isCancelled = true;
             // Allow Handler to run, even when their is no message to send
             itemInQueue.Release();
-            // Wait that the handler closes
-            await handler;
-            // Reset handler and the halt signal
-            isCancelled = false;
-            handler.Dispose();
-            handler = null;
+            // Removing Writer and Reader
+            Writer = null;
+            Reader = null;
+        }
+
+        public void StartHandler()
+        {
+            if(Client is null) return;
+            StartWriter();
+            StartReader();
         }
 
         /// <summary>
@@ -303,11 +297,10 @@ namespace Voice_of_Time.Transfer
         /// <param name="message">Message as String (Must not be null)</param>
         /// <param name="callBack">Task to perform with the reply</param>
         /// <returns></returns>
-        internal async Task<long> EnqueueItem(string? message, Func<string?, Task> callBack)
+        private async Task<long> EnqueueItem(string? message, Func<string?, Task> callBack, long id)
         {
             if (message is null) { return -1; }
             await QueueBlock.WaitAsync();
-            var id = IDNew++;
             Queue.Enqueue(new QueueItem(message, callBack, id));
             itemInQueue.Release();
             QueueBlock.Release();
@@ -319,23 +312,24 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         /// <param name="message">Message as String (Must not be null)</param>
         /// <returns>Response from server</returns>
-        public async Task<string?> EnqueueItem(string? message)
+        public async Task<VOTP> EnqueueItem(VOTP packageToSend)
         {
+            // SetpackageID
+            var id = IDNew++;
+            packageToSend.PackageID = id;
+            // Serialize
+            var serialized = packageToSend.Serialize();
+
+            // Send and Reciver anserw
             string? response = "";
 
             SemaphoreSlim responseReady = new(0, 1);
 
-            _ = await EnqueueItem(message, (lResponse) => { response = lResponse; responseReady.Release(); return Task.CompletedTask; });
+            _ = await EnqueueItem(serialized, (lResponse) => { response = lResponse; responseReady.Release(); return Task.CompletedTask; }, id);
 
             await responseReady.WaitAsync();
 
-            return response;
-        }
-
-        public string GetIPAddress(bool realAddress = false)
-        {
-            if (realAddress) return IpAddress.ToString();
-            return ReqestAddress;
+            return new VOTP(response);
         }
 
         public void Dispose()

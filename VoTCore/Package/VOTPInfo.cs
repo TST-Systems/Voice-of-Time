@@ -1,11 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 11.12.2022
  * 
- * @last_change - 20.01.2023
+ * @last_change - 12.02.2023
  */
 namespace VoTCore.Package
 {
@@ -13,21 +15,37 @@ namespace VoTCore.Package
     {
         public VOTPInfo(VOTP package)
         {
-            this.Version = package.Header.Version;
-            if (package.Body != null)
-                this.Type = package.Body.Type;
-            else this.Type = BodyType.NONE;
+            Version = package.Header.Version;
+            if (package.Body != null) Type = package.Body.Type;
+            else                      Type = BodyType.NONE;
+            PackageID = package.PackageID;
         }
 
         [JsonConstructor]
-        public VOTPInfo(short Version, BodyType Type)
+        public VOTPInfo(short version, BodyType type, long packageID)
         {
-            this.Version = Version;
-            this.Type    = Type;
+            Version   = version;
+            Type      = type;
+            PackageID = packageID;
+        }
+
+        public VOTPInfo(string json)
+        {
+            var split = json.Split('\0');
+            if (split.Length >= 2 && split.Length <= 3) throw new SerializationException("String is not a VOTP!");
+
+            var copy = JsonSerializer.Deserialize<VOTPInfo>(split[0]);
+            if (copy is null) throw new SerializationException("Package Info can not be deserialized!");
+
+            Version   = copy.Version;
+            Type      = copy.Type;
+            PackageID = copy.PackageID;
         }
 
         public short Version { get; }
 
         public BodyType Type { get; }
+
+        public long PackageID { get; }
     }
 }
