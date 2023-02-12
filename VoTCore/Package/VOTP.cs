@@ -46,7 +46,7 @@ namespace VoTCore.Package
                 var _vOTPInfo = JsonSerializer.Deserialize<VOTPInfo>(split[0]);
                 if (_vOTPInfo == null) throw new ArgumentException("Json does not meet the requirements");
                 vOTPInfo = _vOTPInfo;
-
+                PackageID = vOTPInfo.PackageID;
             }
             catch(Exception ex) {
                 throw new ArgumentException("Preheader error:\n" + ex.Message);

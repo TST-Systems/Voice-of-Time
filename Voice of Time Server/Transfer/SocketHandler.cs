@@ -131,49 +131,32 @@ namespace Voice_of_Time_Server.Transfer
                 }
                 return;
             });
+            Reader.Name = ((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ":Reader";
             Reader.Start();
         }
 
 
         private void WriteMessage(string message)
         {
-            try
+            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+            
+            if (SecureCommunicationEnabled)
             {
-                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-
-                if (SecureCommunicationEnabled)
-                {
-                    if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
-                    messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
-                }
-
-                var bytesToSend = TokenSOM.Concat(messageBytes).Concat(TokenEOM).ToArray();
-
-                stream.Write(bytesToSend, 0, bytesToSend.Length);
-
-                if (requestEncryption)
-                {
-                    requestEncryption = false;
-                    SecureCommunicationEnabled = true;
-                }
-                if (requestConnectionClose) EndConnection = true;
-                
+                if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
+                messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
             }
-            catch (SocketException soex)
+            
+            var bytesToSend = TokenSOM.Concat(messageBytes).Concat(TokenEOM).ToArray();
+            
+            stream.Write(bytesToSend, 0, bytesToSend.Length);
+            
+            if (requestEncryption)
             {
-                Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + soex.Message);
+                requestEncryption = false;
+                SecureCommunicationEnabled = true;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Connection Error:");
-                Console.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": User disconnected");
-                EndConnection = true;
-                socket.Close();
-            }
+            if (requestConnectionClose) EndConnection = true;
+            
             return;
         }
 
