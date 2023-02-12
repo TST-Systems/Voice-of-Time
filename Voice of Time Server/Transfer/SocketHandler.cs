@@ -114,7 +114,7 @@ namespace Voice_of_Time_Server.Transfer
                         process.Start();
                     }
                 }
-                catch (SocketException soex)
+                catch (IOException soex)
                 {
                     Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + soex.Message);
                 }
@@ -138,25 +138,33 @@ namespace Voice_of_Time_Server.Transfer
 
         private void WriteMessage(string message)
         {
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
-            
-            if (SecureCommunicationEnabled)
+            try
             {
-                if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
-                messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
+                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+
+                if (SecureCommunicationEnabled)
+                {
+                    if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
+                    messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
+                }
+
+                var bytesToSend = TokenSOM.Concat(messageBytes).Concat(TokenEOM).ToArray();
+
+                stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+                if (requestEncryption)
+                {
+                    requestEncryption = false;
+                    SecureCommunicationEnabled = true;
+                }
+                if (requestConnectionClose) EndConnection = true;
             }
-            
-            var bytesToSend = TokenSOM.Concat(messageBytes).Concat(TokenEOM).ToArray();
-            
-            stream.Write(bytesToSend, 0, bytesToSend.Length);
-            
-            if (requestEncryption)
+            catch (IOException ex)
             {
-                requestEncryption = false;
-                SecureCommunicationEnabled = true;
+                Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + ex.Message);
+                EndConnection = true;
+                socket.Close();
             }
-            if (requestConnectionClose) EndConnection = true;
-            
             return;
         }
 
@@ -187,7 +195,7 @@ namespace Voice_of_Time_Server.Transfer
 
             // Prechecks
             var userID = header.SenderID;
-            if(userID != UserID)
+            if(userID != UserID && header.Request != RequestType.VERIFY)
             {
                 sendHeader             = new HeaderAck(false);
                 sendBody               = new SData_String("Wrong UserID! Disconecting!");
