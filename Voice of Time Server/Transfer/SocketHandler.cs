@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Voice_of_Time_Server.Shared;
 using VoTCore;
+using VoTCore.Exeptions;
 using VoTCore.Package;
 using VoTCore.Package.AData;
 using VoTCore.Package.Header;
@@ -32,7 +33,7 @@ namespace Voice_of_Time_Server.Transfer
         private bool requestEncryption = false;
 
         private RSA? UserPubKey;
-        private bool CommunicationVerified  = false;
+        private bool CommunicationVerified = false;
         private bool requestConnectionClose = false;
 
         private bool EndConnection = false;
@@ -40,6 +41,18 @@ namespace Voice_of_Time_Server.Transfer
         private byte[] TokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
         private byte[] TokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
         private byte[] TokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
+
+        private string Address { 
+            get 
+            {
+                var value = "Unknown";
+                if(socket.Client.RemoteEndPoint is IPEndPoint endpoint)
+                {
+                    value = endpoint.Address.ToString();
+                }
+                return value; 
+            } 
+        }
 
         private Thread? Reader;
 
@@ -116,7 +129,7 @@ namespace Voice_of_Time_Server.Transfer
                 }
                 catch (IOException soex)
                 {
-                    Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + soex.Message);
+                    Console.WriteLine(Address + ": " + soex.Message);
                 }
                 catch (Exception ex)
                 {
@@ -125,13 +138,13 @@ namespace Voice_of_Time_Server.Transfer
                 }
                 finally
                 {
-                    Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": User disconnected");
+                    Console.WriteLine(Address + ": User disconnected");
                     EndConnection = true;
                     socket.Close();
                 }
                 return;
             });
-            Reader.Name = ((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ":Reader";
+            Reader.Name = Address + ":Reader";
             Reader.Start();
         }
 
@@ -161,7 +174,7 @@ namespace Voice_of_Time_Server.Transfer
             }
             catch (IOException ex)
             {
-                Console.WriteLine(((IPEndPoint)socket.Client.RemoteEndPoint).Address.ToString() + ": " + ex.Message);
+                Console.WriteLine(Address + ": " + ex.Message);
                 EndConnection = true;
                 socket.Close();
             }
@@ -229,7 +242,8 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (header.SenderID > 0 && CommunicationVerified)
                     {
-                        ServerData.server.UserDB[header.SenderID].PublicKey.ChangeKey(UserPubKey);
+                        var _keyInstace = ServerData.server.UserDB[header.SenderID].PublicKey ?? throw new PublicKeyMissingExeption();  
+                        _keyInstace.ChangeKey(UserPubKey);
                     }
 
                     sendHeader = new HeaderAck(true);
@@ -261,7 +275,8 @@ namespace Voice_of_Time_Server.Transfer
 
                     UserID = header.SenderID;
 
-                    UserPubKey = ServerData.server.UserDB[UserID].PublicKey.Key;
+                    var keyInstace = ServerData.server.UserDB[UserID].PublicKey ?? throw new PublicKeyMissingExeption();
+                    UserPubKey = keyInstace.Key;
 
 
                     goto COMM_KEY;
@@ -284,7 +299,8 @@ namespace Voice_of_Time_Server.Transfer
                             sendBody   = new SData_String("Public key unknown! Please exhange your Key first!");
                             break;
                         }
-                        UserPubKey = ServerData.server.UserDB[header.SenderID].PublicKey.Key;
+                        var keyInstaceCK = ServerData.server.UserDB[UserID].PublicKey ?? throw new PublicKeyMissingExeption();
+                        UserPubKey = keyInstaceCK.Key;
                     }
 
                     // Because if he doesn't understand the key, he has to close the connection.

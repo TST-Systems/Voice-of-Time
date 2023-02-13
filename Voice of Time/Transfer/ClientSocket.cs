@@ -64,15 +64,6 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         private bool isCancelled = false;
 
-        /// <summary>
-        /// Current status of Client-Server connection
-        /// </summary>
-        private protected ConnectionState currentState;
-        /// <summary>
-        /// Current status of Client-Server connection
-        /// </summary>
-        public ConnectionState CurrentState { get => currentState; }
-
         private Aes? CommunicationKey           = null;
         private bool secureCommunicationEnabled = false;
 
