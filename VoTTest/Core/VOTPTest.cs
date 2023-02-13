@@ -24,7 +24,7 @@ namespace VoTTest.Core
         [Fact]
         public void Constructor_Test()
         {
-            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
             var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
@@ -42,7 +42,7 @@ namespace VoTTest.Core
         public void Serialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
             var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
@@ -81,7 +81,7 @@ namespace VoTTest.Core
         public void Serialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -112,7 +112,7 @@ namespace VoTTest.Core
         public void Deserialize_Normal_Test()
         {
             /// GENERATE PACKAGE
-            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
             var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
 
             var package = new VOTP(header, body);
@@ -138,7 +138,7 @@ namespace VoTTest.Core
         public void Deserialize_BodyNull_Test()
         {
             /// GENERATE PACKAGE
-            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
 
             var package = new VOTP(header, default);
             ///
@@ -162,12 +162,12 @@ namespace VoTTest.Core
         public void Equal_Test()
         {
             /// GENERATE PACKAGE
-            var header1 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
-            var header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+            var header1 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
+            var header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
 
             while (header1.Equals(header2))
             {
-                header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next(), (byte)rnd.Next());
+                header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
             }
 
             var body1 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
@@ -270,7 +270,7 @@ namespace VoTTest.Core
         public void SData_Test()
         {
             var body = new SData_Int(rnd.Next());
-            var head = new HeaderStd(1, 0, 0, 0);
+            var head = new HeaderStd(1, 0, 0);
 
             var package = new VOTP(head, body);
 

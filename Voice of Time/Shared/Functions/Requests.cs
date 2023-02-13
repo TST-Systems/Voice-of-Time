@@ -8,6 +8,9 @@ using Voice_of_Time.User;
 using VoTCore.Package.AData;
 using VoTCore.Package.Interfaces;
 using VoTCore.Exeptions;
+using VoTCore.User;
+using VoTCore.Communication;
+using VoTCore.Package.AbsData;
 
 /**
  * @author      - Timeplex
@@ -172,6 +175,39 @@ namespace Voice_of_Time.Shared.Functions
             var result = await RequestPackageHandler<SData_Long>(socket, package);
 
             return result.Data;
+        }
+
+        public static async Task<bool> InviteUserToGroupAsync(ClientSocket socket, Client client, PublicClient pubClient, PrivatChat chat, DataHandling handling)
+        {
+            var targetKey = (pubClient.PublicKey ?? throw new PublicKeyMissingExeption()).Key;
+
+            // Tell the Server that target is allowed to Join the Group
+            {
+                var header = new HeaderReq(client.UserID, RequestType.INVITE_USER_PRIVATCHAT);
+                var body   = new AbsData_Invite(client.UserID, pubClient.ID, chat.ChatID);
+                var toSend = new VOTP(header, body);
+
+                var result = await RequestPackageHandler<SData<bool>>(socket, toSend);
+
+                if (!result.Data) return false;
+            }
+
+            // Send the target the inventation
+            {
+                var header = new HeaderSSG(client.UserID, pubClient.ID, DateTime.Now.AddDays(30), handling);
+                var body = chat;
+                if (body.CryptedReciver >= 0 && body.CryptedReciver != pubClient.ID)
+                {
+                    return false;
+                }
+                if (body.CryptedReciver != pubClient.ID) body.EncryptData(targetKey, pubClient.ID);
+
+                var toSend = new VOTP(header, body);
+
+                await RequestPackageHandler<SData_Long>(socket, toSend);
+            }
+
+            return true;
         }
     }
 }

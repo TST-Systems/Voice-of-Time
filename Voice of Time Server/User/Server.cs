@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using Voice_of_Time_Server.Config;
+using VoTCore.Communication.Extra;
 using VoTCore.User;
 
 /**
@@ -18,11 +19,11 @@ namespace Voice_of_Time_Server.User
         public ServerConfig Config { get; }
 
         public Dictionary<long, PublicClient> UserDB { get; }
-        public Dictionary<long, List<(long, ChatState)>> ChatDB { get; }
+        public Dictionary<long, List<(long, ChatUserState)>> ChatDB { get; }
 
         public RSA ServerKey { get; }
 
-        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<(long, ChatState)>>? chatDB = null)
+        public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<long, List<(long, ChatUserState)>>? chatDB = null)
         {
             Config          = config ?? new();
             UserDB          = userDB ?? new();
@@ -63,7 +64,7 @@ namespace Voice_of_Time_Server.User
 
             ChatDB[chatID] = new()
             {
-                (creator, ChatState.ADMIN | ChatState.MEMBER)
+                (creator, ChatUserState.ADMIN | ChatUserState.MEMBER)
             };
 
             return chatID;

@@ -8,7 +8,7 @@
  */
 namespace VoTCore.Exeptions
 {
-    internal class PublicKeyMissingExeption : Exception
+    public class PublicKeyMissingExeption : Exception
     {
         public PublicKeyMissingExeption() : base() { }
         public PublicKeyMissingExeption(string message) : base(message) { }

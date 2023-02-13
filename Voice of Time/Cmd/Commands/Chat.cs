@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using VoTCore.Algorithms;
+using VoTCore.Communication;
 using VoTCore.Controll;
 
 /**
@@ -8,7 +9,7 @@ using VoTCore.Controll;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 11.02.2023
+ * @last_change - 13.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -144,12 +145,43 @@ namespace Voice_of_Time.Cmd.Commands
                 particepents.Remove(particepent);
             }
 
-            // Get ChatID from Server
+            // Get ChatID from Server and Register it 
             var chatID = await Requests.GetChatID(socket, client.UserID);
 
+            // Create Chat
+            var Chatname = "";
 
+            if (particepents.Count <= 3) {
+                for (int j = 0; j < particepents.Count; j++)
+                {
+                    Chatname += client.UserDB[particepents[j]].Username;
+                    if (j + 1 < particepents.Count)
+                    {
+                        Chatname += ", ";
+                    }
+                } 
+            }else
+            {
+                Console.WriteLine("Please Enter a name for the group: ");
+                Chatname = Console.ReadLine();
+                if (Chatname is null or "") Chatname = "Group";
+                Chatname = Chatname.Trim();
+            }
 
+            var chat = new PrivatChat(chatID, Chatname, particepents);
             
+            client.TextChats.Add(chat);
+
+            // Invite all remaining users
+            foreach (var particepen in particepents)
+            {
+                var pubClient = client.UserDB[particepen];
+
+                if (pubClient is null) throw new Exception("Public user was deletet while processing!");
+
+                await Requests.InviteUserToGroupAsync(socket, client, pubClient, chat, DataHandling.REMOVE_AFTER_GET_ACK);
+            }
+
             return true;
         }
     }

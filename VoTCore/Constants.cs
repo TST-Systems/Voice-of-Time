@@ -10,7 +10,7 @@ using VoTCore.Package.SecData;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 11.02.2023
+ * @last_change - 13.02.2023
  */
 namespace VoTCore
 {
@@ -77,8 +77,10 @@ namespace VoTCore
         // 0x61 - 0x7f
         ADATA_LONG  = 0x62,
 
-        // Reserved
+        // Abstract Data
+        AbsDATA        = 0x80,
         // 0x81 - 0x9f
+        AbsDATA_INVITE = 0x81,
 
         // Secure Data
         SECDATA                     = 0xa0,
@@ -113,7 +115,13 @@ namespace VoTCore
         GET_PUBLIC_USER,
         GET_USERID_LIST,
         REGISTER_PRIVAT_CHAT,
+        INVITE_USER_PRIVATCHAT,
     }
-
-
+    public enum DataHandling : byte
+    {
+        NONE,
+        REMOVE_AFTER_GET,
+        REMOVE_AFTER_GET_ACK,
+        REMOVE_AFTER_GET_READ,
+    }
 }
