@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Voice_of_Time_Server.Shared;
 using VoTCore;
-using VoTCore.Exeptions;
 using VoTCore.Package;
 using VoTCore.Package.AData;
 using VoTCore.Package.Header;

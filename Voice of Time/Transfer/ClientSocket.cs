@@ -1,10 +1,8 @@
-﻿using System.Data;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
 using System.Security.Cryptography;
 using VoTCore.Secure;
 using VoTCore.Package;
-using System.Text.Json;
 
 /**
  * @author      - Timeplex, SalzstangeManga
