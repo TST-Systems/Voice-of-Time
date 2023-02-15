@@ -158,7 +158,8 @@ namespace Voice_of_Time.Transfer
                         return;
                     }
 
-                    if (bytesRead == 0) throw new Exception("Server didn't send Data!");
+                    if (bytesRead == 0)
+                        return;
 
                     var IncomingMessageInBytes = buffer[0..bytesRead];
 

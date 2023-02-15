@@ -158,11 +158,9 @@ namespace Voice_of_Time.Shared.Functions
             var body   = new SData_Long(targetID);
             var toSend = new VOTP(header, body);
 
-            var result = await RequestPackageHandler<SecData_ClientShare>(socket, toSend);
+            var result = await RequestPackageHandler<PublicClient>(socket, toSend);
 
-            var UserEntry = result.GetPublicClient();
-
-            return sender.AppendOrOverridePublicClint(UserEntry);
+            return sender.AppendOrOverridePublicClint(result);
         }
 
         public static async Task<long> GetChatID(ClientSocket socket, long userID)
@@ -179,12 +177,12 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<bool> InviteUserToGroupAsync(ClientSocket socket, Client client, PublicClient pubClient, PrivatChat chat, DataHandling handling)
         {
-            var targetKey = (pubClient.PublicKey ?? throw new PublicKeyMissingExeption()).Key;
+            var targetKey = (pubClient.PublicKey ?? throw new PublicKeyMissingExeption()).PublicKey;
 
             // Tell the Server that target is allowed to Join the Group
             {
                 var header = new HeaderReq(client.UserID, RequestType.INVITE_USER_PRIVATCHAT);
-                var body   = new AbsData_Invite(client.UserID, pubClient.ID, chat.ChatID);
+                var body   = new AbsData_Invite(client.UserID, pubClient.UserID, chat.ChatID);
                 var toSend = new VOTP(header, body);
 
                 var result = await RequestPackageHandler<SData<bool>>(socket, toSend);
@@ -194,13 +192,13 @@ namespace Voice_of_Time.Shared.Functions
 
             // Send the target the inventation
             {
-                var header = new HeaderSSG(client.UserID, pubClient.ID, DateTime.Now.AddDays(30), handling);
+                var header = new HeaderSSG(client.UserID, pubClient.UserID, DateTime.Now.AddDays(30), handling);
                 var body = chat;
-                if (body.CryptedReciver >= 0 && body.CryptedReciver != pubClient.ID)
+                if (body.CryptedReciver >= 0 && body.CryptedReciver != pubClient.UserID)
                 {
                     return false;
                 }
-                if (body.CryptedReciver != pubClient.ID) body.EncryptData(targetKey, pubClient.ID);
+                if (body.CryptedReciver != pubClient.UserID) body.EncryptData(targetKey, pubClient.UserID);
 
                 var toSend = new VOTP(header, body);
 

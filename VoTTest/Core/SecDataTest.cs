@@ -56,13 +56,14 @@ namespace VoTTest.Core
         {
             var PublicKey    = new PublicRSA();
             var PublicClient = new PublicClient(12345, "Someone", PublicKey);
-            var ShareBody    = new SecData_ClientShare(PublicClient);
 
-            var serialized   = JsonSerializer.Serialize(ShareBody);
-            var deserialized = JsonSerializer.Deserialize<SecData_ClientShare>(serialized);
+            var serialized   = JsonSerializer.Serialize(PublicClient);
+            var deserialized = JsonSerializer.Deserialize<PublicClient>(serialized);
 
-            Assert.Equal(PublicClient.Username, deserialized.Username);
-            Assert.Equal(PublicClient.ID,       deserialized.SourceID);
+            Assert.Equal(PublicClient.Username,           deserialized.Username);
+            Assert.Equal(PublicClient.UserID,             deserialized.UserID);
+            Assert.Equal(PublicClient.PublicKey.Modulus,  deserialized.PublicKey.Modulus);
+            Assert.Equal(PublicClient.PublicKey.Exponent, deserialized.PublicKey.Exponent);
         }
 
         [Fact]
@@ -70,16 +71,15 @@ namespace VoTTest.Core
         {
             var PublicKey = new PublicRSA();
             var PublicClient = new PublicClient(12345, "Someone", PublicKey);
-            var ShareBody = new SecData_ClientShare(PublicClient);
 
             var header = new HeaderAck(true);
-            var package = new VOTP(header, ShareBody);
+            var package = new VOTP(header, PublicClient);
 
             var serialized = package.Serialize();
             var deserialized = new VOTP(serialized);
 
             Assert.True(deserialized.Header is HeaderAck);
-            Assert.True(deserialized.Body is SecData_ClientShare);
+            Assert.True(deserialized.Body is PublicClient);
         }
     }
 }

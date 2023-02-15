@@ -85,7 +85,7 @@ namespace Voice_of_Time.Cmd.Commands
             foreach (var pubClientID in userList)
             {
                 var pubClient = currentClient.UserDB[pubClientID];
-                Console.WriteLine(pattern, Base36.Encode(pubClient.ID), pubClient.Username, pubClient.PublicKey is not null);
+                Console.WriteLine(pattern, Base36.Encode(pubClient.UserID), pubClient.Username, pubClient.PublicKey is not null);
             }
             return true;
         }

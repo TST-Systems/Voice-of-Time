@@ -11,6 +11,6 @@ namespace Voice_of_Time_Server.Shared
 {
     internal static class ServerData
     {
-        public static Server server = new();
+        public static Server server;
     }
 }

@@ -242,8 +242,7 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (header.SenderID > 0 && CommunicationVerified)
                     {
-                        var _keyInstace = ServerData.server.UserDB[header.SenderID].PublicKey ?? throw new PublicKeyMissingExeption();  
-                        _keyInstace.ChangeKey(UserPubKey);
+                        ServerData.server.ChangeUserKey(UserID, UserPubKey);
                     }
 
                     sendHeader = new HeaderAck(true);
@@ -266,7 +265,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    if(!ServerData.server.UserDB.ContainsKey(header.SenderID))
+                    if(!ServerData.server.UserExists(header.SenderID))
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody   = new SData_String("User unknown! Register first!");
@@ -275,8 +274,8 @@ namespace Voice_of_Time_Server.Transfer
 
                     UserID = header.SenderID;
 
-                    var keyInstace = ServerData.server.UserDB[UserID].PublicKey ?? throw new PublicKeyMissingExeption();
-                    UserPubKey = keyInstace.Key;
+                    var client = ServerData.server.GetUser(UserID) ?? throw new Exception("User is known & unknown at the same time :/");
+                    UserPubKey = client.PublicKey.PublicKey;
 
 
                     goto COMM_KEY;
@@ -293,14 +292,14 @@ namespace Voice_of_Time_Server.Transfer
 
                     if (UserPubKey is null)
                     {
-                        if (header.SenderID <= 0 || !ServerData.server.UserDB.ContainsKey(header.SenderID))
+                        if (header.SenderID <= 0 || !ServerData.server.UserExists(header.SenderID))
                         {
                             sendHeader = new HeaderAck(false);
                             sendBody   = new SData_String("Public key unknown! Please exhange your Key first!");
                             break;
                         }
-                        var keyInstaceCK = ServerData.server.UserDB[UserID].PublicKey ?? throw new PublicKeyMissingExeption();
-                        UserPubKey = keyInstaceCK.Key;
+                        var _client = ServerData.server.GetUser(UserID) ?? throw new Exception("User is known & unknown at the same time :/");
+                        UserPubKey  = _client.PublicKey.PublicKey;
                     }
 
                     // Because if he doesn't understand the key, he has to close the connection.
@@ -362,7 +361,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
 
-                    ServerData.server.UserDB[UserID].Username = strBody.Data;
+                    ServerData.server.ChangeUserUsername(UserID, strBody.Data);
 
                     sendHeader = new HeaderAck(true);
                     break;
@@ -379,14 +378,14 @@ namespace Voice_of_Time_Server.Transfer
                         sendBody = new SData_String($"Wrong Body! Need to be a {nameof(SData_Long)}");
                         break;
                     }
-                    if (!ServerData.server.UserDB.ContainsKey(longBody.Data))
+                    if (!ServerData.server.UserExists(longBody.Data))
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String($"User with the ID: {longBody.Data} is unknown!");
                         break;
                     }
                     sendHeader = new HeaderAck(true);
-                    sendBody = new SecData_ClientShare(ServerData.server.UserDB[longBody.Data]);
+                    sendBody   = ServerData.server.GetUser(longBody.Data);
                     break;
                 case RequestType.GET_USERID_LIST:
                     if (!CommunicationVerified)
@@ -396,7 +395,7 @@ namespace Voice_of_Time_Server.Transfer
                         break;
                     }
                     sendHeader = new HeaderAck(true);
-                    sendBody = new AData_Long(ServerData.server.UserDB.Keys.ToArray());
+                    sendBody = new AData_Long(ServerData.server.GetUserIDs());
                     break;
                 case RequestType.REGISTER_PRIVAT_CHAT:
                     if (!CommunicationVerified)
@@ -417,8 +416,10 @@ namespace Voice_of_Time_Server.Transfer
 
             if (sendHeader is null) throw new Exception("Unknown request!");
 
-            VOTP sendPackage = new(sendHeader, sendBody);
-            sendPackage.PackageID = packageID;
+            VOTP sendPackage = new(sendHeader, sendBody)
+            {
+                PackageID = packageID
+            };
             return sendPackage.Serialize();
         }
     }

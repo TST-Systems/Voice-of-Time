@@ -65,7 +65,7 @@ namespace Voice_of_Time.User
 
         public bool AppendPublicClient(PublicClient publicClient)
         {
-            var id = publicClient.ID;
+            var id = publicClient.UserID;
             if (id < 0) return false;
             if (UserDB.ContainsKey(id)) return false;
             UserDB.Add(id, publicClient);
@@ -74,7 +74,7 @@ namespace Voice_of_Time.User
 
         public bool AppendOrOverridePublicClint(PublicClient publicClient)
         {
-            var id = publicClient.ID;
+            var id = publicClient.UserID;
             if (id < 0) return false;
             UserDB[id] = publicClient;
             return true;

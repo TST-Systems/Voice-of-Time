@@ -72,7 +72,7 @@ namespace VoTCore.Package.SecData
         public void EncryptData(PublicClient target) 
         {
             if (target.PublicKey is null) throw new PublicKeyMissingExeption(target);
-            EncryptData(target.PublicKey.Key, target.ID);
+            EncryptData(target.PublicKey.PublicKey, target.UserID);
         }
 
 
