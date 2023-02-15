@@ -24,6 +24,6 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="mkdir &quot;$(TargetDir)SQLite\&quot;&#xD;&#xA;copy &quot;$(ProjectDir)SQLite\*&quot; &quot;$(TargetDir)SQLite\&quot;&#xD;&#xA;" />
+    <Exec Command="mkdir &quot;$(TargetDir)SQLite/&quot;&#xD;&#xA;copy &quot;$(ProjectDir)SQLite/*&quot; &quot;$(TargetDir)SQLite/&quot;&#xD;&#xA;" />
   </Target>
 </Project>
