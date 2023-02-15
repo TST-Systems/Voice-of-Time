@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SQLite\**" />
+    <EmbeddedResource Remove="SQLite\**" />
+    <None Remove="SQLite\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VoTCore\VoTCore.csproj" />
   </ItemGroup>
 </Project>
