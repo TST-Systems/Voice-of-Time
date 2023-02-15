@@ -1,11 +1,11 @@
 ﻿using VoTCore.Communication;
 using VoTCore.Communication.Data;
+using VoTCore.Package.AbsData;
 using VoTCore.Package.AData;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
 using VoTCore.User;
-
 /**
  * @author      - Timeplex, SalzstangeManga
  * 
@@ -34,6 +34,7 @@ namespace VoTCore
             { BodyType.SDATA_GUID,      typeof(SData_Guid)      },
             { BodyType.SDATA_STRING,    typeof(SData_String)    },
             { BodyType.ADATA_LONG,      typeof(AData_Long)      },
+            { BodyType.AbsDATA_INVITE,  typeof(AbsData_Invite)  },
             { BodyType.SECDATA_KEY_RSA, typeof(SecData_Key_RSA) },
             { BodyType.SECDATA_KEY_AES, typeof(SecData_Key_Aes) },
             { BodyType.PUBLIC_CLIENT,   typeof(PublicClient)    },

@@ -4,7 +4,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Voice_of_Time_Server.Shared;
 using VoTCore;
+using VoTCore.Communication.Extra;
 using VoTCore.Package;
+using VoTCore.Package.AbsData;
 using VoTCore.Package.AData;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
@@ -37,9 +39,9 @@ namespace Voice_of_Time_Server.Transfer
 
         private bool EndConnection = false;
 
-        private byte[] TokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
-        private byte[] TokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
-        private byte[] TokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
+        private readonly byte[] TokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
+        private readonly byte[] TokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
+        private readonly byte[] TokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
 
         private string Address { 
             get 
@@ -408,6 +410,60 @@ namespace Voice_of_Time_Server.Transfer
 
                     sendHeader = new HeaderAck(true);
                     sendBody   = new SData_Long(chatID);
+                    break;
+                case RequestType.INVITE_USER_PRIVATCHAT:
+                    if (!CommunicationVerified)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String("You need to be Verified to use this function!");
+                        break;
+                    }                    
+                    if (body is not AbsData_Invite invite)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"Wrong Body! Need to be a {nameof(AbsData_Invite)}");
+                        break;
+                    }
+                    if (UserID != invite.SourceID)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"UserID:{UserID} is not the same as SourceID:{invite.SourceID}");
+                        break;
+                    }
+                    if (!ServerData.server.UserExists(invite.TargetID))
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"UserID:{invite.TargetID} is not a User of this Server!");
+                        break;
+                    }
+                    if (!ServerData.server.ChatExists(invite.ChatID))
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"Chat with the ID:{invite.ChatID} is unknwon!");
+                        break;
+                    }
+                    ChatUserState UserChatState = ServerData.server.GetChatMember(invite.ChatID, UserID);
+                    ChatUserState TargetChatState = ServerData.server.GetChatMember(invite.ChatID, invite.TargetID);
+                    if (TargetChatState != ChatUserState.NONE) // TODO: Detailed checks
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"Taget user is alrady part of the Chat!");
+                        break;
+                    }
+                    if (UserChatState == ChatUserState.NONE || (UserChatState & ChatUserState.BLOCKED) != 0)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"You are not a member of this chat!");
+                        break;
+                    }
+                    if ((UserChatState & ChatUserState.ADMIN) != 0 && (UserChatState & ChatUserState.MODERATOR) != 0)
+                    {
+                        sendHeader = new HeaderAck(false);
+                        sendBody = new SData_String($"You don't have the nessesary rights to do that!");
+                        break;
+                    }
+                    ServerData.server.AddChatUser(invite.ChatID, invite.TargetID, ChatUserState.INVITED);
+                    sendHeader = new HeaderAck(true);
                     break;
             }
 

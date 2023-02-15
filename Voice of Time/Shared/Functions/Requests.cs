@@ -185,9 +185,7 @@ namespace Voice_of_Time.Shared.Functions
                 var body   = new AbsData_Invite(client.UserID, pubClient.UserID, chat.ChatID);
                 var toSend = new VOTP(header, body);
 
-                var result = await RequestPackageHandler<SData<bool>>(socket, toSend);
-
-                if (!result.Data) return false;
+                await RequestPackageHandler(socket, toSend);
             }
 
             // Send the target the inventation

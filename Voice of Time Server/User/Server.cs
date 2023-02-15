@@ -238,12 +238,71 @@ namespace Voice_of_Time_Server.User
             using var cmd = new SqliteCommand("UPDATE USERS SET username = @username WHERE id = @id", DB);
             cmd.Parameters.AddWithValue("@username", userName);
             cmd.Parameters.AddWithValue("@id",       userID);
+            cmd.ExecuteNonQuery();
             // TODO: Return if succesfull
         }
 
         internal void ChangeUserKey(long userID, RSA userPubKey)
         {
-            throw new NotImplementedException();
+            using var cmd = new SqliteCommand("UPDATE OR FAIL users SET PublicKey = @PublicKey WHERE id = @id");
+            cmd.Parameters.AddWithValue("@PublicKey", JsonSerializer.Serialize(new PublicRSA(userPubKey)));
+            cmd.Parameters.AddWithValue("@id",        userID);
+            cmd.ExecuteNonQuery();
+        }
+
+        internal List<(long, ChatUserState)> GetChatMembers(long chatID)
+        {
+            List<(long, ChatUserState)> values = new();
+
+            using var cmd = new SqliteCommand("SELECT user_id, state FROM CHATS WHERE chat_id = @chat_id", DB);
+            cmd.Parameters.AddWithValue("@chat_id", chatID);
+            using var reader = cmd.ExecuteReader();
+            while(reader.Read())
+            {
+                var userID = reader.GetInt64(0);
+                var uState = (ChatUserState)reader.GetInt16(1);
+                values.Add((userID, uState));
+            }
+            return values;
+        }
+
+        internal bool ChatExists(long chatID)
+        {
+            using var cmd = new SqliteCommand("SELECT COUNT(*) FROM CHATS WHERE id = @id", DB);
+            cmd.Parameters.AddWithValue("@id", chatID);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                throw new Exception("Somthing went wrong!");
+            }
+            var count = reader.GetInt32(0);
+            if (count > 1)
+            {
+                throw new Exception("Table is broken!");
+            }
+            return count == 1;
+        }
+
+        internal ChatUserState GetChatMember(long chatID, long userID)
+        {
+            using var cmd = new SqliteCommand("SELECT state FROM CHAT_MEMBERS WHERE user_id = @user_id AND chat_id = @chat_id", DB);
+            cmd.Parameters.AddWithValue("@user_id", userID);
+            cmd.Parameters.AddWithValue("@chat_id", chatID);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return ChatUserState.NONE;
+            }
+            return (ChatUserState)reader.GetInt16(0);
+        }
+
+        internal void AddChatUser(long chatID, long targetID, ChatUserState state)
+        {
+            using var cmd = new SqliteCommand("INSERT OR REPLACE INTO CHAT_MEMBERS (chat_id, user_id, state) VALUES (@chat_id, @user_id, @state)", DB);
+            cmd.Parameters.AddWithValue("@user_id", targetID);
+            cmd.Parameters.AddWithValue("@chat_id", chatID);
+            cmd.Parameters.AddWithValue("@state",   (int)state);
+            cmd.ExecuteNonQuery();
         }
 
         #endregion
