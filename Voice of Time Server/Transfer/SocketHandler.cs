@@ -26,25 +26,29 @@ namespace Voice_of_Time_Server.Transfer
 {
     internal class SocketHandler
     {
-        private readonly TcpClient socket;
-        private readonly NetworkStream stream;
-        private readonly Aes CommunicationKey = Aes.Create();
+        private  readonly TcpClient socket;
+        private  readonly NetworkStream stream;
+        internal readonly Aes CommunicationKey = Aes.Create();
 
-        private long UserID = -1;
-        private bool SecureCommunicationEnabled = false;
-        private bool requestEncryption = false;
+        internal RSA? UserPubKey;
+        internal long UserID = -1;
 
-        private RSA? UserPubKey;
-        private bool CommunicationVerified = false;
-        private bool requestConnectionClose = false;
+        private  bool secureCommunicationEnabled = false;
+        private  bool communicationVerified = false;
 
-        private bool EndConnection = false;
+        internal bool SecureCommunicationEnabled => secureCommunicationEnabled;
+        internal bool CommunicationVerified => communicationVerified;
+
+        internal bool requestEncryption = false;
+        internal bool requestConnectionClose = false;
+
+        internal bool EndConnection = false;
 
         private readonly byte[] TokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
         private readonly byte[] TokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
         private readonly byte[] TokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
 
-        private string Address { 
+        internal string Address { 
             get 
             {
                 var value = "Unknown";
@@ -69,7 +73,6 @@ namespace Voice_of_Time_Server.Transfer
 
             StartReader();
         }
-
 
 
         private void StartReader()
@@ -116,7 +119,7 @@ namespace Voice_of_Time_Server.Transfer
                             IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..bytesRead]).ToArray();
                         }
 
-                        if (SecureCommunicationEnabled)
+                        if (secureCommunicationEnabled)
                         {
                             if (CommunicationKey is null) throw new Exception("Inteneral Error!");
                             IncomingMessageInBytes = CryproManager.AesDecyrpt(CommunicationKey, IncomingMessageInBytes);
@@ -157,7 +160,7 @@ namespace Voice_of_Time_Server.Transfer
             {
                 byte[] messageBytes = Encoding.UTF8.GetBytes(message);
 
-                if (SecureCommunicationEnabled)
+                if (secureCommunicationEnabled)
                 {
                     if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
                     messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
@@ -170,7 +173,7 @@ namespace Voice_of_Time_Server.Transfer
                 if (requestEncryption)
                 {
                     requestEncryption = false;
-                    SecureCommunicationEnabled = true;
+                    secureCommunicationEnabled = true;
                 }
                 if (requestConnectionClose) EndConnection = true;
             }
@@ -182,6 +185,7 @@ namespace Voice_of_Time_Server.Transfer
             }
             return;
         }
+
 
         protected virtual string ProccessResponse(string incomingMessage)
         {
@@ -196,8 +200,6 @@ namespace Voice_of_Time_Server.Transfer
                     break;
             }
 
-
-
             return response;
         }
 
@@ -210,7 +212,7 @@ namespace Voice_of_Time_Server.Transfer
 
             // Prechecks
             var userID = header.SenderID;
-            if(userID != UserID && header.Request != RequestType.VERIFY)
+            if(userID != UserID && header.Request != RequestType.USER_VERIFY)
             {
                 sendHeader             = new HeaderAck(false);
                 sendBody               = new SData_String("Wrong UserID! Disconecting!");
@@ -221,11 +223,11 @@ namespace Voice_of_Time_Server.Transfer
 
             switch (typeOfRequest)
             {
-                case RequestType.IDENTITY:
+                case RequestType.SERVER_GET_IDENTITY:
                     sendHeader = new HeaderAck(true);
                     sendBody = new SData_Guid(ServerData.server.ServerIdentity);
                     break;
-                case RequestType.KEY_EXCHANGE:
+                case RequestType.SERVER_GET_AND_ADD_USER_PUBLIC_KEY:
                     if (body is null)
                     {
                         sendHeader = new HeaderAck(false);
@@ -242,7 +244,7 @@ namespace Voice_of_Time_Server.Transfer
 
                     UserPubKey = rsaBody.GetKey();
 
-                    if (header.SenderID > 0 && CommunicationVerified)
+                    if (header.SenderID > 0 && communicationVerified)
                     {
                         ServerData.server.ChangeUserKey(UserID, UserPubKey);
                     }
@@ -251,7 +253,7 @@ namespace Voice_of_Time_Server.Transfer
                     sendBody = new SecData_Key_RSA(ServerData.server.ServerKey, 0);
 
                     break;
-                case RequestType.VERIFY:
+                case RequestType.USER_VERIFY:
                     if (UserID > 0)
                     {
                         sendHeader = new HeaderAck(false);
@@ -281,10 +283,10 @@ namespace Voice_of_Time_Server.Transfer
 
 
                     goto COMM_KEY;
-                case RequestType.COMM_KEY:
+                case RequestType.COMMUNICATION_GET_KEY_AND_SECURE:
                 COMM_KEY:
 
-                    if (CommunicationVerified)
+                    if (communicationVerified)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody   = new SData_String("You are already verifiyed! Server closes the connection!");
@@ -305,7 +307,7 @@ namespace Voice_of_Time_Server.Transfer
                     }
 
                     // Because if he doesn't understand the key, he has to close the connection.
-                    if(typeOfRequest == RequestType.VERIFY) CommunicationVerified = true; 
+                    if(typeOfRequest == RequestType.USER_VERIFY) communicationVerified = true; 
 
                     requestEncryption = true;
 
@@ -315,14 +317,14 @@ namespace Voice_of_Time_Server.Transfer
                     sendHeader  = new HeaderAck(true);
                     sendBody = preBody;
                     break;
-                case RequestType.REGISTRATION: //<- Can be attacked very easily
+                case RequestType.USER_REGISTRATION: //<- Can be attacked very easily
                     if(UserID > 0)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody  = new SData_String("You are already logged in!");
                         break;
                     }
-                    if (!SecureCommunicationEnabled || UserPubKey is null)
+                    if (!secureCommunicationEnabled || UserPubKey is null)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You need to secure the communication first!");
@@ -330,14 +332,14 @@ namespace Voice_of_Time_Server.Transfer
                     }
                     var uid = ServerData.server.AddUser(UserPubKey, "");
 
-                    CommunicationVerified = true;
+                    communicationVerified = true;
                     UserID                = uid;
 
                     sendHeader = new HeaderAck(true);
                     sendBody   = new SData_Long(uid);
                     break;
-                case RequestType.SET_USERNAME:
-                    if (!CommunicationVerified)
+                case RequestType.USER_SET_USERNAME:
+                    if (!communicationVerified)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You need to secure the communication first!");
@@ -367,8 +369,8 @@ namespace Voice_of_Time_Server.Transfer
 
                     sendHeader = new HeaderAck(true);
                     break;
-                case RequestType.GET_PUBLIC_USER:
-                    if (!CommunicationVerified)
+                case RequestType.PUBLIC_USER_GET:
+                    if (!communicationVerified)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You need to be Verified to use this function!");
@@ -389,8 +391,8 @@ namespace Voice_of_Time_Server.Transfer
                     sendHeader = new HeaderAck(true);
                     sendBody   = ServerData.server.GetUser(longBody.Data);
                     break;
-                case RequestType.GET_USERID_LIST:
-                    if (!CommunicationVerified)
+                case RequestType.PUBLIC_USER_GET_ID_LIST:
+                    if (!communicationVerified)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You need to be Verified to use this function!");
@@ -399,8 +401,8 @@ namespace Voice_of_Time_Server.Transfer
                     sendHeader = new HeaderAck(true);
                     sendBody = new AData_Long(ServerData.server.GetUserIDs());
                     break;
-                case RequestType.REGISTER_PRIVAT_CHAT:
-                    if (!CommunicationVerified)
+                case RequestType.PRIVAT_CHAT_REGISTER:
+                    if (!communicationVerified)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You need to be Verified to use this function!");
@@ -412,8 +414,8 @@ namespace Voice_of_Time_Server.Transfer
                     sendHeader = new HeaderAck(true);
                     sendBody   = new SData_Long(chatID);
                     break;
-                case RequestType.INVITE_USER_PRIVATCHAT:
-                    if (!CommunicationVerified)
+                case RequestType.PRIVAT_CHAT_INVITE_USER:
+                    if (!communicationVerified)
                     {
                         sendHeader = new HeaderAck(false);
                         sendBody = new SData_String("You need to be Verified to use this function!");

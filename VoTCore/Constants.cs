@@ -22,7 +22,6 @@ namespace VoTCore
             { 1, typeof(HeaderStd) },
             { 2, typeof(HeaderReq) },
             { 3, typeof(HeaderAck) },
-            { 4, typeof(HeaderStash) },
         };
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
@@ -109,30 +108,32 @@ namespace VoTCore
 
     public enum RequestType
     {
-        IDENTITY,
-        KEY,
-        KEY_EXCHANGE,
-        REGISTRATION,
-        COMM_KEY,
-        SET_USERNAME,
-        VERIFY,
-        GET_PUBLIC_USER,
-        GET_USERID_LIST,
-        REGISTER_PRIVAT_CHAT,
-        INVITE_USER_PRIVATCHAT,
+        // Server requests
+        SERVER_GET_IDENTITY,
+        SERVER_GET_AND_ADD_USER_PUBLIC_KEY,
+        // User requests
+        USER_REGISTRATION,
+        USER_SET_USERNAME,
+        USER_VERIFY,
+        // Communication Requests
+        COMMUNICATION_GET_KEY_AND_SECURE,
+        // Public User requests
+        PUBLIC_USER_GET,
+        PUBLIC_USER_GET_ID_LIST,
+        // Privat chat requests
+        PRIVAT_CHAT_REGISTER,
+        PRIVAT_CHAT_INVITE_USER,
+        // Stash requests
+        STASH_ADD,
+        STASH_GET,
+        STASH_DELETE
     }
+
     public enum DataHandling : byte
     {
         NONE,
         REMOVE_AFTER_GET,
         REMOVE_AFTER_GET_ACK,
         REMOVE_AFTER_GET_READ,
-    }
-
-    public enum StashMode
-    {
-        ADD,
-        GET,
-        DELETE
     }
 }
