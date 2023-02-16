@@ -1,7 +1,11 @@
 ﻿using Microsoft.Data.Sqlite;
+using System.Data;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Voice_of_Time_Server.Config;
+using VoTCore;
+using VoTCore.Communication.Data;
 using VoTCore.Communication.Extra;
 using VoTCore.Secure;
 using VoTCore.User;
@@ -11,11 +15,11 @@ using VoTCore.User;
  * 
  * @created     - 24.12.2022
  * 
- * @last_change - 11.02.2023
+ * @last_change - 16.02.2023
  */
 namespace Voice_of_Time_Server.User
 {
-    internal class Server
+    internal class Server : IDisposable
     {
         public Guid ServerIdentity { get; }
 
@@ -26,10 +30,14 @@ namespace Voice_of_Time_Server.User
 
         private string DBName { get; }
         private readonly SqliteConnection DB;
+        private readonly SqliteConnection StashDB;
+
+        // Data Hasher
+        private readonly SHA256 hasher = SHA256.Create();
 
         public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, string dbName = "Server")
         {
-            Config          = config ?? new();
+            Config          = config         ?? new();
             ServerKey       = serverKey      ?? RSA.Create();
             ServerIdentity  = serverIdentity ?? Guid.NewGuid();
 
@@ -42,6 +50,11 @@ namespace Voice_of_Time_Server.User
             DB = new SqliteConnection($"Data Source={DBName}.sqlite");
 
             StartDB(createDB);
+
+            Directory.CreateDirectory("Stash");
+            StashDB = new SqliteConnection($@"Data Source=Stash\{DBName}.sqlite");
+            StashDB.Open();
+            Console.WriteLine("Stash started");
         }
 
         private void StartDB(bool createDB)
@@ -90,6 +103,7 @@ namespace Voice_of_Time_Server.User
             while (!IDIsFree(userID));
 
             TryRegisterUser(new(userID, username, userPubKey));
+            SetupStash(userID);
 
             return userID;
         }
@@ -106,6 +120,7 @@ namespace Voice_of_Time_Server.User
             while (!IDIsFree(chatID));
 
             TryRegisterChat(chatID, creatorID);
+            SetupStash(chatID);
 
             return chatID;
         }
@@ -304,7 +319,139 @@ namespace Voice_of_Time_Server.User
             cmd.Parameters.AddWithValue("@state",   (int)state);
             cmd.ExecuteNonQuery();
         }
-
         #endregion
+
+
+        #region StashDBCommands
+        private void SetupStash(long ID)
+        {
+            using var cmd = new SqliteCommand(
+                $"CREATE TABLE IF NOT EXISTS m{ID} (" +
+                $"Receipt INTEGER, " +
+                $"MessageHandling INTEGER NOT NULL," +
+                $"Author INTEGER NOT NULL," +
+                $"Created NUMERIC NOT NULL," +
+                $"Expires NUMERIC NOT NULL," +
+                $"StashFile TEXT NOT NULL," +
+                $"PRIMARY KEY(Receipt));", 
+                StashDB);
+            cmd.ExecuteNonQuery();
+        }
+
+        public long StashMessage(long targetID, long authorID, string message, DateTime expires, DataHandling handling)
+        {
+            // Get a File name
+            var input = Encoding.UTF8.GetBytes(message);
+            var bName = hasher.ComputeHash(input);
+            var sName = Convert.ToBase64String(bName);
+
+            sName = sName.Replace('/', '-');
+
+            while (File.Exists(@$"Stash\{sName}"))
+            {
+                var _input = Encoding.UTF8.GetBytes(sName);
+                var _bName = hasher.ComputeHash(_input);
+                sName = Convert.ToBase64String(_bName);
+                sName = sName.Replace('/', '-');
+            }
+
+            File.WriteAllText(@$"Stash\{sName}", message);
+
+            using (var cmd = new SqliteCommand($"INSERT INTO m{targetID} (messagehandling, author, created, expires, stashfile) " +
+                "VALUES (@messagehandling, @author, @created, @expires, @stashfile)", StashDB))
+            {
+                cmd.Parameters.AddWithValue("@messagehandling", (int)handling);
+                cmd.Parameters.AddWithValue("@author",          authorID);
+                cmd.Parameters.AddWithValue("@created",         DateTime.Now);
+                cmd.Parameters.AddWithValue("@expires",         expires);
+                cmd.Parameters.AddWithValue("@stashfile",       sName);
+                cmd.ExecuteNonQuery();
+            }
+
+            using (var cmd = new SqliteCommand($"SELECT MAX(Receipt) FROM m{targetID}", StashDB))
+            {
+                using var reader = cmd.ExecuteReader();
+                if (!reader.Read()) throw new Exception("DB broken!");
+
+                return reader.GetInt64(0);
+            }
+        }
+
+        public StashMessage? StashMessageGet(long targetID, long receiptID)
+        {
+            using var cmd = new SqliteCommand($"SELECT Receipt, MessageHandling, Author, Created, Expires, StashFile FROM m{targetID} WHERE receipt = @receipt", StashDB);
+            cmd.Parameters.AddWithValue("@receipt", receiptID);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            var receipt         = reader.GetInt64   (0);
+            var messageHandling = (DataHandling)
+                                  reader.GetInt16   (1);
+            var authorID        = reader.GetInt64   (2);
+            var created         = reader.GetDateTime(3);
+            var expires         = reader.GetDateTime(4);
+            var messageLocation = reader.GetString  (5);
+
+            var message         = "";
+
+            var filePath = @$"Stash\{messageLocation}";
+            if (File.Exists(filePath)) 
+            {
+                message = File.ReadAllText(filePath);
+            }
+
+            return new(receipt, messageHandling, authorID, targetID, created, expires, message); ;
+        }
+
+        public long[] StashMessageList(long targetID) 
+        { 
+            List<long> list = new();
+            using var cmd = new SqliteCommand($"SELECT Receipt FROM m{targetID}", StashDB);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(reader.GetInt64(0));
+            }
+            return list.ToArray();
+        }
+
+        public bool StashMessageRemove(long targetID, long receiptID)
+        {
+            using (var cmd = new SqliteCommand($"SELECT StashFile FROM m{targetID} WHERE receipt = @receipt", StashDB))
+            {
+                cmd.Parameters.AddWithValue("@receipt", receiptID);
+                using var reader = cmd.ExecuteReader();
+                if(!reader.Read()) return false;
+
+                var messageLocation = reader.GetString(0);
+
+                var filePath = @$"Stash\{messageLocation}";
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            using (var cmd = new SqliteCommand($"DELETE FROM m{targetID} WHERE receipt = @receipt", StashDB))
+            {
+                cmd.Parameters.AddWithValue("@receipt", receiptID);
+                cmd.ExecuteNonQuery();
+            }
+            return true;
+        }
+        #endregion
+
+        public void Dispose()
+        {
+            DB.Close();
+            StashDB.Close();
+
+            DB.Dispose();
+            StashDB.Dispose();
+
+            ServerKey.Dispose();
+        }
     }
 }
