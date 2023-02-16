@@ -187,10 +187,10 @@ namespace Voice_of_Time.Shared.Functions
 
                 await RequestPackageHandler(socket, toSend);
             }
-
+            /*
             // Send the target the inventation
             {
-                var header = new HeaderSSG(client.UserID, pubClient.UserID, DateTime.Now.AddDays(30), handling);
+                var header = new HeaderStash(client.UserID, pubClient.UserID, DateTime.Now.AddDays(30), handling);
                 var body = chat;
                 if (body.CryptedReciver >= 0 && body.CryptedReciver != pubClient.UserID)
                 {
@@ -202,7 +202,7 @@ namespace Voice_of_Time.Shared.Functions
 
                 await RequestPackageHandler<SData_Long>(socket, toSend);
             }
-
+            */
             return true;
         }
     }

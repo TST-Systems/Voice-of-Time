@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using Voice_of_Time_Server.Shared;
@@ -477,5 +478,30 @@ namespace Voice_of_Time_Server.Transfer
             };
             return sendPackage.Serialize();
         }
+
+        /*
+        private string ProccessStash(HeaderReq header, IVOTPBody? body, long packageID)
+        {
+            IVOTPHeader? sendHeader = null;
+            IVOTPBody?   sendBody = null;
+
+            var typeOfRequest = header.Request;
+
+            // Prechecks
+            var userID = header.SenderID;
+            if (userID != UserID && header.Request != RequestType.VERIFY)
+            {
+                sendHeader = new HeaderAck(false);
+                sendBody = new SData_String("Wrong UserID! Disconecting!");
+                requestConnectionClose = true;
+                goto END;
+            }
+            //
+
+        }
+        */
+
+
+
     }
 }

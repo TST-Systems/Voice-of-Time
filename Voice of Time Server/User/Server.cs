@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Voice_of_Time_Server.Config;
+using Voice_of_Time_Server.Data;
 using VoTCore;
 using VoTCore.Communication.Data;
 using VoTCore.Communication.Extra;
@@ -442,6 +443,7 @@ namespace Voice_of_Time_Server.User
             return true;
         }
         #endregion
+
 
         public void Dispose()
         {

@@ -22,7 +22,7 @@ namespace VoTCore
             { 1, typeof(HeaderStd) },
             { 2, typeof(HeaderReq) },
             { 3, typeof(HeaderAck) },
-            { 4, typeof(HeaderSSG) },
+            { 4, typeof(HeaderStash) },
         };
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
@@ -127,5 +127,12 @@ namespace VoTCore
         REMOVE_AFTER_GET,
         REMOVE_AFTER_GET_ACK,
         REMOVE_AFTER_GET_READ,
+    }
+
+    public enum StashMode
+    {
+        ADD,
+        GET,
+        DELETE
     }
 }

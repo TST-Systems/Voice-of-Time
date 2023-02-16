@@ -70,7 +70,15 @@ namespace Voice_of_Time.Cmd.Commands
             int i = 0;
             foreach (var chat in currentClientInstace.TextChats)
             {
-                Console.WriteLine($"[{i++}]: " + chat);
+                Console.Write($"[{i++}]: ");
+                if(chat is PrivatChat pC)
+                {
+                    Console.WriteLine(pC.Title);
+                }
+                else
+                {
+                    Console.WriteLine("?");
+                }
             }
 
             return true;
