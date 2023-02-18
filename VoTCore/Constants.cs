@@ -1,16 +1,17 @@
 ﻿using VoTCore.Communication;
 using VoTCore.Communication.Data;
+using VoTCore.Package.AbsData;
 using VoTCore.Package.AData;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
-
+using VoTCore.User;
 /**
  * @author      - Timeplex, SalzstangeManga
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 13.02.2023
+ * @last_change - 17.02.2023
  */
 namespace VoTCore
 {
@@ -25,17 +26,18 @@ namespace VoTCore
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
-            { BodyType.MESSAGE_TEXT,                typeof(TextMessage)         },
-            { BodyType.MESSAGE_FILE,                typeof(FileMessage)         },
-            { BodyType.SDATA_INT,                   typeof(SData_Int)           },
-            { BodyType.SDATA_LONG,                  typeof(SData_Long)          },
-            { BodyType.SDATA_GUID,                  typeof(SData_Guid)          },
-            { BodyType.SDATA_STRING,                typeof(SData_String)        },
-            { BodyType.ADATA_LONG,                  typeof(AData_Long)          },
-            { BodyType.SECDATA_KEY_RSA,             typeof(SecData_Key_RSA)     },
-            { BodyType.SECDATA_KEY_AES,             typeof(SecData_Key_Aes)     },
-            { BodyType.SECDATA_PUBLIC_CLIENT_SHARE, typeof(SecData_ClientShare) },
-            { BodyType.PRIVAT_CHAT,                 typeof(PrivatChat)          },
+            { BodyType.MESSAGE_TEXT,    typeof(TextMessage)     },
+            { BodyType.MESSAGE_FILE,    typeof(FileMessage)     },
+            { BodyType.SDATA_INT,       typeof(SData_Int)       },
+            { BodyType.SDATA_LONG,      typeof(SData_Long)      },
+            { BodyType.SDATA_GUID,      typeof(SData_Guid)      },
+            { BodyType.SDATA_STRING,    typeof(SData_String)    },
+            { BodyType.ADATA_LONG,      typeof(AData_Long)      },
+            { BodyType.AbsDATA_INVITE,  typeof(AbsData_Invite)  },
+            { BodyType.SECDATA_KEY_RSA, typeof(SecData_Key_RSA) },
+            { BodyType.SECDATA_KEY_AES, typeof(SecData_Key_Aes) },
+            { BodyType.PUBLIC_CLIENT,   typeof(PublicClient)    },
+            { BodyType.PRIVAT_CHAT,     typeof(PrivatChat)      },
         };
 
         // Transmission buffer size
@@ -64,13 +66,14 @@ namespace VoTCore
         // 0x21 - 0x3f
 
         // Single Data
-        SDATA        = 0x40,
+        SDATA           = 0x40,
         // 0x41 - 0x5f
-        SDATA_INT    = 0x41,
-        SDATA_LONG   = 0x42,
-        SDATA_DOUBLE = 0x43,
-        SDATA_STRING = 0x44,
-        SDATA_GUID   = 0x50,
+        SDATA_INT       = 0x41,
+        SDATA_LONG      = 0x42,
+        SDATA_DOUBLE    = 0x43,
+        SDATA_STRING    = 0x44,
+        SDATA_GUID      = 0x50,
+        SDATA_EXCEPTION = 0x51,
 
         // Array Data
         ADATA       = 0x60,
@@ -87,11 +90,12 @@ namespace VoTCore
         // 0xa1 - 0xbf
         SECDATA_KEY_RSA             = 0xa1, 
         SECDATA_KEY_AES             = 0x1b,
-        SECDATA_PUBLIC_CLIENT_SHARE = 0x1c,
+      //SECDATA_PUBLIC_CLIENT_SHARE = 0x1c,
 
-        // Chats
+        // ETC
         // 0xc1 - 0xdf
-        PRIVAT_CHAT = 0xc1,
+        PRIVAT_CHAT   = 0xc1,
+        PUBLIC_CLIENT = 0xc2,
 
 
         // Reserved
@@ -105,18 +109,27 @@ namespace VoTCore
 
     public enum RequestType
     {
-        IDENTITY,
-        KEY,
-        KEY_EXCHANGE,
-        REGISTRATION,
-        COMM_KEY,
-        SET_USERNAME,
-        VERIFY,
-        GET_PUBLIC_USER,
-        GET_USERID_LIST,
-        REGISTER_PRIVAT_CHAT,
-        INVITE_USER_PRIVATCHAT,
+        // Server requests
+        SERVER_GET_IDENTITY,
+        SERVER_PUBLIC_KEY_EXCHANGE,
+        // User requests
+        USER_REGISTRATION,
+        USER_VERIFY,
+        USER_SET_USERNAME,
+        // Communication Requests
+        COMMUNICATION_GET_KEY_AND_SECURE,
+        // Public User requests
+        PUBLIC_USER_GET,
+        PUBLIC_USER_GET_ID_LIST,
+        // Privat chat requests
+        PRIVAT_CHAT_REGISTER,
+        PRIVAT_CHAT_INVITE_USER,
+        // Stash requests
+        STASH_ADD,
+        STASH_GET,
+        STASH_DELETE
     }
+
     public enum DataHandling : byte
     {
         NONE,

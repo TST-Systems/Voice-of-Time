@@ -43,7 +43,7 @@ namespace VoTCore.Package.SecData
             SourceID = sourceID;
         }
 
-        public SecData_Key_RSA(PublicRSA publicKey, long sourceID) : this(publicKey.Key, sourceID) { }
+        public SecData_Key_RSA(PublicRSA publicKey, long sourceID) : this(publicKey.PublicKey, sourceID) { }
 
         public RSA GetKey()
         {

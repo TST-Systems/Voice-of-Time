@@ -1,5 +1,7 @@
 ﻿using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using VoTCore.Package.Interfaces;
 using VoTCore.Secure;
 
 /**
@@ -7,63 +9,35 @@ using VoTCore.Secure;
  * 
  * @created     - 01.02.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 15.02.2023
  */
 namespace VoTCore.User
 {
-    [Serializable]
+    [DataContract]
     [KnownType(typeof(PublicRSA))]
-    public class PublicClient : ISerializable
+    public class PublicClient : IVOTPBody
     {
-        public long       ID         { get; set; }
-        public string?    Username   { get; set; }
-        public PublicRSA? PublicKey  { get; set; }
+        [DataMember]
+        public long      UserID    { get; set; }
+        [DataMember]
+        public string    Username  { get; set; }
+        [DataMember]
+        public PublicRSA Key       { get; set; }
 
-        protected PublicClient(SerializationInfo info, StreamingContext context)
-        {
-            ID = info.GetInt64(nameof(ID));
-
-            var username = info.GetString(nameof(Username));
-            if(username is not null or "") Username = username;
-
-            PublicKey = (PublicRSA?) info.GetValue(nameof(PublicKey), typeof(PublicRSA));
-        }
+        [JsonIgnore]
+        public BodyType Type => BodyType.PUBLIC_CLIENT;
 
         [JsonConstructor]
-        protected PublicClient(long iD, string username, System.Security.Cryptography.RSA rSA)
+        public PublicClient(long userID, string username, PublicRSA key)
         {
-            ID = iD;
-            Username = username;
-        }
-
-        public PublicClient(long iD, string username, PublicRSA publicKey)
-        {
-            ID        = iD;
+            UserID    = userID;
             Username  = username;
-            PublicKey = publicKey;
+            Key = key;
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public PublicClient(long userID, string username, RSA key) : this(userID, username, new PublicRSA(key))
         {
-            info.AddValue(nameof(ID), ID);
-
-            if(Username is null)
-            {
-                info.AddValue(nameof(Username), "");
-            }
-            else
-            {
-                info.AddValue(nameof(Username), Username);
-            }
-
-            if(PublicKey is null)
-            {
-                info.AddValue(nameof(PublicKey), null);
-            }
-            else
-            {
-                info.AddValue(nameof(PublicKey), PublicKey);
-            }
         }
+
     }
 }

@@ -110,7 +110,7 @@ namespace Voice_of_Time.Cmd.Commands
                     else Console.WriteLine(Convert.ToBase64String(sKey));
 
                     client = new(userID, username, clientKey);
-                    client.UserDB.Add(0, new(0, "Server", new(serverKey)));
+                    client.UserDB.Add(0, new(0, "Server", serverKey));
 
                     ClientData.AddServerClient(client, serverID);
                 }

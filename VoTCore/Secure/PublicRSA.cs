@@ -1,57 +1,61 @@
 ﻿using System.Runtime.Serialization;
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 01.02.2023
  * 
- * @last_change - 03.02.2023
+ * @last_change - 15.02.2023
  */
 namespace VoTCore.Secure
 {
-    [Serializable]
-    public class PublicRSA : ISerializable
+    [DataContract]
+    public class PublicRSA
     {
-        private readonly RSA key;
-        public RSA Key { 
-            get 
-            { 
-                var result = RSA.Create();
-                result.ImportParameters(key.ExportParameters(false));
-                return result; 
-            } 
+        [JsonIgnore]
+        public RSA PublicKey
+        {
+            get
+            {
+                var keyParameters = new RSAParameters
+                {
+                    Modulus = modulus,
+                    Exponent = exponent
+                };
+                return RSA.Create(keyParameters);
+            }
+            set
+            {
+                var keyParameters = value.ExportParameters(false);
+                modulus  = keyParameters.Modulus  ?? throw new Exception("Key is missing a Part: Modulus");
+                exponent = keyParameters.Exponent ?? throw new Exception("Key is missing a Part: Exponent");
+            }
         }
 
-        protected PublicRSA(SerializationInfo info, StreamingContext context)
+        private byte[] modulus;
+        [DataMember]
+        public byte[] Modulus { get => modulus; init => modulus = value; }
+
+        private byte[] exponent;
+        [DataMember]
+        public byte[] Exponent { get => exponent; init => exponent = value; }
+
+        [JsonConstructor]
+        public PublicRSA(byte[] modulus, byte[] exponent)
         {
-            var keyAsXML = info.GetString(nameof(key));
-            if (keyAsXML is null or "") throw new Exception("Key not found!");
-            key = RSA.Create();
-            key.FromXmlString(keyAsXML);
+            this.modulus  = modulus;
+            this.exponent = exponent;
         }
 
         public PublicRSA(RSA key)
         {
-            var lKey = RSA.Create();
-            lKey.ImportParameters(key.ExportParameters(false));
-            this.key = lKey;
+            var keyParameters = key.ExportParameters(false);
+            modulus  = keyParameters.Modulus ?? throw new Exception("Key is missing a Part: Modulus");
+            exponent = keyParameters.Exponent ?? throw new Exception("Key is missing a Part: Exponent");
         }
 
-        public PublicRSA()
-        {
-            key = RSA.Create();
-        }
-
-        public void ChangeKey(RSA key)
-        {
-            this.key.ImportParameters(key.ExportParameters(false));
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            var keyAsXML = key.ToXmlString(false);
-            info.AddValue(nameof(key), keyAsXML);
-        }
+        public PublicRSA() : this(RSA.Create()) {}
     }
 }

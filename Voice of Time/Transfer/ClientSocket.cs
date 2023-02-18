@@ -1,17 +1,15 @@
-﻿using System.Data;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
 using System.Security.Cryptography;
 using VoTCore.Secure;
 using VoTCore.Package;
-using System.Text.Json;
 
 /**
  * @author      - Timeplex, SalzstangeManga
  * 
  * @created     - 09.01.2023
  * 
- * @last_change - 12.02.2023
+ * @last_change - 18.02.2023
  */
 namespace Voice_of_Time.Transfer
 {
@@ -122,8 +120,12 @@ namespace Voice_of_Time.Transfer
         {
             if (Client is null) return false;
             if (Stream is null) return false;
-            var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
-            Stream.Write(fin_byte, 0, fin_byte.Length);
+            try
+            {
+                var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
+                Stream.Write(fin_byte, 0, fin_byte.Length);
+            }
+            catch (Exception) { }
             Client.Close();
             Client = null;
             return true;
@@ -158,7 +160,12 @@ namespace Voice_of_Time.Transfer
                         return;
                     }
 
-                    if (bytesRead == 0) throw new Exception("Server didn't send Data!");
+                    if(isCancelled){
+                        Dispose();
+                        return;
+                    }
+
+                    if (bytesRead == 0) throw new Exception("Server did not send any Data!");
 
                     var IncomingMessageInBytes = buffer[0..bytesRead];
 
