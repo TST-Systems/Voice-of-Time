@@ -1,12 +1,10 @@
 ﻿using Microsoft.Data.Sqlite;
-using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Voice_of_Time_Server.Config;
 using Voice_of_Time_Server.Data;
 using VoTCore;
-using VoTCore.Communication.Data;
 using VoTCore.Communication.Extra;
 using VoTCore.Secure;
 using VoTCore.User;
@@ -150,7 +148,7 @@ namespace Voice_of_Time_Server.User
             using var cmd = new SqliteCommand("INSERT INTO USERS (id, username, publickey) VALUES (@id, @username, @publickey)", DB);
             cmd.Parameters.AddWithValue("@id", client.UserID);
             cmd.Parameters.AddWithValue("@username", client.Username);
-            cmd.Parameters.AddWithValue("@publickey", JsonSerializer.Serialize(client.PublicKey));
+            cmd.Parameters.AddWithValue("@publickey", JsonSerializer.Serialize(client.Key));
 
             cmd.ExecuteNonQuery();
         }

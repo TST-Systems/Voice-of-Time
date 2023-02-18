@@ -11,7 +11,7 @@ using VoTCore.User;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 15.02.2023
+ * @last_change - 17.02.2023
  */
 namespace VoTCore
 {
@@ -22,7 +22,6 @@ namespace VoTCore
             { 1, typeof(HeaderStd) },
             { 2, typeof(HeaderReq) },
             { 3, typeof(HeaderAck) },
-            { 4, typeof(HeaderStash) },
         };
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
@@ -67,13 +66,14 @@ namespace VoTCore
         // 0x21 - 0x3f
 
         // Single Data
-        SDATA        = 0x40,
+        SDATA           = 0x40,
         // 0x41 - 0x5f
-        SDATA_INT    = 0x41,
-        SDATA_LONG   = 0x42,
-        SDATA_DOUBLE = 0x43,
-        SDATA_STRING = 0x44,
-        SDATA_GUID   = 0x50,
+        SDATA_INT       = 0x41,
+        SDATA_LONG      = 0x42,
+        SDATA_DOUBLE    = 0x43,
+        SDATA_STRING    = 0x44,
+        SDATA_GUID      = 0x50,
+        SDATA_EXCEPTION = 0x51,
 
         // Array Data
         ADATA       = 0x60,
@@ -109,30 +109,32 @@ namespace VoTCore
 
     public enum RequestType
     {
-        IDENTITY,
-        KEY,
-        KEY_EXCHANGE,
-        REGISTRATION,
-        COMM_KEY,
-        SET_USERNAME,
-        VERIFY,
-        GET_PUBLIC_USER,
-        GET_USERID_LIST,
-        REGISTER_PRIVAT_CHAT,
-        INVITE_USER_PRIVATCHAT,
+        // Server requests
+        SERVER_GET_IDENTITY,
+        SERVER_PUBLIC_KEY_EXCHANGE,
+        // User requests
+        USER_REGISTRATION,
+        USER_VERIFY,
+        USER_SET_USERNAME,
+        // Communication Requests
+        COMMUNICATION_GET_KEY_AND_SECURE,
+        // Public User requests
+        PUBLIC_USER_GET,
+        PUBLIC_USER_GET_ID_LIST,
+        // Privat chat requests
+        PRIVAT_CHAT_REGISTER,
+        PRIVAT_CHAT_INVITE_USER,
+        // Stash requests
+        STASH_ADD,
+        STASH_GET,
+        STASH_DELETE
     }
+
     public enum DataHandling : byte
     {
         NONE,
         REMOVE_AFTER_GET,
         REMOVE_AFTER_GET_ACK,
         REMOVE_AFTER_GET_READ,
-    }
-
-    public enum StashMode
-    {
-        ADD,
-        GET,
-        DELETE
     }
 }

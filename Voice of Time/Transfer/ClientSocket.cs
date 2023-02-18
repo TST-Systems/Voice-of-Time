@@ -9,7 +9,7 @@ using VoTCore.Package;
  * 
  * @created     - 09.01.2023
  * 
- * @last_change - 12.02.2023
+ * @last_change - 18.02.2023
  */
 namespace Voice_of_Time.Transfer
 {
@@ -120,8 +120,12 @@ namespace Voice_of_Time.Transfer
         {
             if (Client is null) return false;
             if (Stream is null) return false;
-            var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
-            Stream.Write(fin_byte, 0, fin_byte.Length);
+            try
+            {
+                var fin_byte = Encoding.UTF8.GetBytes(Constants.FIN.ToString());
+                Stream.Write(fin_byte, 0, fin_byte.Length);
+            }
+            catch (Exception) { }
             Client.Close();
             Client = null;
             return true;

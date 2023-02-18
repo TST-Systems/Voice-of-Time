@@ -59,7 +59,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<Guid> RequestServerID(ClientSocket socket, long userID = -1)
         {
-            var header = new HeaderReq(userID, RequestType.IDENTITY);
+            var header = new HeaderReq(userID, RequestType.SERVER_GET_IDENTITY);
             var toSend = new VOTP(header);
 
             var result = await RequestPackageHandler<SData_Guid>(socket, toSend);
@@ -69,7 +69,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<RSA> KeyExchangeWithServer(ClientSocket socket, RSA key, long userID = -1)
         {
-            var header = new HeaderReq(userID, RequestType.KEY_EXCHANGE, 0);
+            var header = new HeaderReq(userID, RequestType.SERVER_PUBLIC_KEY_EXCHANGE, 0);
             var body   = new SecData_Key_RSA(key, userID);
 
             var toSend = new VOTP(header, body);
@@ -81,7 +81,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task OpenSecureCommunication(ClientSocket socket, RSA decryptionKey, long userID = -1)
         {
-            var header = new HeaderReq(userID, RequestType.COMM_KEY);
+            var header = new HeaderReq(userID, RequestType.COMMUNICATION_GET_KEY_AND_SECURE);
             var toSend = new VOTP(header);
 
             var result = await RequestPackageHandler<SecData_Key_Aes>(socket, toSend);
@@ -95,7 +95,7 @@ namespace Voice_of_Time.Shared.Functions
             
         public static async Task<long> RegisterClient(ClientSocket socket)
         {
-            var header = new HeaderReq(-1, RequestType.REGISTRATION);
+            var header = new HeaderReq(-1, RequestType.USER_REGISTRATION);
             var toSend = new VOTP(header);
 
             var result = await RequestPackageHandler<SData_Long>(socket, toSend);
@@ -105,7 +105,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public async static Task SetUsername(ClientSocket socket, string username, long userID)
         {
-            var header = new HeaderReq(userID, RequestType.SET_USERNAME);
+            var header = new HeaderReq(userID, RequestType.USER_SET_USERNAME);
             var body   = new SData_String(username);
             var toSend = new VOTP(header, body);
 
@@ -121,7 +121,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<bool> ValidateSelf(ClientSocket socket, Client client)
         {
-            var header = new HeaderReq(client.UserID, RequestType.VERIFY);
+            var header = new HeaderReq(-1, RequestType.USER_VERIFY);
             var body   = new SData_Long(client.UserID);
             var toSend = new VOTP(header, body);
 
@@ -140,7 +140,7 @@ namespace Voice_of_Time.Shared.Functions
         {
             var currentClient = ClientData.CurrentClient ?? throw new Exception("No activ connection!");
 
-            var head = new HeaderReq(ClientData.CurrentClient.UserID, RequestType.GET_USERID_LIST);
+            var head = new HeaderReq(ClientData.CurrentClient.UserID, RequestType.PUBLIC_USER_GET_ID_LIST);
             var package = new VOTP(head);
             var resPackage = await (ClientData.GetConnection(ClientData.CurrentConnection ?? throw new Exception("No activ connection")) ?? throw new Exception("No activ connection")).EnqueueItem(package);
 
@@ -154,7 +154,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<bool> TryGettingUserAsync(ClientSocket socket, Client sender, long targetID)
         {
-            var header = new HeaderReq(sender.UserID, RequestType.GET_PUBLIC_USER);
+            var header = new HeaderReq(sender.UserID, RequestType.PUBLIC_USER_GET);
             var body   = new SData_Long(targetID);
             var toSend = new VOTP(header, body);
 
@@ -167,7 +167,7 @@ namespace Voice_of_Time.Shared.Functions
         {
             if (userID <= 0) return -1;
 
-            var header  = new HeaderReq(userID, RequestType.REGISTER_PRIVAT_CHAT);
+            var header  = new HeaderReq(userID, RequestType.PRIVAT_CHAT_REGISTER);
             var package = new VOTP(header);
 
             var result = await RequestPackageHandler<SData_Long>(socket, package);
@@ -177,11 +177,11 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<bool> InviteUserToGroupAsync(ClientSocket socket, Client client, PublicClient pubClient, PrivatChat chat, DataHandling handling)
         {
-            var targetKey = (pubClient.PublicKey ?? throw new PublicKeyMissingExeption()).PublicKey;
+            var targetKey = (pubClient.Key ?? throw new PublicKeyMissingExeption()).PublicKey;
 
             // Tell the Server that target is allowed to Join the Group
             {
-                var header = new HeaderReq(client.UserID, RequestType.INVITE_USER_PRIVATCHAT);
+                var header = new HeaderReq(client.UserID, RequestType.PRIVAT_CHAT_INVITE_USER);
                 var body   = new AbsData_Invite(client.UserID, pubClient.UserID, chat.ChatID);
                 var toSend = new VOTP(header, body);
 
