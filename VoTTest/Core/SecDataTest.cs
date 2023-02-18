@@ -62,8 +62,8 @@ namespace VoTTest.Core
 
             Assert.Equal(PublicClient.Username,           deserialized.Username);
             Assert.Equal(PublicClient.UserID,             deserialized.UserID);
-            Assert.Equal(PublicClient.PublicKey.Modulus,  deserialized.PublicKey.Modulus);
-            Assert.Equal(PublicClient.PublicKey.Exponent, deserialized.PublicKey.Exponent);
+            Assert.Equal(PublicClient.Key.Modulus,  deserialized.Key.Modulus);
+            Assert.Equal(PublicClient.Key.Exponent, deserialized.Key.Exponent);
         }
 
         [Fact]

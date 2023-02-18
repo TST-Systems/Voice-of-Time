@@ -22,17 +22,17 @@ namespace VoTCore.User
         [DataMember]
         public string    Username  { get; set; }
         [DataMember]
-        public PublicRSA PublicKey { get; set; }
+        public PublicRSA Key       { get; set; }
 
         [JsonIgnore]
         public BodyType Type => BodyType.PUBLIC_CLIENT;
 
         [JsonConstructor]
-        public PublicClient(long userID, string username, PublicRSA publicKey)
+        public PublicClient(long userID, string username, PublicRSA key)
         {
             UserID    = userID;
             Username  = username;
-            PublicKey = publicKey;
+            Key = key;
         }
 
         public PublicClient(long userID, string username, RSA key) : this(userID, username, new PublicRSA(key))

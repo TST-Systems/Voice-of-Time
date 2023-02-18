@@ -11,7 +11,7 @@ using VoTCore.User;
  * 
  * @created     - 12.12.2022
  * 
- * @last_change - 15.02.2023
+ * @last_change - 17.02.2023
  */
 namespace VoTCore
 {
@@ -66,13 +66,14 @@ namespace VoTCore
         // 0x21 - 0x3f
 
         // Single Data
-        SDATA        = 0x40,
+        SDATA           = 0x40,
         // 0x41 - 0x5f
-        SDATA_INT    = 0x41,
-        SDATA_LONG   = 0x42,
-        SDATA_DOUBLE = 0x43,
-        SDATA_STRING = 0x44,
-        SDATA_GUID   = 0x50,
+        SDATA_INT       = 0x41,
+        SDATA_LONG      = 0x42,
+        SDATA_DOUBLE    = 0x43,
+        SDATA_STRING    = 0x44,
+        SDATA_GUID      = 0x50,
+        SDATA_EXCEPTION = 0x51,
 
         // Array Data
         ADATA       = 0x60,
@@ -110,11 +111,11 @@ namespace VoTCore
     {
         // Server requests
         SERVER_GET_IDENTITY,
-        SERVER_GET_AND_ADD_USER_PUBLIC_KEY,
+        SERVER_PUBLIC_KEY_EXCHANGE,
         // User requests
         USER_REGISTRATION,
-        USER_SET_USERNAME,
         USER_VERIFY,
+        USER_SET_USERNAME,
         // Communication Requests
         COMMUNICATION_GET_KEY_AND_SECURE,
         // Public User requests

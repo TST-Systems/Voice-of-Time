@@ -69,7 +69,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<RSA> KeyExchangeWithServer(ClientSocket socket, RSA key, long userID = -1)
         {
-            var header = new HeaderReq(userID, RequestType.SERVER_GET_AND_ADD_USER_PUBLIC_KEY, 0);
+            var header = new HeaderReq(userID, RequestType.SERVER_PUBLIC_KEY_EXCHANGE, 0);
             var body   = new SecData_Key_RSA(key, userID);
 
             var toSend = new VOTP(header, body);
@@ -121,7 +121,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<bool> ValidateSelf(ClientSocket socket, Client client)
         {
-            var header = new HeaderReq(client.UserID, RequestType.USER_VERIFY);
+            var header = new HeaderReq(-1, RequestType.USER_VERIFY);
             var body   = new SData_Long(client.UserID);
             var toSend = new VOTP(header, body);
 
@@ -177,7 +177,7 @@ namespace Voice_of_Time.Shared.Functions
 
         public static async Task<bool> InviteUserToGroupAsync(ClientSocket socket, Client client, PublicClient pubClient, PrivatChat chat, DataHandling handling)
         {
-            var targetKey = (pubClient.PublicKey ?? throw new PublicKeyMissingExeption()).PublicKey;
+            var targetKey = (pubClient.Key ?? throw new PublicKeyMissingExeption()).PublicKey;
 
             // Tell the Server that target is allowed to Join the Group
             {
