@@ -22,6 +22,7 @@
     max-width: 90%;
     max-height: 90%;
     border-radius: 50%;
+    background-color: white;
   }
   
   #ServerList img:hover {
@@ -34,8 +35,67 @@
     display: none;
     width: 150px;
     height: auto;
-    margin-top: 50vh;
-    margin-left: 50vh;
     color: black;
-    background-color: white;
+  }
+  #ContextMenuServer p {
+    font-size: 75%;
+    border-style:ridge;
+    margin-top: 0%;
+    margin-bottom: 0%;
+    background-color: rgb(0, 0, 0);
+    color: white;
+  }
+
+  #ServerSettings {
+    position: absolute;
+    display:none;
+    width: 500px;
+    height: 300px;
+    margin-top: calc(50vh - 150px);
+    margin-left: calc(50% - 250px);
+    margin-bottom: 0%;
+    border-radius: 25px;
+    background-color: rgb(70, 70, 70);
+    border-style: solid;
+    border-width: 3px;
+    border-color: black;
+    color: white;
+  }
+
+  #ServerSettings p {
+    width: calc(100% - 10%);
+    display: block;
+    float: left;
+    margin-left: 4%;
+    margin-top: 5%;
+    margin-bottom: 0%;
+  }
+
+  #ServerSettings label {
+    display: block;
+    float: left;
+  }
+
+  #ServerSettings input {
+    display: block;
+    float: right;
+    width: 40%;
+    font-size: large;
+    margin-top: -1%;
+  }
+
+  #ServerSettings button {
+    display: block;
+    float: right;
+    font-size: 130%;
+    margin-left: 1%;
+  }
+
+  #ServerSettingsHeadline {
+    display: block;
+    float: left;
+    font-size: 130%;
+    margin-top: 0%;
+    margin-left: 0%;
+    margin-bottom: 0%;
   }

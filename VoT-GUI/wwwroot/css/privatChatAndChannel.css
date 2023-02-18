@@ -17,10 +17,6 @@
     box-sizing: border-box;
     color:white;
     overflow-y: auto;
-    border-bottom-style: solid;
-    border-bottom-color: rgba(0, 0, 0, 0.300);
-    border-right-style: solid;
-    border-right-color: rgba(0, 0, 0, 0.300);
   }
   
 /* Channel */
@@ -52,9 +48,11 @@
 
   /* format Chats */ 
   .privatAndChannelChats div {
+    float: left;
     display: block;
     margin-left: 10%;
     margin-top: 5%;
+    width: calc(100% - 10%);
   }
   
   .privatAndChannelChats div:hover {
@@ -62,24 +60,30 @@
   }
   
   .privatAndChannelChats div img{
+    display: block;
+    float: left;
     max-width: 20%;
     max-height: 20%;
     border-radius: 50%;
   }
   
-  .privatAndChannelChats div p {
-    display: inline;
+  .profName {
+    display: block;
+    float: left;
     margin-left: 5%;
+    margin-top: 5%;
+    width: min-content;
   }
   
-  .privatAndChannelChats div p p {
+  .numberOfMembers {
     font-size: 55%;
-    display: inline;
+    display: block;
     float:right;
-    margin-left: 0%;
-    margin-top: 13%;
-    margin-bottom: 0%;
-    margin-right: 5%;
+    margin-top: 20%;
+    margin-right: 2%;
+    margin-bottom: 1%;
+    height:min-content;
+    width: auto;
   }
 
   

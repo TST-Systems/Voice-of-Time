@@ -2,47 +2,46 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
-window.onload = function(){
-    createServerItem("Hallo there", "sources/Pictures/VoT_logo.jpg");
-    createServerItem("Zweiter Server");
-    createServerItem("Hallo there", "sources/Pictures/VoT_logo.jpg");
-    createServerItem("Zweiter Server");
-    createServerItem("Hallo there", "sources/Pictures/VoT_logo.jpg");
-    createServerItem("Zweiter Server");
-    createServerItem("Hallo there", "sources/Pictures/VoT_logo.jpg");
-    createServerItem("Zweiter Server");
-    createServerItem("Hallo there", "sources/Pictures/VoT_logo.jpg");
-    createServerItem("Zweiter Server");
-    createServerItem("Zweiter Server");
-    
+createServerAddButton();
 
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name");
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name");
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name");
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name");
-    createPrivateChatOrGroup("Name",undefined, 3);
-    createPrivateChatOrGroup("Name");
-    
 
-    createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
-    createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
-    createChannel("Name123", undefined, 5);
-    createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
-    createChannel("Name123");
-    createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
 
-    receiveMessage("Hallo du da hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-    receiveMessage("Hallo du da", "User 1", "./sources/Pictures/VoT_logo.jpg", "02.01.2023");
-    dispatchedMessage("Hab du", "You");
-    dispatchedMessage("nichts zu tun?");
-    
-    //Scrollbar on Bottom
-        var objDiv = document.getElementById("TextChat");
-        objDiv.scrollTop = objDiv.scrollHeight;
-};
+createServerItem(12205,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(25682,"Zweiter Server");
+createServerItem(5526984,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(2574589,"Zweiter Server");
+createServerItem(2599745,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(2569877,"Zweiter Server");
+createServerItem(5874136,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(698741,"Zweiter Server");
+createServerItem(7789634,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(5587466,"Zweiter Server");
+createServerItem(5569877,"Zweiter Server");
+
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name");
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name");
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name");
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name");
+createPrivateChatOrGroup("Name",undefined, 3);
+createPrivateChatOrGroup("Name");
+
+createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+createChannel("Name123", undefined, 5);
+createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+createChannel("Name123");
+createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+receiveMessage("Hallo du da hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+receiveMessage("Hallo du da", "User 1", "./sources/Pictures/VoT_logo.jpg", "02.01.2023");
+dispatchedMessage("Hab du", "You");
+dispatchedMessage("nichts zu tun?");
+
+//Scrollbar on Bottom
+    var objDiv = document.getElementById("TextChat");
+    objDiv.scrollTop = objDiv.scrollHeight;

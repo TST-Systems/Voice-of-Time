@@ -5,10 +5,8 @@
 }
 
     <header>
-        <nav class="">
-                <img src="sources/Pictures/VoT_logo.jpg">
-                <p>Voice of Time</p>
-        </nav>
+         <img src="sources/Pictures/VoT_logo.jpg">
+         <p>Voice of Time</p>
     </header>
 
 
@@ -39,12 +37,33 @@
         </button>
     </div>
 
+    
     <div id="ContextMenuServer">
-        <p>Change Settings</p>
-        <p>Delete Server</p>
+        <p id="ChangeSettings">Change Settings</p>
+        <p id="DeleteServer">Delete Server</p>
+        <p id="ConnectToServer">Connect to new Server</p>
     </div>
 
     <div id="ServerSettings">
+        <p id="ServerSettingsHeadline">Add new Server</p>
+        <p>
+            <label for="name">Server name (4 to 10 characters):</label>
+            <input type="text" id="ServerName" name="name" required minlength="4" maxlength="10" size="15">
+        </p>
+        <p>
+            <label for="IP">IP-adress Server:</label>
+            <input type="text" id="ServerIP" name="IP" required minlength="7" maxlength="15" size="15">
+        </p>
+        <p>
+            <label for="password">Server password:</label>
+            <input type="text" id="ServerPassword" name="password" required minlength="8" maxlength="16" size="15">
+        </p>
+        <p>
+            <button onclick="document.getElementById('ServerSettings').style.display = 'none'">Close</button>
+            <button id="ButtonAddServer">Add</button>
+            <button>Test</button>
+        </p>
     </div>
+
 
 </div>

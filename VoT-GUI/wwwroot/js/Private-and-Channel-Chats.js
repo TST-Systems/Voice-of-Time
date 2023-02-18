@@ -8,14 +8,16 @@ function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pict
 
     profName.innerHTML = profileName;
 
-    if (numberGroupMember != 0){
-        let member = document.createElement("p");
-        member.innerHTML = numberGroupMember + " members";
-        profName.appendChild(member);
-    }
-
     chatElement.appendChild(profPicture);
     chatElement.appendChild(profName);
+    profName.className = "profName";
+
+    if (numberGroupMember != 0){
+        const member = document.createElement("p");
+        member.innerHTML = numberGroupMember + " members";
+        chatElement.appendChild(member);
+        member.className = "numberOfMembers";
+    }
 
     const privatChat = document.getElementById("ChatList");
 
@@ -32,13 +34,14 @@ function createChannel (profileName, profilePicture = "./sources/Pictures/blank-
 
     profName.innerHTML = profileName;
 
-    let member = document.createElement("p");
-    member.innerHTML = numberGroupMember + " members";
-    profName.appendChild(member);
-    
-
     chatElement.appendChild(profPicture);
     chatElement.appendChild(profName);
+    profName.className = "profName";
+
+    const member = document.createElement("p");
+    member.innerHTML = numberGroupMember + " members";
+    chatElement.appendChild(member);
+    member.className = "numberOfMembers";
 
     const privatChat = document.getElementById("ChannelList");
 

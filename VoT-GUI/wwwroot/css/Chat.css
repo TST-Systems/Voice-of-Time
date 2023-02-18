@@ -96,6 +96,14 @@
       margin-right: 0vh;
       word-wrap: break-word;
       color: rgba(255, 255, 255, 0.700);
+      
+      /* copy mesagge Date */ 
+      -webkit-user-select: text;
+      -khtml-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      -o-user-select: text;
+      user-select: text;
     }
 
     .sendMessageTime {
@@ -161,6 +169,14 @@
       margin-right: 0vh;
       word-wrap: break-word;
       color: rgba(255, 255, 255, 0.700);
+
+      /* copy mesagge Date */ 
+      -webkit-user-select: text;
+      -khtml-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      -o-user-select: text;
+      user-select: text;
     }
 
     .receiveMessageTime {
