@@ -123,8 +123,6 @@ namespace Voice_of_Time_Server.User
 
             return chatID;
         }
-
-
         #region DBCommands
         internal bool IDIsFree (long id)
         {
@@ -318,6 +316,15 @@ namespace Voice_of_Time_Server.User
             cmd.Parameters.AddWithValue("@state",   (int)state);
             cmd.ExecuteNonQuery();
         }
+
+        internal void UpdateChatMemberState(long chatID, long targetID, ChatUserState state)
+        {
+            using var cmd = new SqliteCommand("UPDATE CHAT_MEMBERS SET state = @state WHERE chat_id = @chat_id AND user_id = @user_id", DB);
+            cmd.Parameters.AddWithValue("@user_id", targetID);
+            cmd.Parameters.AddWithValue("@chat_id", chatID);
+            cmd.Parameters.AddWithValue("@state",   (int)state);
+            cmd.ExecuteNonQuery();
+        }
         #endregion
 
 
@@ -464,5 +471,6 @@ namespace Voice_of_Time_Server.User
 
             ServerKey.Dispose();
         }
+
     }
 }

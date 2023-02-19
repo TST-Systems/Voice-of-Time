@@ -53,13 +53,13 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             var message = ServerData.server.StashMessageGet(targetStashID, receiptBody.ReceiptID);
 
-            if (message is null || !message.HasValue)
+            if (message is null)
             {
                 return (new HeaderAck(false), new SData_Exception($"No message under ReceiptID:{receiptBody.ReceiptID}!"));
             }
 
 
-            if(message.Value.AuthorID != socket.UserID)
+            if(message.AuthorID != socket.UserID)
             {
                 if (!chatUserState.HasFlag(ChatUserState.MODERATOR) && !chatUserState.HasFlag(ChatUserState.ADMIN))
                 {

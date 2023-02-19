@@ -7,15 +7,15 @@
  */
 namespace VoTCore.Data
 {
-    public readonly struct StashMessage
+    public class StashMessage
     {
-        public readonly long         ReceiptID;
-        public readonly DataHandling MessageHandling;
-        public readonly long         AuthorID;
-        public readonly long         TargetID;
-        public readonly DateTime     Created;
-        public readonly DateTime     Expires;
-        public readonly string       Message;
+        public long         ReceiptID       { get; }
+        public DataHandling MessageHandling { get; }
+        public long         AuthorID        { get; }
+        public long         TargetID        { get; }
+        public DateTime     Created         { get; }
+        public DateTime     Expires         { get; }
+        public string Message               { get; }
 
         public StashMessage(long receiptID, DataHandling messageHandling, long authorID, long targetID, DateTime created, DateTime expires, string message)
         {

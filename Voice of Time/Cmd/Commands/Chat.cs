@@ -26,8 +26,9 @@ namespace Voice_of_Time.Cmd.Commands
             get => new string[]{
             "Usage: chat <argument>\n\n" +
             "List of Arugements:\n\n" +
-            "list     - Show a list of all available chats\n" +
-            "", };
+            "list      - Show a list of all available chats\n" +
+            "new       - Create a new Chat with 1-X members\n" +
+            "read [id] - Display all Messanges of a Chat", };
         }
 
         public async Task<bool> ExecuteCommand(string command, string[] args)
@@ -39,15 +40,18 @@ namespace Voice_of_Time.Cmd.Commands
             }
             if (args.Length == 0) return false;
 
-            switch (args[0])
+            return args[0] switch
             {
-                case "list":
-                    return ListChats();
-                case "new":
-                    return await CreateChatAsync();
-            }
+                "list" => ListChats(),
+                "new"  => await CreateChatAsync(),
+                "read" => ReadMessanges(args),
+                _ => false,
+            };
+        }
 
-            return false;
+        private bool ReadMessanges(string[] args)
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual bool ListChats()

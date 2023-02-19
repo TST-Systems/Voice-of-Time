@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
+using VoTCore.Secure;
 using VoTCore.Secure.Iterfaces;
 
 /**
@@ -34,7 +35,8 @@ namespace VoTCore.Communication
         /// <summary>
         /// Communication Key for messages
         /// </summary>
-        public byte[] GroupKey { get; }
+        public byte[] GroupKey { get; set; } //TODO
+        public byte[] GroupIV  { get; set; } //TODO: private schreibschutz von außen
 
         [JsonIgnore]
         public BodyType Type => BodyType.PRIVAT_CHAT;
@@ -43,12 +45,13 @@ namespace VoTCore.Communication
         public long CryptedReciver { get { if (cryptedReciver is null) return -1; return (long)cryptedReciver; } }
 
         [JsonConstructor]
-        public PrivatChat(List<long> participants, long chatID, string title, long cryptedReciver, byte[] groupkey) 
+        public PrivatChat(List<long> participants, long chatID, string title, long cryptedReciver, byte[] groupKey, byte[] groupIV) 
         {
             this.participants   = participants;
             ChatID              = chatID;
             Title               = title;
-            GroupKey            = groupkey;
+            GroupKey            = groupKey;
+            GroupIV             = groupIV;
             this.cryptedReciver = cryptedReciver;
         }
 
@@ -63,10 +66,13 @@ namespace VoTCore.Communication
             Title  = info.GetString(nameof(Title)) ?? throw new Exception("Title coudn't be loaded!");
 
             var KeyUTF8 = info.GetString(nameof(GroupKey)) ?? throw new Exception("Key coudn't be loaded!");
+            var IVUTF8  = info.GetString(nameof(GroupIV)) ?? throw new Exception("Key coudn't be loaded!");
 
             var Key     = Convert.FromBase64String(KeyUTF8);
+            var IV      = Convert.FromBase64String(IVUTF8);
 
             GroupKey = Key;
+            GroupIV  = IV;
         }
         /// <summary>
         /// 
@@ -74,12 +80,14 @@ namespace VoTCore.Communication
         /// <param name="participants"></param>
         /// <param name="chatID"></param>
         /// <param name="title"></param>
-        public PrivatChat(long chatID, string title, List<long>? participants = null, byte[]? groupkey = null)
+        public PrivatChat(long chatID, string title, List<long>? participants = null, byte[]? groupkey = null, byte[]? groupIV = null)
         {
             this.participants = participants ?? new();
             ChatID            = chatID;
             Title             = title;
-            GroupKey          = groupkey ?? Aes.Create().Key;
+            var aes = Aes.Create();
+            GroupKey          = groupkey ?? aes.Key;
+            GroupIV           = groupIV  ?? aes.IV;
         }
 
         public bool AddUser(long userID)
@@ -107,20 +115,34 @@ namespace VoTCore.Communication
             info.AddValue(nameof(Title), Title);
 
             var Key = Convert.ToBase64String(GroupKey);
+            var IV  = Convert.ToBase64String(GroupIV);
 
             info.AddValue(nameof(GroupKey), Key);
+            info.AddValue(nameof(GroupIV),  IV);
 
             base.GetObjectData(info, context);
         }
 
         public void EncryptData(RSA key, long revicerID)
         {
-            throw new NotImplementedException();
+            if(cryptedReciver is not null)
+            {
+                return;
+            }
+            GroupKey = key.Encrypt(GroupKey, RSAEncryptionPadding.Pkcs1);
+            GroupIV  = key.Encrypt(GroupIV,  RSAEncryptionPadding.Pkcs1);
+            cryptedReciver = revicerID;
         }
 
         public void DecryptData(RSA key)
         {
-            throw new NotImplementedException();
+            if (cryptedReciver is null)
+            {
+                return;
+            }
+            GroupKey = key.Decrypt(GroupKey, RSAEncryptionPadding.Pkcs1);
+            GroupIV  = key.Decrypt(GroupIV, RSAEncryptionPadding.Pkcs1);
+            cryptedReciver = null;
         }
     }
 }

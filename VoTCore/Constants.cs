@@ -27,21 +27,29 @@ namespace VoTCore
 
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
-            { BodyType.MESSAGE_TEXT,    typeof(TextMessage)     },
-            { BodyType.MESSAGE_FILE,    typeof(FileMessage)     },
-            { BodyType.STASHDATA,       typeof(StashData)       },
-            { BodyType.STASHDATA_ADD,   typeof(StashData_Add)   },
-            { BodyType.SDATA_INT,       typeof(SData_Int)       },
-            { BodyType.SDATA_LONG,      typeof(SData_Long)      },
-            { BodyType.SDATA_GUID,      typeof(SData_Guid)      },
-            { BodyType.SDATA_STRING,    typeof(SData_String)    },
-            { BodyType.ADATA_LONG,      typeof(AData_Long)      },
-            { BodyType.ABSDATA_INVITE,  typeof(AbsData_Invite)  },
-            { BodyType.ABSDATA_RECEIPT, typeof(AbsData_Receipt) },
-            { BodyType.SECDATA_KEY_RSA, typeof(SecData_Key_RSA) },
-            { BodyType.SECDATA_KEY_AES, typeof(SecData_Key_Aes) },
-            { BodyType.PUBLIC_CLIENT,   typeof(PublicClient)    },
-            { BodyType.PRIVAT_CHAT,     typeof(PrivatChat)      },
+            { BodyType.MESSAGE_TEXT,            typeof(TextMessage)             },
+            { BodyType.MESSAGE_FILE,            typeof(FileMessage)             },
+
+            { BodyType.STASHDATA,               typeof(StashData)               },
+            { BodyType.STASHDATA_ADD,           typeof(StashData_Add)           },
+
+            { BodyType.SDATA_INT,               typeof(SData_Int)               },
+            { BodyType.SDATA_LONG,              typeof(SData_Long)              },
+            { BodyType.SDATA_GUID,              typeof(SData_Guid)              },
+            { BodyType.SDATA_STRING,            typeof(SData_String)            },
+            { BodyType.SDATA_EXCEPTION,         typeof(SData_Exception)         },
+
+            { BodyType.ADATA_LONG,              typeof(AData_Long)              },
+
+            { BodyType.ABSDATA_INVITE,          typeof(AbsData_Invite)          },
+            { BodyType.ABSDATA_INVITE_ACCEPT,   typeof(AbsData_InviteAccept)    },
+            { BodyType.ABSDATA_RECEIPT,         typeof(AbsData_Receipt)         },
+
+            { BodyType.SECDATA_KEY_RSA,         typeof(SecData_Key_RSA)         },
+            { BodyType.SECDATA_KEY_AES,         typeof(SecData_Key_Aes)         },
+
+            { BodyType.PUBLIC_CLIENT,           typeof(PublicClient)            },
+            { BodyType.PRIVAT_CHAT,             typeof(PrivatChat)              },
         };
 
         // Transmission buffer size
@@ -87,16 +95,17 @@ namespace VoTCore
         ADATA_LONG  = 0x62,
 
         // Abstract Data
-        ABSDATA        = 0x80,
+        ABSDATA               = 0x80,
         // 0x81 - 0x9f
-        ABSDATA_INVITE  = 0x81,
-        ABSDATA_RECEIPT = 0x82,
+        ABSDATA_INVITE        = 0x81,
+        ABSDATA_RECEIPT       = 0x82,
+        ABSDATA_INVITE_ACCEPT = 0x83,
 
         // Secure Data
-        SECDATA                     = 0xa0,
+        SECDATA         = 0xa0,
         // 0xa1 - 0xbf
-        SECDATA_KEY_RSA             = 0xa1, 
-        SECDATA_KEY_AES             = 0x1b,
+        SECDATA_KEY_RSA = 0xa1, 
+        SECDATA_KEY_AES = 0x1b,
       //SECDATA_PUBLIC_CLIENT_SHARE = 0x1c,
 
         // ETC
@@ -131,6 +140,7 @@ namespace VoTCore
         // Privat chat requests
         PRIVAT_CHAT_REGISTER,
         PRIVAT_CHAT_INVITE_USER,
+        PRIVAT_CHAT_INVITE_ACCEPT,
         // Stash requests
         STASH_ADD,
         STASH_GET, 
@@ -144,5 +154,12 @@ namespace VoTCore
         REMOVE_AFTER_GET,
         REMOVE_AFTER_GET_ACK,
         REMOVE_AFTER_GET_READ,
+    }
+
+    public enum ReceiptStatus : byte
+    {
+        TO_REQUEST,
+        REC_AND_ACC,
+        SEND,
     }
 }

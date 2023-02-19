@@ -11,13 +11,16 @@ using VoTCore.Exeptions;
 using VoTCore.User;
 using VoTCore.Communication;
 using VoTCore.Package.AbsData;
+using VoTCore.Package.StashData;
+using VoTCore.Data;
+using Voice_of_Time.Cmd.Commands;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 10.02.2023
  * 
- * @last_change - 18.02.2023
+ * @last_change - 20.02.2023
  */
 namespace Voice_of_Time.Shared.Functions
 {
@@ -178,6 +181,12 @@ namespace Voice_of_Time.Shared.Functions
         {
             var targetKey = (pubClient.Key ?? throw new PublicKeyMissingExeption()).PublicKey;
 
+
+            if (chat.CryptedReciver >= 0 && chat.CryptedReciver != pubClient.UserID)
+            {
+                return false;
+            }
+
             // Tell the Server that target is allowed to Join the Group
             {
                 var header = new HeaderReq(client.UserID, RequestType.PRIVAT_CHAT_INVITE_USER);
@@ -186,23 +195,61 @@ namespace Voice_of_Time.Shared.Functions
 
                 await RequestPackageHandler(socket, toSend);
             }
-            /*
             // Send the target the inventation
             {
-                var header = new HeaderStash(client.UserID, pubClient.UserID, DateTime.Now.AddDays(30), handling);
+                var header  = new HeaderStd(client.UserID, pubClient.UserID, 0);
                 var body = chat;
-                if (body.CryptedReciver >= 0 && body.CryptedReciver != pubClient.UserID)
-                {
-                    return false;
-                }
                 if (body.CryptedReciver != pubClient.UserID) body.EncryptData(targetKey, pubClient.UserID);
+                var toStash = new VOTP(header, body);
 
-                var toSend = new VOTP(header, body);
+                var pheader = new HeaderReq(client.UserID, RequestType.STASH_ADD);
+                var pbody   = new StashData_Add(toStash.Serialize(), pubClient.UserID, DateTime.Now.AddDays(30)); 
+                var toSend  = new VOTP(pheader, pbody);
 
-                await RequestPackageHandler<SData_Long>(socket, toSend);
+
+                var receipt = await RequestPackageHandler<AbsData_Receipt>(socket, toSend);
             }
-            */
             return true;
+        }
+
+        internal static async Task AcceptInvite(ClientSocket socket, Client client, long chatID)
+        {
+            var header = new HeaderReq(client.UserID, RequestType.PRIVAT_CHAT_INVITE_ACCEPT);
+            var body   = new AbsData_InviteAccept(chatID);
+            var toSend = new VOTP(header, body);
+
+            await RequestPackageHandler(socket, toSend);
+        }
+
+        internal static async Task<List<long>> GetStashReceiptIDList(ClientSocket socket, Client client, long stashID)
+        {
+            var header = new HeaderReq(client.UserID, RequestType.STASH_LIST);
+            var body   = new SData_Long(stashID);
+            var toSend = new VOTP(header, body);
+
+            var result = await RequestPackageHandler<AData_Long>(socket, toSend);
+
+            return new(result.Data);
+        }
+
+        internal static async Task<StashMessage> GetStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
+        {
+            var header = new HeaderReq(client.UserID, RequestType.STASH_GET);
+            var body   = new AbsData_Receipt(stashID, requestID);
+            var toSend = new VOTP(header, body);
+
+            var result = await RequestPackageHandler<StashData>(socket, toSend);
+
+            return result.Data;
+        }
+
+        internal static async Task RemoveStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
+        {
+            var header = new HeaderReq(client.UserID, RequestType.STASH_DELETE);
+            var body   = new AbsData_Receipt(stashID, requestID);
+            var toSend = new VOTP(header, body);
+
+            await RequestPackageHandler(socket, toSend);
         }
     }
 }

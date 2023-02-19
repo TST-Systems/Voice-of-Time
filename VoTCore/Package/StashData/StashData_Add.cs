@@ -24,8 +24,8 @@ namespace VoTCore.Package.StashData
         public override BodyType Type => BodyType.STASHDATA_ADD;
 
         [JsonConstructor]
-        public StashData_Add(StashMessage message) : 
-            base(new(-1, message.MessageHandling, -1, message.TargetID, DateTime.MinValue, message.Expires, message.Message))
+        public StashData_Add(StashMessage data) : 
+            base(new(-1, data.MessageHandling, -1, data.TargetID, DateTime.MinValue, data.Expires, data.Message))
         {
         }
 
