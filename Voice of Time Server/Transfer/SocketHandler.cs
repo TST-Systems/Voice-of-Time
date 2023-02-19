@@ -4,11 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Voice_of_Time_Server.Shared;
 using VoTCore;
-using VoTCore.Communication.Extra;
 using VoTCore.Package;
-using VoTCore.Package.AbsData;
 using VoTCore.Package.Header;
-using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
 using VoTCore.Secure;
 
@@ -142,8 +139,11 @@ namespace Voice_of_Time_Server.Transfer
                     socket.Close();
                 }
                 return;
-            });
-            Reader.Name = Address + ":Reader";
+            })
+            {
+                Name = Address + ":Reader"
+            };
+
             Reader.Start();
         }
 

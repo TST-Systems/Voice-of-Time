@@ -34,6 +34,10 @@ namespace Voice_of_Time_Server.Shared
             RegisterExecuter(new PublicUserGetIDList(),          RequestType.PUBLIC_USER_GET_ID_LIST);
             RegisterExecuter(new PrivatChatRegister(),           RequestType.PRIVAT_CHAT_REGISTER);
             RegisterExecuter(new PrivatChatInviteUser(),         RequestType.PRIVAT_CHAT_INVITE_USER);
+            RegisterExecuter(new StashAdd(),                     RequestType.STASH_ADD);
+            RegisterExecuter(new StashGet(),                     RequestType.STASH_GET);
+            RegisterExecuter(new StashList(),                    RequestType.STASH_LIST);
+            RegisterExecuter(new StashDelete(),                  RequestType.STASH_DELETE);
         }
 
         public static bool RegisterExecuter(IServerRequestExecuter executer, RequestType key)

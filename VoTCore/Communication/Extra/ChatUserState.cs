@@ -7,6 +7,7 @@
  */
 namespace VoTCore.Communication.Extra
 {
+    [Flags]
     public enum ChatUserState : byte
     {
         ADMIN     = 0b_0100_0000,

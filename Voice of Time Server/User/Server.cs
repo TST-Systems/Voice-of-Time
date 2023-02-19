@@ -3,9 +3,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Voice_of_Time_Server.Config;
-using Voice_of_Time_Server.Data;
 using VoTCore;
 using VoTCore.Communication.Extra;
+using VoTCore.Data;
 using VoTCore.Secure;
 using VoTCore.User;
 
@@ -14,7 +14,7 @@ using VoTCore.User;
  * 
  * @created     - 24.12.2022
  * 
- * @last_change - 16.02.2023
+ * @last_change - 18.02.2023
  */
 namespace Voice_of_Time_Server.User
 {
@@ -400,6 +400,17 @@ namespace Voice_of_Time_Server.User
             if (File.Exists(filePath)) 
             {
                 message = File.ReadAllText(filePath);
+            }
+
+            if (expires <= DateTime.Now)
+            {
+                StashMessageRemove(targetID, receiptID);
+                return null;
+            }
+
+            if(messageHandling == DataHandling.REMOVE_AFTER_GET)
+            {
+                // TODO: Check if User / Chat and remove if user
             }
 
             return new(receipt, messageHandling, authorID, targetID, created, expires, message); ;

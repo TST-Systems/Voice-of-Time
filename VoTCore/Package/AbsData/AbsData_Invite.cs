@@ -19,7 +19,7 @@ namespace VoTCore.Package.AbsData
         [JsonIgnore]
         public long ChatID   { get => Data[2]; set => Data[2] = value; }
         [JsonIgnore]
-        public override BodyType Type => BodyType.AbsDATA_INVITE;
+        public override BodyType Type => BodyType.ABSDATA_INVITE;
 
         public AbsData_Invite(long sourceID, long targetID, long chatID) : base(new long[3])
         {

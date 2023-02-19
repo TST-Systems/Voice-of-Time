@@ -17,7 +17,7 @@ using VoTCore.Package.AbsData;
  * 
  * @created     - 10.02.2023
  * 
- * @last_change - 12.02.2023
+ * @last_change - 18.02.2023
  */
 namespace Voice_of_Time.Shared.Functions
 {
@@ -32,11 +32,10 @@ namespace Voice_of_Time.Shared.Functions
             if (resultPackage.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
             if (resHeader.Successful is false)
             {
-                string additionalInfo = "";
+                if (resultPackage.Body is SData_Exception exception && exception.Data is not null) 
+                    throw exception.Data;
 
-                if (resultPackage.Body is SData_String messageWrapper) additionalInfo += "\n" + messageWrapper.Data;
-
-                throw new Exception("Server coudn't Process the Request!" + additionalInfo);
+                throw new Exception("Server coudn't Process the Request!");
             }
 
             // Check if Data is ok

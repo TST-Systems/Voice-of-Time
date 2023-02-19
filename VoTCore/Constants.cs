@@ -5,6 +5,7 @@ using VoTCore.Package.AData;
 using VoTCore.Package.Header;
 using VoTCore.Package.SData;
 using VoTCore.Package.SecData;
+using VoTCore.Package.StashData;
 using VoTCore.User;
 /**
  * @author      - Timeplex, SalzstangeManga
@@ -28,12 +29,15 @@ namespace VoTCore
         {
             { BodyType.MESSAGE_TEXT,    typeof(TextMessage)     },
             { BodyType.MESSAGE_FILE,    typeof(FileMessage)     },
+            { BodyType.STASHDATA,       typeof(StashData)       },
+            { BodyType.STASHDATA_ADD,   typeof(StashData_Add)   },
             { BodyType.SDATA_INT,       typeof(SData_Int)       },
             { BodyType.SDATA_LONG,      typeof(SData_Long)      },
             { BodyType.SDATA_GUID,      typeof(SData_Guid)      },
             { BodyType.SDATA_STRING,    typeof(SData_String)    },
             { BodyType.ADATA_LONG,      typeof(AData_Long)      },
-            { BodyType.AbsDATA_INVITE,  typeof(AbsData_Invite)  },
+            { BodyType.ABSDATA_INVITE,  typeof(AbsData_Invite)  },
+            { BodyType.ABSDATA_RECEIPT, typeof(AbsData_Receipt) },
             { BodyType.SECDATA_KEY_RSA, typeof(SecData_Key_RSA) },
             { BodyType.SECDATA_KEY_AES, typeof(SecData_Key_Aes) },
             { BodyType.PUBLIC_CLIENT,   typeof(PublicClient)    },
@@ -62,8 +66,10 @@ namespace VoTCore
         MESSAGE_TEXT = 0x01,
         MESSAGE_FILE = 0x02,
 
-        // Reserved
+        // Stash Data
+        STASHDATA     = 0x20,
         // 0x21 - 0x3f
+        STASHDATA_ADD = 0x21,
 
         // Single Data
         SDATA           = 0x40,
@@ -81,9 +87,10 @@ namespace VoTCore
         ADATA_LONG  = 0x62,
 
         // Abstract Data
-        AbsDATA        = 0x80,
+        ABSDATA        = 0x80,
         // 0x81 - 0x9f
-        AbsDATA_INVITE = 0x81,
+        ABSDATA_INVITE  = 0x81,
+        ABSDATA_RECEIPT = 0x82,
 
         // Secure Data
         SECDATA                     = 0xa0,
@@ -126,7 +133,8 @@ namespace VoTCore
         PRIVAT_CHAT_INVITE_USER,
         // Stash requests
         STASH_ADD,
-        STASH_GET,
+        STASH_GET, 
+        STASH_LIST,
         STASH_DELETE
     }
 
