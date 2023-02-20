@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
@@ -22,12 +23,12 @@ namespace Voice_of_Time_Server.RequestExecuter
         {
             if (body is not SData_Long longBody)
             {
-                return (new HeaderAck(false), new SData_Exception($"Wrong Body! Need to be a {nameof(SData_Long)}"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_BODY_TYPE, $"Wrong Body! Need to be a {nameof(SData_Long)}"));
             }
 
             if (!ServerData.server.UserExists(longBody.Data))
             {
-                return (new HeaderAck(false), new SData_Exception($"User with the ID: {longBody.Data} is unknown!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.USER_DOES_NOT_EXISTS, $"User with the ID: {longBody.Data} is unknown!"));
             }
 
             return (new HeaderAck(true), ServerData.server.GetUser(longBody.Data));

@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
@@ -20,9 +21,9 @@ namespace Voice_of_Time_Server.RequestExecuter
 
         (IVOTPHeader, IVOTPBody?)? IServerRequestExecuter.ExecuteRequest(HeaderReq header, IVOTPBody? body, SocketHandler socket)
         {
-            if (body is not SData_String strBody || strBody.Data is null)
+            if (body is not SData_String strBody || strBody.Data is null) // TODO: Split up
             {
-                return (new HeaderAck(false), new SData_Exception("No new username!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_BODY_TYPE, "No new username!"));
             }
 
             ServerData.server.ChangeUserUsername(socket.UserID, strBody.Data);

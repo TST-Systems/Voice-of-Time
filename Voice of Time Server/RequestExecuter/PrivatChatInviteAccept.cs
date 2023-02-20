@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Communication.Extra;
 using VoTCore.Package.AbsData;
 using VoTCore.Package.Header;
@@ -29,19 +30,19 @@ namespace Voice_of_Time_Server.RequestExecuter
         {
             if (body is not AbsData_InviteAccept invAccBody)
             {
-                return (new HeaderAck(false), new SData_Exception($"Body need to be {nameof(AbsData_InviteAccept)}"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_BODY_TYPE, $"Body need to be {nameof(AbsData_InviteAccept)}"));
             }
 
             if (!ServerData.server.ChatExists(invAccBody.Data))
             {
-                return (new HeaderAck(false), new SData_Exception($"Chat unknown: {invAccBody.Data}"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_DOES_NOT_EXISTS, message: $"Chat unknown: {invAccBody.Data}"));
             }
 
             var userChatSate = ServerData.server.GetChatMember(invAccBody.Data, socket.UserID);
 
             if (!userChatSate.HasFlag(ChatUserState.INVITED) || userChatSate.HasFlag(ChatUserState.BLOCKED))
             {
-                return (new HeaderAck(false), new SData_Exception($"You are not invited to: {invAccBody.Data}"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NOT_INVITED, message: $"You are not invited to: {invAccBody.Data}"));
             }
 
             userChatSate |=  ChatUserState.MEMBER;

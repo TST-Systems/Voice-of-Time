@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Voice_of_Time.Shared;
+﻿using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using Voice_of_Time.Transfer;
 using VoTCore.Communication;
@@ -12,7 +6,6 @@ using VoTCore.Controll;
 using VoTCore.Data;
 using VoTCore.Package;
 using VoTCore.Package.Header;
-using VoTCore.User;
 
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -115,6 +108,10 @@ namespace Voice_of_Time.Cmd.Commands
                 }
                 throw new Exception("Unknown Header!");
             }
+
+
+
+
 
 
 

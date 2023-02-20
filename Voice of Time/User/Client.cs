@@ -43,7 +43,6 @@ namespace Voice_of_Time.User
         // Receipt system
         public Dictionary<(long, long), ReceiptStatus> ReceiptStatusDictionary { get; }
 
-        [JsonConstructor]
         protected Client(SerializationInfo info, StreamingContext context)
         {
             UserID = info.GetInt64(nameof(UserID));
@@ -62,7 +61,7 @@ namespace Voice_of_Time.User
                 info.GetValue(nameof(ReceiptStatusDictionary), typeof(Dictionary<(long, long), ReceiptStatus>)) ?? new();
         }
 
-        public Client(long userID, string username, RSA userKey, List<TextChat>? textChats = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<(long, long), ReceiptStatus> receiptStatusDictionary = null)
+        public Client(long userID, string username, RSA userKey, List<TextChat>? textChats = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<(long, long), ReceiptStatus>? receiptStatusDictionary = null)
         {
             UserID    = userID;
             Username  = username  ?? throw new ArgumentNullException(nameof(username));

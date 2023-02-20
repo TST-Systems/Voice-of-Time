@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
@@ -23,18 +24,18 @@ namespace Voice_of_Time_Server.RequestExecuter
             if (socket.CommunicationVerified || socket.UserID != -1)
             {
                 socket.RequestConnectionClose = true;
-                return (new HeaderAck(false), new SData_Exception("You are already verifiyed! Server closes the connection!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.COMMUNICATION_ALREADY_VERIFIED, "You are already verifiyed! Server closes the connection!"));
             }
             if(body is not SData_Long longBody)
             {
-                return (new HeaderAck(false), new SData_Exception("You need to send your ID!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_BODY_TYPE, "You need to send your ID!"));
             }
 
             var expectedUserID = longBody.Data;
 
             if (!ServerData.server.UserExists(expectedUserID))
             {
-                return (new HeaderAck(false), new SData_Exception("User unknown! Register first!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.USER_DOES_NOT_EXISTS, "User unknown! Register first!"));
             }
 
             socket.UserID = expectedUserID;

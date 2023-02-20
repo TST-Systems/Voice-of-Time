@@ -35,10 +35,10 @@ namespace Voice_of_Time.Shared.Functions
             if (resultPackage.Header is not HeaderAck resHeader) throw new Exception("Server didn't responded correctly!");
             if (resHeader.Successful is false)
             {
-                if (resultPackage.Body is SData_Exception exception && exception.Data is not null) 
-                    throw exception.Data;
+                if (resultPackage.Body is not SData_InternalException exception || exception.Data is null) 
+                    throw new Exception("Server coudn't Process the Request!");
 
-                throw new Exception("Server coudn't Process the Request!");
+                throw new Exception("Server coudn't Process the Request!\n" + exception.Data.Code + "\n" + exception.Data.Message);
             }
 
             // Check if Data is ok
@@ -212,7 +212,20 @@ namespace Voice_of_Time.Shared.Functions
             return true;
         }
 
-        internal static async Task AcceptInvite(ClientSocket socket, Client client, long chatID)
+        public static async Task<(long stashID, long receiptID)> AddStashMessage(ClientSocket socket, Client client, long stashID, string toStash, DateTime? expires = null, DataHandling handling = DataHandling.NONE)
+        {
+            expires ??= DateTime.Now.AddDays(30);
+
+            var header = new HeaderReq(client.UserID, RequestType.STASH_ADD);
+            var body   = new StashData_Add(toStash, stashID, expires.Value, handling);
+            var toSend = new VOTP(header, body);
+
+            var receipt = await RequestPackageHandler<AbsData_Receipt>(socket, toSend);
+
+            return (receipt.TargetID, receipt.ReceiptID);
+        } 
+
+        public static async Task AcceptInvite(ClientSocket socket, Client client, long chatID)
         {
             var header = new HeaderReq(client.UserID, RequestType.PRIVAT_CHAT_INVITE_ACCEPT);
             var body   = new AbsData_InviteAccept(chatID);
@@ -221,7 +234,7 @@ namespace Voice_of_Time.Shared.Functions
             await RequestPackageHandler(socket, toSend);
         }
 
-        internal static async Task<List<long>> GetStashReceiptIDList(ClientSocket socket, Client client, long stashID)
+        public static async Task<List<long>> GetStashReceiptIDList(ClientSocket socket, Client client, long stashID)
         {
             var header = new HeaderReq(client.UserID, RequestType.STASH_LIST);
             var body   = new SData_Long(stashID);
@@ -232,7 +245,7 @@ namespace Voice_of_Time.Shared.Functions
             return new(result.Data);
         }
 
-        internal static async Task<StashMessage> GetStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
+        public static async Task<StashMessage> GetStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
         {
             var header = new HeaderReq(client.UserID, RequestType.STASH_GET);
             var body   = new AbsData_Receipt(stashID, requestID);
@@ -243,7 +256,7 @@ namespace Voice_of_Time.Shared.Functions
             return result.Data;
         }
 
-        internal static async Task RemoveStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
+        public static async Task RemoveStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
         {
             var header = new HeaderReq(client.UserID, RequestType.STASH_DELETE);
             var body   = new AbsData_Receipt(stashID, requestID);

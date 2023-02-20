@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
@@ -23,7 +24,7 @@ namespace Voice_of_Time_Server.RequestExecuter
         {
             if(body is not SecData_Key_RSA rsaBody)
             {
-                return (new HeaderAck(false), new SData_Exception(new Exception("You also need to share your Public Key!")));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_BODY_TYPE, "You also need to share your Public Key!"));
             }
 
             var userKey = rsaBody.GetKey();

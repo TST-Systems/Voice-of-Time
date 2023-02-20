@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Package.Header;
 using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
@@ -22,11 +23,11 @@ namespace Voice_of_Time_Server.RequestExecuter
         {
             if(socket.CommunicationVerified || socket.UserID != -1)
             {
-                return (new HeaderAck(false), new SData_Exception(new Exception("You are alredy logged in!")));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.COMMUNICATION_ALREADY_VERIFIED, "You are alredy logged in!"));
             }
             if(!socket.SecureCommunicationEnabled || socket.UserPubKey is null)
             {
-                return (new HeaderAck(false), new SData_Exception(new Exception("You need to first open a secure communication!")));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.COMMUNICATION_NOT_SECURE, "You need to first open a secure communication!"));
             }
 
             var userID = ServerData.server.AddUser(socket.UserPubKey, "");

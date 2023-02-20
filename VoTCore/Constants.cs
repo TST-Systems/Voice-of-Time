@@ -37,7 +37,7 @@ namespace VoTCore
             { BodyType.SDATA_LONG,              typeof(SData_Long)              },
             { BodyType.SDATA_GUID,              typeof(SData_Guid)              },
             { BodyType.SDATA_STRING,            typeof(SData_String)            },
-            { BodyType.SDATA_EXCEPTION,         typeof(SData_Exception)         },
+            { BodyType.SDATA_INTERNALEXCEPTION, typeof(SData_InternalException) },
 
             { BodyType.ADATA_LONG,              typeof(AData_Long)              },
 
@@ -87,7 +87,7 @@ namespace VoTCore
         SDATA_DOUBLE    = 0x43,
         SDATA_STRING    = 0x44,
         SDATA_GUID      = 0x50,
-        SDATA_EXCEPTION = 0x51,
+        SDATA_INTERNALEXCEPTION = 0x51,
 
         // Array Data
         ADATA       = 0x60,
@@ -161,5 +161,30 @@ namespace VoTCore
         TO_REQUEST,
         REC_AND_ACC,
         SEND,
+    }
+
+    public enum InternalExceptionCode
+    {
+        UNKNOWN,
+        WRONG_BODY_TYPE,
+        SOURCE_UNEQUAL_USER,
+        USER_DOES_NOT_EXISTS,
+        CHAT_DOES_NOT_EXISTS,
+        CHAT_NOT_INVITED,
+        CHAT_NOT_MEMBER,
+        CHAT_ALREADY_MEMBER,
+        CHAT_NO_PERMISSIONS,
+        COMMUNICATION_ALREADY_SECURE,
+        COMMUNICATION_NO_PUBLIC_KEY,
+        USER_INVALID,
+        ID_DOES_NOT_EXISTS,
+        STASH_NO_MESSAGE_UNDER_ID,
+        STASH_NO_PERMISSIONS,
+        COMMUNICATION_ALREADY_VERIFIED,
+        COMMUNICATION_NOT_SECURE,
+        UNKNOWN_HEADER_TYPE,
+        UNKNOWN_REQUEST_TYPE,
+        WRONG_SENDER,
+        COMMUNICATION_NOT_VERIFIED,
     }
 }

@@ -197,7 +197,7 @@ namespace Voice_of_Time_Server.Transfer
 
             if (header is not HeaderReq reqHeader)
             {
-                var _toSend = new VOTP(new HeaderAck(false), new SData_Exception(new Exception($"{header.GetType().Name} is not supported by the server!")));
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.UNKNOWN_HEADER_TYPE, $"{header.GetType().Name} is not supported by the server!"));
                 return _toSend.Serialize();
             }
 
@@ -209,19 +209,19 @@ namespace Voice_of_Time_Server.Transfer
 
             if(executer is null)
             {
-                var _toSend = new VOTP(new HeaderAck(false), new SData_Exception(new Exception($"{requestType} is not supported by the server!")));
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.UNKNOWN_REQUEST_TYPE, $"{requestType} is not supported by the server!"));
                 return _toSend.Serialize();
             }
 
             if(UserID != reqHeader.SenderID)
             {
-                var _toSend = new VOTP(new HeaderAck(false), new SData_Exception(new Exception("You are tring to be anouther user! Use -1 as long you are not verifiyed or registerd!")));
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_SENDER, "You are tring to be anouther user! Use -1 as long you are not verifiyed or registerd!"));
                 return _toSend.Serialize();
             }
 
             if (executer.ExecuteOnlyIfVerified && !CommunicationVerified)
             {
-                var _toSend = new VOTP(new HeaderAck(false), new SData_Exception(new Exception("You need to be verifiyed or registerd to use this feature!")));
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.COMMUNICATION_NOT_VERIFIED, "You need to be verifiyed or registerd to use this feature!"));
                 return _toSend.Serialize();
             }
 

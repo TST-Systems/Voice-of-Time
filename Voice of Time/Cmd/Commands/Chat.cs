@@ -1,8 +1,12 @@
 ﻿using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
+using Voice_of_Time.Transfer;
 using VoTCore.Algorithms;
 using VoTCore.Communication;
+using VoTCore.Communication.Data;
 using VoTCore.Controll;
+using VoTCore.Package;
+using VoTCore.Package.Header;
 
 /**
  * @author      - Timeplex
@@ -26,9 +30,10 @@ namespace Voice_of_Time.Cmd.Commands
             get => new string[]{
             "Usage: chat <argument>\n\n" +
             "List of Arugements:\n\n" +
-            "list      - Show a list of all available chats\n" +
-            "new       - Create a new Chat with 1-X members\n" +
-            "read [id] - Display all Messanges of a Chat", };
+            "list                 - Show a list of all available chats\n" +
+            "new                  - Create a new Chat with 1-X members\n" +
+            "read [id]            - Display all Messanges of a Chat" +
+            "write [id] {Message} - write a message to a chat", };
         }
 
         public async Task<bool> ExecuteCommand(string command, string[] args)
@@ -42,27 +47,122 @@ namespace Voice_of_Time.Cmd.Commands
 
             return args[0] switch
             {
-                "list" => ListChats(),
-                "new"  => await CreateChatAsync(),
-                "read" => ReadMessanges(args),
+                "list"  => ListChats(),
+                "new"   => await CreateChatAsync(),
+                "read"  => ReadMessanges(args),
+                "write" => await WriteMessage(args),
                 _ => false,
             };
         }
 
+        private async Task<bool> WriteMessage(string[] args)
+        {
+            if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null)
+            {
+                Console.WriteLine("You are currently not connected to any server.");
+                return true;
+            }
+            ClientSocket currentConnection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception();
+            if (args.Length <= 3) return false;
+            int chatListID;
+            try
+            {
+                chatListID = int.Parse(args[1]);
+                if (chatListID >= ClientData.CurrentClient.TextChats.Count)
+                {
+                    Console.WriteLine($"Selected ID {chatListID} is too big!");
+                    Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"{args[1]} is not a number!");
+                Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
+                return false;
+            }
+
+            var toSend = "";
+
+            for(int i = 2; i < args.Length; i++)
+            {
+                if(i != 2)
+                {
+                    toSend += " ";
+                }
+                toSend += args[i];
+            }
+
+            var header  = new HeaderStd(ClientData.CurrentClient.UserID, chatListID, 1);
+            var message = new TextMessage(toSend, ClientData.CurrentClient.UserID, DateTime.Now.Ticks);
+            var toStash = new VOTP(header, message);
+
+            var Receipt = await Requests.AddStashMessage(currentConnection, ClientData.CurrentClient, chatListID, toStash.Serialize());
+
+            return true;
+        }
+
         private bool ReadMessanges(string[] args)
         {
-            throw new NotImplementedException();
+            if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null)
+            {
+                Console.WriteLine("You are currently not connected to any server.");
+                return true;
+            }
+            if (args.Length <= 2)
+            {
+                Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
+                return false;
+            }
+            int chatListID;
+            try
+            {
+                chatListID = int.Parse(args[1]);
+                if (chatListID >= ClientData.CurrentClient.TextChats.Count)
+                {
+                    Console.WriteLine($"Selected ID {chatListID} is too big!");
+                    Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
+                    return true;
+                }
+            }
+            catch(Exception)
+            {
+                Console.WriteLine($"{args[1]} is not a number!");
+                Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
+                return false;
+            }
+            if (ClientData.CurrentClient.TextChats[chatListID] is not PrivatChat chat)
+            {
+                Console.WriteLine("Chat is not a Chat?");
+                Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
+                return true;
+            }
+            Console.WriteLine($"Messages of {chat.Title}");
+            foreach (var message in chat.GetMessages())
+            {
+                Console.WriteLine();
+                Console.Write(new DateTime(message.DateOfCreation).ToString() + " ");
+                if (message.AuthorID == ClientData.CurrentClient.UserID)
+                    Console.Write("You");
+                else if (ClientData.CurrentClient.UserDB.ContainsKey(message.AuthorID))
+                    Console.Write(ClientData.CurrentClient.UserDB[message.AuthorID].Username);
+                else
+                    Console.Write($"#{Base36.Encode(message.AuthorID)}");
+                Console.WriteLine(" :");
+                Console.WriteLine(message.MessageString);
+            }
+            return true;
         }
 
         protected virtual bool ListChats()
         {
-            if (ClientData.CurrentConnection is null)
+            if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null)
             {
                 Console.WriteLine("You are currently not connected to any server.");
                 return true;
             }
 
-            var currentClientInstace = ClientData.GetServerCient((Guid)ClientData.CurrentConnection);
+            var currentClientInstace = ClientData.CurrentClient;
 
             if (currentClientInstace is null)
             {

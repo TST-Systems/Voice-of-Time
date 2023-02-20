@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
+using VoTCore;
 using VoTCore.Communication.Extra;
 using VoTCore.Package.AbsData;
 using VoTCore.Package.Header;
@@ -24,19 +25,19 @@ namespace Voice_of_Time_Server.RequestExecuter
         {
             if (body is not AbsData_Invite invite)
             {
-                return(new HeaderAck(false), new SData_Exception($"Wrong Body! Need to be a {nameof(AbsData_Invite)}"));
+                return(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_BODY_TYPE, message: $"Wrong Body! Need to be a {nameof(AbsData_Invite)}"));
             }
             if (socket.UserID != invite.SourceID)
             {
-                return (new HeaderAck(false), new SData_Exception($"UserID:{socket.UserID} is not the same as SourceID:{invite.SourceID}"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.SOURCE_UNEQUAL_USER, message: $"UserID:{socket.UserID} is not the same as SourceID:{invite.SourceID}"));
             }
             if (!ServerData.server.UserExists(invite.TargetID))
             {
-                return (new HeaderAck(false), new SData_Exception($"UserID:{invite.TargetID} is not a User of this Server!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.USER_DOES_NOT_EXISTS, message: $"UserID:{invite.TargetID} is not a User of this Server!"));
             }
             if (!ServerData.server.ChatExists(invite.ChatID))
             {
-                return (new HeaderAck(false), new SData_Exception($"Chat with the ID:{invite.ChatID} is unknwon!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_DOES_NOT_EXISTS, message: $"Chat with the ID:{invite.ChatID} is unknwon!"));
             }
 
             ChatUserState UserChatState   = ServerData.server.GetChatMember(invite.ChatID, socket.UserID);
@@ -44,15 +45,15 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             if (TargetChatState != ChatUserState.NONE) // TODO: Detailed checks
             {
-                return (new HeaderAck(false), new SData_Exception($"Taget user is alrady part of the Chat!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_ALREADY_MEMBER, message: $"Taget user is alrady part of the Chat!"));
             }
             if (UserChatState == ChatUserState.NONE || (UserChatState & ChatUserState.BLOCKED) != 0)
             {
-                return (new HeaderAck(false), new SData_Exception($"You are not a member of this chat!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NOT_MEMBER, message: $"You are not a member of this chat!"));
             }
             if ((UserChatState & ChatUserState.ADMIN) != 0 && (UserChatState & ChatUserState.MODERATOR) != 0)
             {
-                return (new HeaderAck(false), new SData_Exception($"You don't have the nessesary rights to do that!"));
+                return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NO_PERMISSIONS, message: $"You don't have the nessesary rights to do that!"));
             }
 
             ServerData.server.AddChatUser(invite.ChatID, invite.TargetID, ChatUserState.INVITED);

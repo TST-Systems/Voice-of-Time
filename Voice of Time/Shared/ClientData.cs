@@ -252,6 +252,15 @@ namespace Voice_of_Time.Shared
             {
                 var saveFile = Path.Combine(SaveFolder, server.Key.ToString());
 
+                if(File.Exists(saveFile))
+                {
+                    if(File.Exists(saveFile + ".BAK"))
+                    {
+                        File.Delete(saveFile + ".BAK");
+                    }
+                    File.Move(saveFile, saveFile + ".BAK");
+                }
+
                 using FileStream stream = File.OpenWrite(saveFile);
 
                 DataContractSerializer formatter = new(typeof(Client));
