@@ -120,6 +120,7 @@ function createServerAddButton() {
 
     serverElement.id = "ServerAddButton"
 }
+createServerAddButton();
 
 
 

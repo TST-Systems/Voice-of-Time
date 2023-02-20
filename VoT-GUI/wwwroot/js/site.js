@@ -2,9 +2,6 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
-createServerAddButton();
-
-
 
 createServerItem(12205,"Hallo there", "sources/Pictures/VoT_logo.jpg");
 createServerItem(25682,"Zweiter Server");
