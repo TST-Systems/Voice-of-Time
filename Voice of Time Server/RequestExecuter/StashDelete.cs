@@ -59,7 +59,7 @@ namespace Voice_of_Time_Server.RequestExecuter
             }
 
 
-            if(message.AuthorID != socket.UserID)
+            if(targetStashID != socket.UserID && message.AuthorID != socket.UserID)
             {
                 if (!chatUserState.HasFlag(ChatUserState.MODERATOR) && !chatUserState.HasFlag(ChatUserState.ADMIN))
                 {
