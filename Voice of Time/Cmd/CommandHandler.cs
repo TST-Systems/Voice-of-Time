@@ -69,6 +69,7 @@ namespace Voice_of_Time.Cmd
             ClientData.TryRegisterCommand(new Exit());
             ClientData.TryRegisterCommand(new Chat());
             ClientData.TryRegisterCommand(new Users());
+            ClientData.TryRegisterCommand(new Stash());
         }
 
         static async Task ProcessCommand(string? str)
