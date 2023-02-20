@@ -13,20 +13,42 @@ using VoTCore.Exeptions;
  */
 namespace Voice_of_Time.Shared
 {
+    /// <summary>
+    /// Static class witch holds all nessaray Data for all classes
+    /// </summary>
     [Serializable]
     public static class ClientData
     {
+        /// <summary>
+        /// Register of all users for each Server
+        /// </summary>
         private static readonly Dictionary<Guid, Client> UserRegister = new();
-
-
+        /// <summary>
+        /// Register of all activ connectrions to a server
+        /// </summary>
         private static readonly Dictionary<Guid, ClientSocket> ConnectionRegister = new();
-
+        /// <summary>
+        /// Register of all registerd command-executer with the main command
+        /// </summary>
         private static readonly Dictionary<string, IConsoleCommand> CommandRegister = new();
+        /// <summary>
+        /// Register of all alieses of a command
+        /// </summary>
         private static readonly Dictionary<string, string> AliasesRegister = new();
-
-        private static Guid? currentConnection = null;
+        /// <summary>
+        /// Current activ Connction ID 
+        /// </summary>
+        private static Guid? currentConnection = null; // TODO: Better naming
+        /// <summary>
+        /// Current activ Connction ID 
+        /// </summary>
         internal static Guid? CurrentConnection { get => currentConnection; }
 
+        // TODO: 'REAL' CurrentConnection
+
+        /// <summary>
+        /// Client of the current activ connection or null
+        /// </summary>
         internal static Client? CurrentClient
         {
             get
@@ -37,8 +59,16 @@ namespace Voice_of_Time.Shared
             }
         }
 
+        /// <summary>
+        /// Folder in witch the saves will be saved and loaded
+        /// </summary>
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
+        /// <summary>
+        /// WORKAROUND. Get all nessary parts of the current connection
+        /// </summary>
+        /// <returns>All importend parts of the current Connection</returns>
+        /// <exception cref="Exception">No connection is currently active</exception>
         internal static (ClientSocket, Client, Guid) GetCurrentConnection()
         {            
             var serverID = currentConnection       ?? throw new Exception("No acctiv connection!");
@@ -48,9 +78,10 @@ namespace Voice_of_Time.Shared
             return (socket, client, serverID);
         }
 
-
-
         #region CommandRegister
+        /// <summary>
+        /// List of all allowed Charactars of with a command and its aliases can consist of
+        /// </summary>
         private const string AllowedChars = "abcdefghijklmnopqrstuvwxyz0123456789_";
         /// <summary>
         /// <para>Register a new command to the system.</para>
@@ -134,6 +165,11 @@ namespace Voice_of_Time.Shared
             return true;
         }
 
+        /// <summary>
+        /// Get a command-executer bound to a command
+        /// </summary>
+        /// <param name="command">command or alias of command-executer</param>
+        /// <returns>command-executer if exists</returns>
         public static IConsoleCommand? GetCommandExecuter(string command)
         {
             command = command.ToLower();
@@ -142,12 +178,21 @@ namespace Voice_of_Time.Shared
             return CommandRegister[realCommand];
         }
 
+        /// <summary>
+        /// Get the top command call of a command over its aliases or the command
+        /// </summary>
+        /// <param name="command">alias or the command</param>
+        /// <returns>top command call</returns>
         public static string? GetAliaseParent(string command)
         {
             command = command.ToLower();
             return AliasesRegister.GetValueOrDefault(command); ;
         }
 
+        /// <summary>
+        /// Get a list of all command-execuzter
+        /// </summary>
+        /// <returns>list of all command-execuzter</returns>
         public static List<IConsoleCommand> GetAllComands()
         {
             return CommandRegister.Values.ToList();
@@ -155,10 +200,17 @@ namespace Voice_of_Time.Shared
         #endregion
 
         #region UserRegister
+        /// <summary>
+        /// Get a Client instance of a spezific server if exists
+        /// </summary>
+        /// <param name="serverID">UID of server</param>
+        /// <returns>Client if exists</returns>
         internal static Client? GetServerCient(Guid serverID)
         {
+            // Check if server is known
             if (!UserRegister.ContainsKey(serverID))
             {
+                // if not known try to load from save files
                 var serverInstace = LoadData(serverID);
                 if (serverInstace is not null)
                 {
@@ -168,6 +220,12 @@ namespace Voice_of_Time.Shared
             return UserRegister.GetValueOrDefault(serverID);
         }
 
+        /// <summary>
+        /// Add a client to the ClientRegister
+        /// </summary>
+        /// <param name="client">Client of server</param>
+        /// <param name="serverID">UID of server</param>
+        /// <exception cref="EntryAlreadyExistsExeption">If a client is already present for the server</exception>
         internal static void AddServerClient(Client client, Guid serverID)
         {
             if (UserRegister.ContainsKey(serverID))
@@ -178,6 +236,12 @@ namespace Voice_of_Time.Shared
             UserRegister.Add(serverID, client);
         }
 
+        /// <summary>
+        /// Try-catch wrapper for <see cref="AddServerClient"/>
+        /// </summary>
+        /// <param name="client">Client of server</param>
+        /// <param name="serverID">UID of server</param>
+        /// <returns>Client was added</returns>
         internal static bool TryAddServerClient(Client client, Guid serverID)
         {
             try
@@ -190,6 +254,13 @@ namespace Voice_of_Time.Shared
         #endregion
 
         #region ConnectionRegister
+        /// <summary>
+        /// Add a connection to the connection register
+        /// </summary>
+        /// <param name="serverID">UID of server</param>
+        /// <param name="socket">Scoket of connection</param>
+        /// <param name="isCurrentConnection">Set the new connection as current connection</param>
+        /// <exception cref="EntryAlreadyExistsExeption">Connection is already present</exception>
         internal static void AddConnection(Guid serverID, ClientSocket socket, bool isCurrentConnection = true)
         {
             if (ConnectionRegister.ContainsKey(serverID)) throw new EntryAlreadyExistsExeption();
@@ -201,21 +272,38 @@ namespace Voice_of_Time.Shared
             }
         }
 
+        /// <summary>
+        /// Get a connection, if active, over its server ID
+        /// </summary>
+        /// <param name="serverID">UID of server</param>
+        /// <returns>Connection to server</returns>
         internal static ClientSocket? GetConnection(Guid serverID)
         {
             return ConnectionRegister.GetValueOrDefault(serverID);
         }
 
+        /// <summary>
+        /// Get a list of all currently open Connections
+        /// </summary>
+        /// <returns>list of all currently open Connections</returns>
         internal static List<ClientSocket> GetAllConnectionSockets()
         {
             return ConnectionRegister.Values.ToList();
         }
-
+        
+        /// <summary>
+        /// Get all Server IDs of all open connections
+        /// </summary>
+        /// <returns>list of all open server IDs</returns>
         internal static List<Guid> GetAllConnectionIDs()
         {
             return ConnectionRegister.Keys.ToList();
         }
 
+        /// <summary>
+        /// Close a connection to a spezific server
+        /// </summary>
+        /// <param name="serverID">UID of server</param>
         internal static void CloseConnection(Guid serverID)
         {
             if (!ConnectionRegister.ContainsKey(serverID)) return;
@@ -230,11 +318,20 @@ namespace Voice_of_Time.Shared
             }
         }
 
+        /// <summary>
+        /// Get a copy of the connection register
+        /// </summary>
+        /// <returns>copy of the connection register</returns>
         internal static Dictionary<Guid, ClientSocket> GetConnectionRegisterCopy()
         {
             return new Dictionary<Guid, ClientSocket>(ConnectionRegister);
         }
 
+        /// <summary>
+        /// Make anouther connection to the current connection
+        /// </summary>
+        /// <param name="serverID">UID of server</param>
+        /// <returns>Current connection was changed</returns>
         internal static bool SelectConnection(Guid serverID)
         {
             var entryExists = ConnectionRegister.ContainsKey(serverID);
@@ -244,14 +341,19 @@ namespace Voice_of_Time.Shared
         #endregion
 
         #region Save & Load
-        public static void SaveData()
+        /// <summary>
+        /// Save all savaable Data to files
+        /// </summary>
+        public static void SaveData() // TODO: Encryption
         {
+            // Create the folder if not exists
             Directory.CreateDirectory(SaveFolder);
 
             foreach (var server in UserRegister)
             {
                 var saveFile = Path.Combine(SaveFolder, server.Key.ToString());
 
+                // Move the current savefile of the client to a backup to avoid data smashing and as possible short backup
                 if(File.Exists(saveFile))
                 {
                     if(File.Exists(saveFile + ".BAK"))
@@ -271,7 +373,12 @@ namespace Voice_of_Time.Shared
             }
         }
 
-        private static Client? LoadData(Guid serverID)
+        /// <summary>
+        /// Load the client of a spezific Server if exists
+        /// </summary>
+        /// <param name="serverID">UID of Server</param>
+        /// <returns>client if exists</returns>
+        private static Client? LoadData(Guid serverID) //TODO: Decryption
         {
             var saveFile = Path.Combine(SaveFolder, serverID.ToString());
 

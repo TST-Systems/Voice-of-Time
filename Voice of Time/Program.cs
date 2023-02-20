@@ -1,6 +1,7 @@
 ﻿using Voice_of_Time.Cmd;
 //✔️❌
 
+// Currently only starting Console command input
 await new CommandHandler().Enable();
 
 /*
