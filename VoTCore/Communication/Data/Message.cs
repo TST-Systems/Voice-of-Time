@@ -15,6 +15,7 @@ namespace VoTCore.Communication.Data
     /// </summary>
     [Serializable]
     [KnownType(typeof(BodyType))]
+    [KnownType(typeof(DateTime))]
     [KnownType(typeof(MessageStatus))]
     [KnownType(typeof(FileMessage))]
     [KnownType(typeof(TextMessage))]
@@ -38,7 +39,7 @@ namespace VoTCore.Communication.Data
         /// <summary>
         /// Time of creation in milliseconds
         /// </summary>
-        public long DateOfCreation { get; }
+        public DateTime DateOfCreation { get; }
 
         public MessageStatus Status { get; }
 
@@ -52,13 +53,13 @@ namespace VoTCore.Communication.Data
 
             AuthorID       = info.GetInt64(nameof(AuthorID));
 
-            DateOfCreation = info.GetInt64(nameof(DateOfCreation));
+            DateOfCreation = info.GetDateTime(nameof(DateOfCreation));
 
             Status         = (MessageStatus)(info.GetValue(nameof(Status), typeof(MessageStatus)) 
                 ?? throw new Exception("Message coudn't be laoded!"));
         }
 
-        protected Message(string messageString, long authorID, long dateOfCreation, BodyType type)
+        protected Message(string messageString, long authorID, DateTime dateOfCreation, BodyType type)
         {
             MessageString  = messageString;
             AuthorID       = authorID;

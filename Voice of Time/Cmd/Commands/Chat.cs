@@ -1,4 +1,6 @@
-﻿using Voice_of_Time.Shared;
+﻿using System.Buffers.Text;
+using System.Text;
+using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using Voice_of_Time.Transfer;
 using VoTCore.Algorithms;
@@ -7,6 +9,7 @@ using VoTCore.Communication.Data;
 using VoTCore.Controll;
 using VoTCore.Package;
 using VoTCore.Package.Header;
+using VoTCore.Secure;
 
 /**
  * @author      - Timeplex
@@ -32,7 +35,7 @@ namespace Voice_of_Time.Cmd.Commands
             "List of Arugements:\n\n" +
             "list                 - Show a list of all available chats\n" +
             "new                  - Create a new Chat with 1-X members\n" +
-            "read [id]            - Display all Messanges of a Chat" +
+            "read [id]            - Display all Messanges of a Chat\n" +
             "write [id] {Message} - write a message to a chat", };
         }
 
@@ -63,7 +66,7 @@ namespace Voice_of_Time.Cmd.Commands
                 return true;
             }
             ClientSocket currentConnection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception();
-            if (args.Length <= 3) return false;
+            if (args.Length <= 2) return false;
             int chatListID;
             try
             {
@@ -82,6 +85,11 @@ namespace Voice_of_Time.Cmd.Commands
                 return false;
             }
 
+            if (ClientData.CurrentClient.TextChats[chatListID] is not PrivatChat chat) 
+            {
+                Console.WriteLine("You can not use this chat!");
+                return true; 
+            }
             var toSend = "";
 
             for(int i = 2; i < args.Length; i++)
@@ -93,11 +101,17 @@ namespace Voice_of_Time.Cmd.Commands
                 toSend += args[i];
             }
 
-            var header  = new HeaderStd(ClientData.CurrentClient.UserID, chatListID, 1);
-            var message = new TextMessage(toSend, ClientData.CurrentClient.UserID, DateTime.Now.Ticks);
-            var toStash = new VOTP(header, message);
+            var header  = new HeaderStd(ClientData.CurrentClient.UserID, chat.ChatID, 1);
+            var message = new TextMessage(toSend, ClientData.CurrentClient.UserID, DateTime.Now);
+            var toStash = new VOTP(header, message).Serialize();
+            toStash     = Convert.ToBase64String(CryproManager.AesEncyrpt(chat.Key, Encoding.UTF8.GetBytes(toStash)));
 
-            var Receipt = await Requests.AddStashMessage(currentConnection, ClientData.CurrentClient, chatListID, toStash.Serialize());
+            var Receipt = await Requests.AddStashMessage(currentConnection, ClientData.CurrentClient, chat.ChatID, toStash);
+
+
+            ClientData.CurrentClient.ReceiptStatusDictionary[Receipt] = ReceiptStatus.IGNORE;
+
+            chat.AddMessage(message);
 
             return true;
         }
@@ -109,7 +123,7 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine("You are currently not connected to any server.");
                 return true;
             }
-            if (args.Length <= 2)
+            if (args.Length <= 1)
             {
                 Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
                 return false;
@@ -141,7 +155,7 @@ namespace Voice_of_Time.Cmd.Commands
             foreach (var message in chat.GetMessages())
             {
                 Console.WriteLine();
-                Console.Write(new DateTime(message.DateOfCreation).ToString() + " ");
+                Console.Write(message.DateOfCreation.ToString() + " ");
                 if (message.AuthorID == ClientData.CurrentClient.UserID)
                     Console.Write("You");
                 else if (ClientData.CurrentClient.UserDB.ContainsKey(message.AuthorID))
@@ -291,7 +305,7 @@ namespace Voice_of_Time.Cmd.Commands
 
                 if (pubClient is null) throw new Exception("Public user was deletet while processing!");
 
-                await Requests.InviteUserToGroupAsync(socket, client, pubClient, chat, DataHandling.REMOVE_AFTER_GET_ACK);
+                await Requests.InviteUserToGroupAsync(socket, client, pubClient, new(chat), DataHandling.REMOVE_AFTER_GET_ACK);
             }
 
             return true;

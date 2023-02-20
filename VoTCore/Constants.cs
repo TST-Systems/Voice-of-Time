@@ -161,6 +161,7 @@ namespace VoTCore
         TO_REQUEST,
         REC_AND_ACC,
         SEND,
+        IGNORE,
     }
 
     public enum InternalExceptionCode

@@ -177,7 +177,7 @@ namespace Voice_of_Time_Server.User
             {
                 cmd.Parameters.AddWithValue("@chat_id", chatID);
                 cmd.Parameters.AddWithValue("@user_id", creatorID);
-                cmd.Parameters.AddWithValue("@state",   (int)ChatUserState.ADMIN);
+                cmd.Parameters.AddWithValue("@state",   (int)(ChatUserState.ADMIN | ChatUserState.MEMBER));
                 cmd.ExecuteNonQuery();
             }
         }

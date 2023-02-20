@@ -25,7 +25,7 @@ namespace VoTCore.Communication.Data
             File = info.GetString(nameof(File));
         }
 
-        public FileMessage(string messageString, long authorID, long dateOfCreation, string file)
+        public FileMessage(string messageString, long authorID, DateTime dateOfCreation, string file)
             : base(messageString, authorID, dateOfCreation, TYPE)
         {
             File = file;

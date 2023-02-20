@@ -1,11 +1,15 @@
-﻿using Voice_of_Time.Shared;
+﻿using System;
+using System.Text;
+using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using Voice_of_Time.Transfer;
 using VoTCore.Communication;
+using VoTCore.Communication.Data;
 using VoTCore.Controll;
 using VoTCore.Data;
 using VoTCore.Package;
 using VoTCore.Package.Header;
+using VoTCore.Secure;
 
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -37,7 +41,7 @@ namespace Voice_of_Time.Cmd.Commands
             }; 
         }
 
-        private async Task<bool> StashSync()
+        public async Task<bool> StashSync()
         {
             if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null) { return false; }
             ClientSocket currentConnection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception();
@@ -65,6 +69,7 @@ namespace Voice_of_Time.Cmd.Commands
             }
 
             requestIDs.Sort();
+            Console.WriteLine($"Getting {requestIDs.Count} personal messages");
 
             foreach (var requestID in requestIDs) 
             { 
@@ -93,6 +98,8 @@ namespace Voice_of_Time.Cmd.Commands
                         }
                         await Requests.AcceptInvite(currentConnection, ClientData.CurrentClient, body.ChatID);
                         ClientData.CurrentClient.TextChats.Add(body);
+                        ClientData.CurrentClient.ReceiptStatusDictionary[(stashID, requestID)] = ReceiptStatus.REC_AND_ACC;
+                        Console.WriteLine($"Added new Chat: {body.Title}");
                     }
                     else
                     {
@@ -109,12 +116,82 @@ namespace Voice_of_Time.Cmd.Commands
                 throw new Exception("Unknown Header!");
             }
 
+            foreach (var chat in ClientData.CurrentClient.TextChats)
+            {
+                if (chat is not PrivatChat privatChat) continue;
+                Console.WriteLine($"Getting {privatChat.Title}: ");
+                var suc = await ChatStashSync(privatChat);
+                if (suc)
+                    Console.WriteLine("Succes");
+                else
+                    Console.WriteLine("Error");
+            }
 
 
+            return true;
+        }
+    
+        public async Task<bool> ChatStashSync(PrivatChat chat)
+        {
+            if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null) { return false; }
+            ClientSocket currentConnection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception();
+            // Sync with own Stash
+            var receiptIDs = new List<long>();
+            var requestIDs = new List<long>();
 
+            // Get all Receipt IDs from stash
+            receiptIDs = await Requests.GetStashReceiptIDList(currentConnection, ClientData.CurrentClient, chat.ChatID);
 
+            // Look up the current status and add to requestList
+            foreach (var receiptID in receiptIDs)
+            {
+                var Receipt = (chat.ChatID, receiptID);
 
+                if (!ClientData.CurrentClient.ReceiptStatusDictionary.ContainsKey(Receipt))
+                {
+                    ClientData.CurrentClient.ReceiptStatusDictionary.Add(Receipt, ReceiptStatus.TO_REQUEST);
+                }
 
+                var msgState = ClientData.CurrentClient.ReceiptStatusDictionary[Receipt];
+
+                if (msgState == ReceiptStatus.REC_AND_ACC) continue;
+                if (msgState == ReceiptStatus.TO_REQUEST) requestIDs.Add(receiptID);
+            }
+
+            requestIDs.Sort();
+            Console.Write($"Getting {requestIDs.Count} new messages");
+
+            foreach (var requestID in requestIDs)
+            {
+                StashMessage message = await Requests.GetStashMessage(currentConnection, ClientData.CurrentClient, chat.ChatID, requestID);
+
+                var handling = message.MessageHandling;
+                var msg      = message.Message;
+                msg = Encoding.UTF8.GetString(CryproManager.AesDecyrpt(chat.Key, Convert.FromBase64String(msg)));
+
+                var desMsg = new VOTP(msg);
+
+                if (desMsg.Header is HeaderStd header)
+                {
+                    if (header.MessageType == 1) // 1 = Message
+                    {
+                        if (desMsg.Body is not Message body)
+                        {
+                            throw new Exception("Body is not in the right format!");
+                        }
+                        // TODO: Confirm ack
+                        chat.AddMessage(body);
+                        ClientData.CurrentClient.ReceiptStatusDictionary[(chat.ChatID, requestID)] = ReceiptStatus.REC_AND_ACC;
+                    }
+                    else
+                    {
+                        throw new Exception("Unknwon MessageType");
+                    }
+
+                    continue;
+                }
+                throw new Exception("Unknown Header!");
+            }
 
             return true;
         }

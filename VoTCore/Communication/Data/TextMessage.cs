@@ -22,7 +22,7 @@ namespace VoTCore.Communication.Data
         public TextMessage(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
         [JsonConstructor]
-        public TextMessage(string messageString, long authorID, long dateOfCreation)
+        public TextMessage(string messageString, long authorID, DateTime dateOfCreation)
             : base(messageString, authorID, dateOfCreation, TYPE)
         {
         }

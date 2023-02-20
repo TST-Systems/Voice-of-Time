@@ -25,7 +25,7 @@ namespace VoTTest.Core
         public void Constructor_Test()
         {
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), DateTime.Now);
 
             var package = new VOTP(header, body);
             var packageEmptyBody = new VOTP(header);
@@ -43,7 +43,7 @@ namespace VoTTest.Core
         {
             /// GENERATE PACKAGE
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), DateTime.Now);
 
             var package = new VOTP(header, body);
             ///
@@ -113,7 +113,7 @@ namespace VoTTest.Core
         {
             /// GENERATE PACKAGE
             var header = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
-            var body = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body = new TextMessage("Hello World", rnd.NextInt64(), DateTime.Now);
 
             var package = new VOTP(header, body);
             ///
@@ -170,12 +170,12 @@ namespace VoTTest.Core
                 header2 = new HeaderStd(rnd.Next(), rnd.Next(), (byte)rnd.Next());
             }
 
-            var body1 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
-            var body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+            var body1 = new TextMessage("Hello World", rnd.NextInt64(), DateTime.Now);
+            var body2 = new TextMessage("Hello World", rnd.NextInt64(), DateTime.Now);
 
             while (body1.Equals(body2))
             {
-                body2 = new TextMessage("Hello World", rnd.NextInt64(), rnd.NextInt64());
+                body2 = new TextMessage("Hello World", rnd.NextInt64(), DateTime.Now);
             }
 
             var package1_1 = new VOTP(header1, body1);

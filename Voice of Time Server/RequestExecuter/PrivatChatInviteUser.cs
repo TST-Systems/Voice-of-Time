@@ -47,11 +47,11 @@ namespace Voice_of_Time_Server.RequestExecuter
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_ALREADY_MEMBER, message: $"Taget user is alrady part of the Chat!"));
             }
-            if (UserChatState == ChatUserState.NONE || (UserChatState & ChatUserState.BLOCKED) != 0)
+            if (UserChatState == ChatUserState.NONE || UserChatState.HasFlag(ChatUserState.BLOCKED))
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NOT_MEMBER, message: $"You are not a member of this chat!"));
             }
-            if ((UserChatState & ChatUserState.ADMIN) != 0 && (UserChatState & ChatUserState.MODERATOR) != 0)
+            if (!UserChatState.HasFlag(ChatUserState.ADMIN) && !UserChatState.HasFlag(ChatUserState.MODERATOR))
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NO_PERMISSIONS, message: $"You don't have the nessesary rights to do that!"));
             }

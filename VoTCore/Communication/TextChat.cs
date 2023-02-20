@@ -39,6 +39,7 @@ namespace VoTCore.Communication
         public void AddMessage(Message message)
         {
             messages.Add(message);
+            Sort();
         }
 
         public List<Message> GetMessages()
@@ -49,6 +50,11 @@ namespace VoTCore.Communication
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue(nameof(messages), messages);
+        }
+
+        public void Sort()
+        {
+            messages.Sort((e1, e2) => (int)(e1.DateOfCreation - e2.DateOfCreation).Ticks); //TODO: Better method
         }
     }
 }

@@ -198,7 +198,7 @@ namespace Voice_of_Time.Shared.Functions
             // Send the target the inventation
             {
                 var header  = new HeaderStd(client.UserID, pubClient.UserID, 0);
-                var body = chat;
+                var body    = chat;
                 if (body.CryptedReciver != pubClient.UserID) body.EncryptData(targetKey, pubClient.UserID);
                 var toStash = new VOTP(header, body);
 

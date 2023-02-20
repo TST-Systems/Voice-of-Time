@@ -35,6 +35,17 @@ namespace VoTCore.Communication
         /// <summary>
         /// Communication Key for messages
         /// </summary>
+        [JsonIgnore]
+        public Aes Key 
+        { 
+            get
+            {
+                var key = Aes.Create();
+                key.IV  = GroupIV;
+                key.Key = GroupKey;
+                return key;
+            }
+        }
         public byte[] GroupKey { get; set; } //TODO
         public byte[] GroupIV  { get; set; } //TODO: private schreibschutz von außen
 
@@ -88,6 +99,16 @@ namespace VoTCore.Communication
             var aes = Aes.Create();
             GroupKey          = groupkey ?? aes.Key;
             GroupIV           = groupIV  ?? aes.IV;
+        }
+
+        public PrivatChat(PrivatChat chat)
+        {
+            participants   = chat.participants;
+            ChatID         = chat.ChatID;
+            Title          = chat.Title;
+            GroupKey       = chat.GroupKey;
+            GroupIV        = chat.GroupIV;
+            cryptedReciver = chat.cryptedReciver;
         }
 
         public bool AddUser(long userID)
