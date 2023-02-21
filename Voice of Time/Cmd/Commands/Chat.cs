@@ -1,5 +1,4 @@
-﻿using System.Buffers.Text;
-using System.Text;
+﻿using System.Text;
 using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using Voice_of_Time.Transfer;
@@ -20,6 +19,9 @@ using VoTCore.Secure;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Commandset to manage and use privat chats
+    /// </summary>
     internal class Chat : IConsoleCommandAsync, ICommandHelp
     {
         public string Command => "chat";
@@ -58,6 +60,12 @@ namespace Voice_of_Time.Cmd.Commands
             };
         }
 
+        /// <summary>
+        /// Write a message in a chat
+        /// </summary>
+        /// <param name="args">[1]->selectID for List of TextChats of Client, [2..]->Message</param>
+        /// <returns>success</returns>
+        /// <exception cref="Exception"></exception>
         private async Task<bool> WriteMessage(string[] args)
         {
             if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null)
@@ -67,6 +75,7 @@ namespace Voice_of_Time.Cmd.Commands
             }
             ClientSocket currentConnection = ClientData.GetConnection((Guid)ClientData.CurrentConnection) ?? throw new Exception();
             if (args.Length <= 2) return false;
+            // Getting the chat
             int chatListID;
             try
             {
@@ -90,6 +99,7 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine("You can not use this chat!");
                 return true; 
             }
+            // Combine any remaing part of args to a message
             var toSend = "";
 
             for(int i = 2; i < args.Length; i++)
@@ -101,21 +111,29 @@ namespace Voice_of_Time.Cmd.Commands
                 toSend += args[i];
             }
 
+            // Create the package to stash
             var header  = new HeaderStd(ClientData.CurrentClient.UserID, chat.ChatID, 1);
             var message = new TextMessage(toSend, ClientData.CurrentClient.UserID, DateTime.Now);
             var toStash = new VOTP(header, message).Serialize();
+            // Enrypted it witch the symetric key of the chat
             toStash     = Convert.ToBase64String(CryproManager.AesEncyrpt(chat.Key, Encoding.UTF8.GetBytes(toStash)));
 
             var Receipt = await Requests.AddStashMessage(currentConnection, ClientData.CurrentClient, chat.ChatID, toStash);
 
-
+            // Add stashed message to the messages to ignore when pulling from stash
             ClientData.CurrentClient.ReceiptStatusDictionary[Receipt] = ReceiptStatus.IGNORE;
 
+            // Add message to chat
             chat.AddMessage(message);
 
             return true;
         }
 
+        /// <summary>
+        /// Print out any chat message of a given chat
+        /// </summary>
+        /// <param name="args">[1]->selectID for List of TextChats of Client</param>
+        /// <returns>success</returns>
         private bool ReadMessanges(string[] args)
         {
             if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null)
@@ -128,6 +146,7 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
                 return false;
             }
+            // Getting the chat
             int chatListID;
             try
             {
@@ -151,6 +170,7 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine($"Use \"chat list\" to see the avaivible IDs!");
                 return true;
             }
+            // Print out any chatmessage in chronical order with date of creation and author
             Console.WriteLine($"Messages of {chat.Title}");
             foreach (var message in chat.GetMessages())
             {
@@ -168,6 +188,10 @@ namespace Voice_of_Time.Cmd.Commands
             return true;
         }
 
+        /// <summary>
+        /// Print a list of all Chats with its index for later use
+        /// </summary>
+        /// <returns>sucess</returns>
         protected virtual bool ListChats()
         {
             if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null)
@@ -202,6 +226,11 @@ namespace Voice_of_Time.Cmd.Commands
             return true;
         }
 
+        /// <summary>
+        /// Create a privat chat
+        /// </summary>
+        /// <returns>success</returns>
+        /// <exception cref="Exception"></exception>
         protected virtual async Task<bool> CreateChatAsync()
         {
             if (ClientData.CurrentConnection is null) {
@@ -211,7 +240,7 @@ namespace Voice_of_Time.Cmd.Commands
 
             var (socket, client, _) = ClientData.GetCurrentConnection();
 
-
+            // Getting all users to add to the chat
             Console.WriteLine("Please Enter User(s) to invide by (,) devided (ID: #ZZZZ or Nick: Peter):");
             var input = Console.ReadLine();
 
@@ -258,6 +287,7 @@ namespace Voice_of_Time.Cmd.Commands
             // Sort the List and remove multiple entraces
             particepents.Sort();
             particepents = particepents.Distinct().ToList();
+            // TODO: remove self if listed
 
             // Check if users exist when not try to find out if user exists
             foreach (var particepent in particepents)
@@ -274,9 +304,9 @@ namespace Voice_of_Time.Cmd.Commands
             // Get ChatID from Server and Register it 
             var chatID = await Requests.GetChatID(socket, client.UserID);
 
-            // Create Chat
+            // Generate name for chat
             var Chatname = "";
-
+            // TODO: Better generator or regeneration if chat join
             if (particepents.Count <= 3) {
                 for (int j = 0; j < particepents.Count; j++)
                 {
@@ -294,6 +324,7 @@ namespace Voice_of_Time.Cmd.Commands
                 Chatname = Chatname.Trim();
             }
 
+            // Create Chat
             var chat = new PrivatChat(chatID, Chatname, particepents);
             
             client.TextChats.Add(chat);

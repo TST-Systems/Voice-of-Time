@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Voice_of_Time.Shared;
 using Voice_of_Time.Shared.Functions;
 using Voice_of_Time.Transfer;
@@ -13,6 +12,9 @@ using VoTCore.Secure;
 
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Get messages from stash and process them
+    /// </summary>
     internal class Stash : IConsoleCommandAsync
     {
         public string Command => "stash";
@@ -41,6 +43,11 @@ namespace Voice_of_Time.Cmd.Commands
             }; 
         }
 
+         /// <summary>
+         /// Get all messages that are in the own stash or in the stashes of the chats where self is member
+         /// </summary>
+         /// <returns>success</returns>
+         /// <exception cref="Exception"></exception>
         public async Task<bool> StashSync()
         {
             if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null) { return false; }
@@ -71,6 +78,7 @@ namespace Voice_of_Time.Cmd.Commands
             requestIDs.Sort();
             Console.WriteLine($"Getting {requestIDs.Count} personal messages");
 
+            // process each request by it self
             foreach (var requestID in requestIDs) 
             { 
                 StashMessage message = await Requests.GetStashMessage(currentConnection, ClientData.CurrentClient, stashID, requestID);
@@ -80,14 +88,18 @@ namespace Voice_of_Time.Cmd.Commands
 
                 var desMsg = new VOTP(msg);
 
+                // CHeck if Header can be processed
                 if (desMsg.Header is HeaderStd header)
                 {
+                    // Check if mewssageType can be Processed
                     if (header.MessageType == 0) // 0 = Invite
                     {
+                        // Check if Body fits the messageType
                         if (desMsg.Body is not PrivatChat body)
                         {
                             throw new Exception("Body is not in the right format!");
                         }
+                        // Decrypted if nessesary
                         if (body.CryptedReciver != -1)
                         {
                             if (body.CryptedReciver != ClientData.CurrentClient.UserID)
@@ -96,7 +108,9 @@ namespace Voice_of_Time.Cmd.Commands
                             }
                             body.DecryptData(ClientData.CurrentClient.UserKey);
                         }
+                        // Tell server that invite will for now be accepted
                         await Requests.AcceptInvite(currentConnection, ClientData.CurrentClient, body.ChatID);
+                        // Add change the stae of the message to recived and ackliged
                         ClientData.CurrentClient.TextChats.Add(body);
                         ClientData.CurrentClient.ReceiptStatusDictionary[(stashID, requestID)] = ReceiptStatus.REC_AND_ACC;
                         Console.WriteLine($"Added new Chat: {body.Title}");
@@ -106,9 +120,12 @@ namespace Voice_of_Time.Cmd.Commands
                         throw new Exception("Unknwon MessageType");
                     }
 
+                    // Check datahadnling
                     if(handling == DataHandling.REMOVE_AFTER_GET_ACK)
                     {
+                        // If message has to be deletet after successfull reciving delete it and remove the entry from the ReceiptDictonary
                         await Requests.RemoveStashMessage(currentConnection, ClientData.CurrentClient, stashID, requestID);
+                        ClientData.CurrentClient.ReceiptStatusDictionary.Remove((stashID, requestID));
                     }
 
                     continue;
@@ -116,6 +133,7 @@ namespace Voice_of_Time.Cmd.Commands
                 throw new Exception("Unknown Header!");
             }
 
+            // Repeat for each chat the same procedure
             foreach (var chat in ClientData.CurrentClient.TextChats)
             {
                 if (chat is not PrivatChat privatChat) continue;
@@ -130,7 +148,13 @@ namespace Voice_of_Time.Cmd.Commands
 
             return true;
         }
-    
+
+        /// <summary>
+        /// Recive all messages of a chat and process them
+        /// </summary>
+        /// <param name="chat">Chat to check the stash</param>
+        /// <returns>sucess</returns>
+        /// <exception cref="Exception"></exception>
         public async Task<bool> ChatStashSync(PrivatChat chat)
         {
             if (ClientData.CurrentConnection is null || ClientData.CurrentClient is null) { return false; }
@@ -159,8 +183,9 @@ namespace Voice_of_Time.Cmd.Commands
             }
 
             requestIDs.Sort();
-            Console.Write($"Getting {requestIDs.Count} new messages");
+            Console.WriteLine($"Getting {requestIDs.Count} new messages");
 
+            // process each request by it self
             foreach (var requestID in requestIDs)
             {
                 StashMessage message = await Requests.GetStashMessage(currentConnection, ClientData.CurrentClient, chat.ChatID, requestID);
@@ -171,6 +196,7 @@ namespace Voice_of_Time.Cmd.Commands
 
                 var desMsg = new VOTP(msg);
 
+                // Ceck if package can be processed
                 if (desMsg.Header is HeaderStd header)
                 {
                     if (header.MessageType == 1) // 1 = Message

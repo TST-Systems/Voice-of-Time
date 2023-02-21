@@ -13,6 +13,9 @@ using VoTCore.Package;
  */
 namespace Voice_of_Time.Transfer
 {
+    /// <summary>
+    /// Connecection between this client and a server
+    /// </summary>
     internal class ClientSocket : IDisposable
     {
         /// <summary>

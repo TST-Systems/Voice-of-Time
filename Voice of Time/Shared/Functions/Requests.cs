@@ -13,7 +13,6 @@ using VoTCore.Communication;
 using VoTCore.Package.AbsData;
 using VoTCore.Package.StashData;
 using VoTCore.Data;
-using Voice_of_Time.Cmd.Commands;
 
 /**
  * @author      - Timeplex
@@ -24,9 +23,21 @@ using Voice_of_Time.Cmd.Commands;
  */
 namespace Voice_of_Time.Shared.Functions
 {
+    /// <summary>
+    /// Collection of different queries to the server
+    /// </summary>
     internal static class Requests
     {
         #region Process Helper
+        /// <summary>
+        /// A handler that helps with a generalization with the process it takes to send an recive data from a socket
+        /// </summary>
+        /// <typeparam name="T">Type of expeceted Body</typeparam>
+        /// <param name="socket">Socket to communicate</param>
+        /// <param name="package">Package to send</param>
+        /// <returns>Body of servers anwser</returns>
+        /// <exception cref="Exception">Server gave not the right anwser</exception>
+        /// <exception cref="PackageBodyNullException">The server did not send any payload (body)</exception>
         private static async Task<T> RequestPackageHandler<T>(ClientSocket socket, VOTP package) where T : IVOTPBody
         {
             var resultPackage = await socket.EnqueueItem(package);
@@ -48,6 +59,12 @@ namespace Voice_of_Time.Shared.Functions
             return resBody;
         }
 
+        /// <summary>
+        /// Wrapper for the generic version when no body is expeced
+        /// </summary>
+        /// <param name="socket">Socket to communicate</param>
+        /// <param name="package">Package to send</param>
+        /// <exception cref="Exception">Server didn't responded as expected</exception>
         private static async Task RequestPackageHandler(ClientSocket socket, VOTP package)
         {
             try
@@ -59,6 +76,12 @@ namespace Voice_of_Time.Shared.Functions
         }
         #endregion
 
+        /// <summary>
+        /// Request the UID of a given server
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="userID">Own userID, if already verified</param>
+        /// <returns>UID of server</returns>
         public static async Task<Guid> RequestServerID(ClientSocket socket, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.SERVER_GET_IDENTITY);
@@ -69,6 +92,13 @@ namespace Voice_of_Time.Shared.Functions
             return result.Data;
         }
 
+        /// <summary>
+        /// Request a exchange of public keys with the server
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="key">Own public Key to send (Can contain privat parts, witch will be sorted out)</param>
+        /// <param name="userID">Own userID, if already verified</param>
+        /// <returns>Public key of server</returns>
         public static async Task<RSA> KeyExchangeWithServer(ClientSocket socket, RSA key, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.SERVER_PUBLIC_KEY_EXCHANGE, 0);
@@ -81,6 +111,12 @@ namespace Voice_of_Time.Shared.Functions
             return result.GetKey();
         }
 
+        /// <summary>
+        /// Request the communication key for the socket and also an activation of a secure communication
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="decryptionKey">Own privat key to decrypt the AesKey</param>
+        /// <param name="userID">Own userID, if already verified</param>
         public static async Task OpenSecureCommunication(ClientSocket socket, RSA decryptionKey, long userID = -1)
         {
             var header = new HeaderReq(userID, RequestType.COMMUNICATION_GET_KEY_AND_SECURE);
@@ -94,7 +130,12 @@ namespace Voice_of_Time.Shared.Functions
 
             socket.SetCommunicationKey(key);
         }
-            
+
+        /// <summary>
+        /// Request a regestration. You should not be verified already
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <returns>New userID</returns>
         public static async Task<long> RegisterClient(ClientSocket socket)
         {
             var header = new HeaderReq(-1, RequestType.USER_REGISTRATION);
@@ -105,6 +146,14 @@ namespace Voice_of_Time.Shared.Functions
             return result.Data;
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Set or change the own username on the server
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="username">New username</param>
+        /// <param name="userID">Own userID</param>
+        /// <returns></returns>
         public async static Task SetUsername(ClientSocket socket, string username, long userID)
         {
             var header = new HeaderReq(userID, RequestType.USER_SET_USERNAME);
@@ -114,6 +163,14 @@ namespace Voice_of_Time.Shared.Functions
             await RequestPackageHandler(socket, toSend);
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Test the enryption of a socket
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="serverID">UID of server as comparable</param>
+        /// <param name="userID">Own userID</param>
+        /// <exception cref="Exception">If UID of sever does not match</exception>
         public static async Task TestConnection(ClientSocket socket, Guid serverID, long userID)
         {
             var newServerID = await Requests.RequestServerID(socket, userID);
@@ -121,6 +178,12 @@ namespace Voice_of_Time.Shared.Functions
             if (serverID.CompareTo(newServerID) != 0) throw new Exception("Connection Invalid!");
         }
 
+        /// <summary>
+        /// Alternitve to <see cref="RegisterClient"/>. Log in a existing client to a server.
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client instance for this server</param>
+        /// <returns>success</returns>
         public static async Task<bool> ValidateSelf(ClientSocket socket, Client client)
         {
             var header = new HeaderReq(-1, RequestType.USER_VERIFY);
@@ -138,7 +201,13 @@ namespace Voice_of_Time.Shared.Functions
             return true;
         }
 
-        public static async Task<List<long>> RequestAllUserIDs()
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Request all userIDs of all regiserd users on a server
+        /// </summary>
+        /// <returns>List of all userIDs</returns>
+        /// <exception cref="Exception">Server did not response as expected</exception>
+        public static async Task<List<long>> RequestAllUserIDs() // TODO: Need rework to match (socket, userID) 
         {
             var currentClient = ClientData.CurrentClient ?? throw new Exception("No activ connection!");
 
@@ -154,6 +223,14 @@ namespace Voice_of_Time.Shared.Functions
             return new(resBody.Data);
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para> 
+        /// Request all accasable information of anouther client
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="sender">Client to server</param>
+        /// <param name="targetID">UserID of targeted client</param>
+        /// <returns></returns>
         public static async Task<bool> TryGettingUserAsync(ClientSocket socket, Client sender, long targetID)
         {
             var header = new HeaderReq(sender.UserID, RequestType.PUBLIC_USER_GET);
@@ -165,6 +242,13 @@ namespace Voice_of_Time.Shared.Functions
             return sender.AppendOrOverridePublicClint(result);
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Register a new privat chat on the server
+        /// </summary>
+        /// <param name="socket">Socket of server</param>
+        /// <param name="userID">Own userID</param>
+        /// <returns>ChatID of new chat</returns>
         public static async Task<long> GetChatID(ClientSocket socket, long userID)
         {
             if (userID <= 0) return -1;
@@ -177,6 +261,17 @@ namespace Voice_of_Time.Shared.Functions
             return result.Data;
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Invite a user to a own chat or a chat where you meet the nessaray permissions. 
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client of server</param>
+        /// <param name="pubClient">Other client to invite</param>
+        /// <param name="chat">Targeted chat to invite the other user to</param>
+        /// <param name="handling">Not implemet yet</param> // TODO
+        /// <returns>success</returns>
+        /// <exception cref="PublicKeyMissingExeption">The outher client has no public key present in its data</exception>
         public static async Task<bool> InviteUserToGroupAsync(ClientSocket socket, Client client, PublicClient pubClient, PrivatChat chat, DataHandling handling)
         {
             var targetKey = (pubClient.Key ?? throw new PublicKeyMissingExeption()).PublicKey;
@@ -212,6 +307,16 @@ namespace Voice_of_Time.Shared.Functions
             return true;
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Add a message to any stash you have access to
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client of server</param>
+        /// <param name="stashID">StashID to access</param>
+        /// <param name="toStash">Message to store</param>
+        /// <param name="expires">Expiring date of message</param>
+        /// <param name="handling">Message handling</param>
         public static async Task<(long stashID, long receiptID)> AddStashMessage(ClientSocket socket, Client client, long stashID, string toStash, DateTime? expires = null, DataHandling handling = DataHandling.NONE)
         {
             expires ??= DateTime.Now.AddDays(30);
@@ -223,8 +328,15 @@ namespace Voice_of_Time.Shared.Functions
             var receipt = await RequestPackageHandler<AbsData_Receipt>(socket, toSend);
 
             return (receipt.TargetID, receipt.ReceiptID);
-        } 
+        }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Accept a invite to a privat chat
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client of server</param>
+        /// <param name="chatID">ID of chat to join</param>
         public static async Task AcceptInvite(ClientSocket socket, Client client, long chatID)
         {
             var header = new HeaderReq(client.UserID, RequestType.PRIVAT_CHAT_INVITE_ACCEPT);
@@ -234,6 +346,14 @@ namespace Voice_of_Time.Shared.Functions
             await RequestPackageHandler(socket, toSend);
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Get all IDs of messages stored in a given stash
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client of server</param>
+        /// <param name="stashID">ID of stash to access</param>
+        /// <returns>List of al receiptIDs</returns>
         public static async Task<List<long>> GetStashReceiptIDList(ClientSocket socket, Client client, long stashID)
         {
             var header = new HeaderReq(client.UserID, RequestType.STASH_LIST);
@@ -245,6 +365,15 @@ namespace Voice_of_Time.Shared.Functions
             return new(result.Data);
         }
 
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Get one Message of a Stash (handling is not performt automaticly)
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client of server</param>
+        /// <param name="stashID">ID of stash to access</param>
+        /// <param name="requestID">ID of message to get</param>
+        /// <returns>Message and meta data</returns>
         public static async Task<StashMessage> GetStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
         {
             var header = new HeaderReq(client.UserID, RequestType.STASH_GET);
@@ -255,7 +384,14 @@ namespace Voice_of_Time.Shared.Functions
 
             return result.Data;
         }
-
+        /// <summary>
+        /// <para>YOU NEED TO BE VERIFIED TO USE THIS!</para>
+        /// Remove a message from the stash
+        /// </summary>
+        /// <param name="socket">Socket to server</param>
+        /// <param name="client">Client of server</param>
+        /// <param name="stashID">ID of stash to access</param>
+        /// <param name="requestID">ID of message to delete</param>
         public static async Task RemoveStashMessage(ClientSocket socket, Client client, long stashID, long requestID)
         {
             var header = new HeaderReq(client.UserID, RequestType.STASH_DELETE);
