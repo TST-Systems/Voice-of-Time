@@ -12,12 +12,11 @@ namespace VoTCore.Package.Header
 {
     public class HeaderStd : IVOTPHeader
     {
-        public HeaderStd(long senderID, long receiverID, byte messageType, byte encrypionType)
+        public HeaderStd(long senderID, long receiverID, byte messageType)
         {
             SenderID      = senderID;
             ReceiverID    = receiverID;
             MessageType   = messageType;
-            EncrypionType = encrypionType;
         }
 
         [JsonIgnore]
@@ -29,8 +28,6 @@ namespace VoTCore.Package.Header
 
         public byte MessageType   { get; }
 
-        public byte EncrypionType { get; }
-
         public override bool Equals(object? obj)
         {
             if (obj is null)                          return false;
@@ -41,14 +38,13 @@ namespace VoTCore.Package.Header
             if (ReceiverID    != their.ReceiverID)    return false;
             if (SenderID      != their.SenderID)      return false;
             if (MessageType   != their.MessageType)   return false;
-            if (EncrypionType != their.EncrypionType) return false;
 
             return true;
         }
 
         public override int GetHashCode()
         {
-            return (int)(Version * SenderID * ReceiverID * MessageType * EncrypionType);
+            return (int)(Version * SenderID * ReceiverID * MessageType);
         }
     }
 }

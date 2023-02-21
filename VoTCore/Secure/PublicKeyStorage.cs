@@ -5,10 +5,13 @@
  * 
  * @created     - 22.01.2023
  * 
- * @last_change - 22.01.2023
+ * @last_change - 01.02.2023
+ * 
+ * @outdated    - 01.02.2023
  */
 namespace VoTCore.Secure
 {
+    [Obsolete("Outdated! Replaced by 'PublicClient' class")]
     public class PublicKeyStorage
     {
         private Dictionary<long, RSA> PublicKeyDictionary { get; }

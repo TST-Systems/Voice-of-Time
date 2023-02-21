@@ -5,7 +5,7 @@
  * 
  * @last_change - 27.01.2023
  */
-namespace Voice_of_Time
+namespace VoTCore.Controll
 {
     public interface IConsoleCommand
     {

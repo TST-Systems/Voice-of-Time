@@ -1,17 +1,23 @@
-﻿/**
- * @author      - SalzstangeManga, Timeplex
- * 
- * @created     - 23.01.2023
- * 
- * @last_change - 23.01.2023
- */
+﻿
+using System.Runtime.Serialization;
+/**
+* @author      - SalzstangeManga, Timeplex
+* 
+* @created     - 23.01.2023
+* 
+* @last_change - 03.02.2023
+*/
 namespace VoTCore.Communication.Data
 {
+    [DataContract]
     public class MessageStatus
     {
-        private bool statusSent;
-        private bool statusReceived;
-        private bool statusFailed;
+        [DataMember]
+        protected bool statusSent;
+        [DataMember]
+        protected bool statusReceived;
+        [DataMember]
+        protected bool statusFailed;
 
         //debug variables
         bool serverGotMessage = false;

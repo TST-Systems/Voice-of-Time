@@ -2,334 +2,238 @@
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using Voice_of_Time_Server.Shared;
 using VoTCore;
 using VoTCore.Package;
 using VoTCore.Package.Header;
-using VoTCore.Package.Interfaces;
 using VoTCore.Package.SData;
-using VoTCore.Package.SecData;
+using VoTCore.Secure;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 24.01.2023
+ * @last_change - 18.02.2023
  */
 namespace Voice_of_Time_Server.Transfer
 {
     internal class SocketHandler
     {
-        private readonly Socket socket;
-        private readonly Aes ConnectionKey = Aes.Create();
+        private  readonly TcpClient socket;
+        private  readonly NetworkStream stream;
+        internal readonly Aes CommunicationKey = Aes.Create();
 
-        private long UserID = -1;
-        private bool SecureCommunicationEnabled = false;
-        private bool requestEncryption = false;
+        internal RSA? UserPubKey;
+        internal long UserID = -1;
 
-        private RSA? UserPubKey;
-        private bool CommunicationVerified  = false;
-        private bool requestConnectionClose = false;
+        internal bool SecureCommunicationEnabled = false;
+        internal bool CommunicationVerified      = false;
 
-        public SocketHandler(Socket socket)
-        {
-            this.socket = socket;
+        internal bool RequestEncryption = false;
+        internal bool RequestConnectionClose = false;
+
+        internal bool EndConnection = false;
+
+        private readonly byte[] TokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
+        private readonly byte[] TokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
+        private readonly byte[] TokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
+
+        internal string Address { 
+            get 
+            {
+                var value = "Unknown";
+                if(socket.Client.RemoteEndPoint is IPEndPoint endpoint)
+                {
+                    value = endpoint.Address.ToString();
+                }
+                return value; 
+            } 
         }
 
-        internal protected virtual async Task HandleConnection()
+        private Thread? Reader;
+
+        public SocketHandler(TcpClient socket)
         {
-            bool EndConnection = false;
-            byte[] tokenSOM = Encoding.UTF8.GetBytes(Constants.SOM);
-            byte[] tokenEOM = Encoding.UTF8.GetBytes(Constants.EOM);
-            byte[] tokenFIN = Encoding.UTF8.GetBytes(Constants.FIN);
+            this.socket = socket;
+            stream = socket.GetStream();
 
-            if (socket.RemoteEndPoint is not IPEndPoint userEndPoint) throw new Exception("Invalied connection!");
-            Console.WriteLine(userEndPoint.Address.ToString() + ": User connected");
 
-            try
+            if (socket.Client.RemoteEndPoint is not IPEndPoint userEndPoint) throw new Exception("Invalied connection!");
+            WriteInfo("User connected");
+
+            StartReader();
+        }
+
+
+        private void StartReader()
+        {
+            Reader = new Thread(() =>
             {
-                while (!EndConnection)
+                byte[] buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                try
                 {
-                    //RECIVE
-                    bool messageComplete = false;
-
-                    var buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                    var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
-
-                    if (received == 0) throw new Exception("No data Transfer!");
-
-                    var IncomingMessageInBytes = buffer[0..received];
-
-                    if (received < Constants.FIN.Length) throw new Exception("Connection to slow!");
-
-                    if (Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenFIN.Length], tokenFIN))
+                    while (!EndConnection)
                     {
-                        EndConnection = true;
-                        return;
-                    }
+                        bool messageComplete = false;
 
-                    if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..tokenSOM.Length], tokenSOM)) throw new Exception("Communication not valid!");
-                    IncomingMessageInBytes = IncomingMessageInBytes[tokenSOM.Length..];
+                        int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
-                    while (!messageComplete)
-                    {
-                        if (Enumerable.SequenceEqual(
-                            IncomingMessageInBytes[(IncomingMessageInBytes.Length - tokenEOM.Length)..IncomingMessageInBytes.Length],
-                            tokenEOM))
+                        if (bytesRead == 0) throw new Exception("Server didn't send Data!");
+
+                        var IncomingMessageInBytes = buffer[0..bytesRead];
+
+                        if (bytesRead < Constants.FIN.Length) throw new Exception("Connection to slow!");
+
+                        if (Enumerable.SequenceEqual(IncomingMessageInBytes[0..TokenFIN.Length], TokenFIN))
                         {
-                            messageComplete = true;
-                            IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - tokenEOM.Length)];
-                            break;
+                            return;
                         }
 
-                        buffer = new byte[Constants.BUFFER_SIZE_BYTE];
-                        received = await socket.ReceiveAsync(buffer, SocketFlags.None);
+                        if (!Enumerable.SequenceEqual(IncomingMessageInBytes[0..TokenSOM.Length], TokenSOM)) throw new Exception("Communication not valid!");
+                        IncomingMessageInBytes = IncomingMessageInBytes[TokenSOM.Length..];
 
-                        IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..received]).ToArray();
+                        while (!messageComplete)
+                        {
+                            if (Enumerable.SequenceEqual(
+                                IncomingMessageInBytes[(IncomingMessageInBytes.Length - TokenEOM.Length)..IncomingMessageInBytes.Length],
+                                TokenEOM))
+                            {
+                                messageComplete = true;
+                                IncomingMessageInBytes = IncomingMessageInBytes[..(IncomingMessageInBytes.Length - TokenEOM.Length)];
+                                break;
+                            }
+
+                            buffer = new byte[Constants.BUFFER_SIZE_BYTE];
+                            bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                            IncomingMessageInBytes = IncomingMessageInBytes.Concat(buffer[0..bytesRead]).ToArray();
+                        }
+
+                        if (SecureCommunicationEnabled)
+                        {
+                            if (CommunicationKey is null) throw new Exception("Inteneral Error!");
+                            IncomingMessageInBytes = CryproManager.AesDecyrpt(CommunicationKey, IncomingMessageInBytes);
+                        }
+
+                        var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
+
+                        // PROCESS
+                        var process = new Thread(() => WriteMessage(ProccessResponse(IncomingMessage)));
+                        process.Start();
                     }
-
-                    if (SecureCommunicationEnabled)
-                    {
-                        using var encryptor = ConnectionKey.CreateDecryptor();
-                        using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
-
-                        cryptostream.Write(IncomingMessageInBytes, 0, IncomingMessageInBytes.Length);
-                        cryptostream.FlushFinalBlock();
-
-                        IncomingMessageInBytes = memoryStream.ToArray();
-
-                        cryptostream.Close();
-                        memoryStream.Close();
-                    }
-                    var IncomingMessage = Encoding.UTF8.GetString(IncomingMessageInBytes);
-
-                    // PROCESS
-                    var answer = ProccessResponse(IncomingMessage);
-
-                    // SEND
-                    byte[] messageBytes = Encoding.UTF8.GetBytes(answer);
-
-                    if (SecureCommunicationEnabled)
-                    {
-                        using var encryptor = ConnectionKey.CreateEncryptor();
-                        using MemoryStream memoryStream = new();
-                        using CryptoStream cryptostream = new(memoryStream, encryptor, CryptoStreamMode.Write);
-
-                        cryptostream.Write(messageBytes, 0, messageBytes.Length);
-                        cryptostream.FlushFinalBlock();
-
-                        messageBytes = memoryStream.ToArray();
-
-                        cryptostream.Close();
-                        memoryStream.Close();
-                    }
-
-                    var bytesToSend = tokenSOM.Concat(messageBytes).Concat(tokenEOM).ToArray();
-
-                    var code = await socket.SendAsync(bytesToSend, SocketFlags.None);
-                    if (requestEncryption)
-                    {
-                        requestEncryption = false;
-                        SecureCommunicationEnabled = true;
-                    }
-                    if (requestConnectionClose) EndConnection = true;
                 }
-            }
-            catch (SocketException soex)
+                catch (IOException soex)
+                {
+                    WriteInfo(soex.Message);
+                }
+                catch (Exception ex)
+                {
+                    WriteInfo("Connection Error:");
+                    WriteInfo(ex.ToString());
+                }
+                finally
+                {
+                    WriteInfo("User disconnected");
+                    EndConnection = true;
+                    socket.Close();
+                }
+                return;
+            })
             {
-                Console.WriteLine(userEndPoint.Address.ToString() + ": " + soex.Message);
-            }
-            catch (Exception ex)
+                Name = Address + ":Reader"
+            };
+
+            Reader.Start();
+        }
+
+
+        private void WriteMessage(string message)
+        {
+            try
             {
-                Console.WriteLine("Connection Error:");
-                Console.WriteLine(ex.ToString());
+                byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+
+                if (SecureCommunicationEnabled)
+                {
+                    if (CommunicationKey is null) throw new ArgumentNullException(nameof(CommunicationKey));
+                    messageBytes = CryproManager.AesEncyrpt(CommunicationKey, messageBytes);
+                }
+
+                var bytesToSend = TokenSOM.Concat(messageBytes).Concat(TokenEOM).ToArray();
+
+                stream.Write(bytesToSend, 0, bytesToSend.Length);
+
+                if (RequestEncryption)
+                {
+                    RequestEncryption = false;
+                    SecureCommunicationEnabled = true;
+                }
+                if (RequestConnectionClose) EndConnection = true;
             }
-            finally
+            catch (IOException ex)
             {
-                Console.WriteLine(userEndPoint.Address.ToString() + ": User disconnected");
+                WriteInfo(ex.Message);
+                EndConnection = true;
                 socket.Close();
             }
             return;
         }
 
+        public void WriteInfo(string message)
+        {
+            Console.WriteLine(Address + ": " + message);
+        }
+
+
         protected virtual string ProccessResponse(string incomingMessage)
         {
-            var response = "";
             //Get VOTP
             VOTP package = new(incomingMessage);
 
-            switch (package.Header)
+            var header    = package.Header;
+            var body      = package.Body;
+            var packageID = package.PackageID;
+
+            if (header is not HeaderReq reqHeader)
             {
-                case HeaderReq req:
-                    response = ProccessRequest(req, package.Body);
-                    break;
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.UNKNOWN_HEADER_TYPE, $"{header.GetType().Name} is not supported by the server!"));
+                return _toSend.Serialize();
             }
 
+            var requestType = reqHeader.Request;
 
+            Thread.CurrentThread.Name = $"{UserID}->{requestType}";
 
-            return response;
-        }
+            var executer = ServerData.GetExecuter(requestType);
 
-        private string ProccessRequest(HeaderReq header, IVOTPBody? body)
-        {
-            IVOTPHeader? sendHeader = null;
-            IVOTPBody? sendBody = null;
-
-            var typeOfRequest = header.Request;
-
-            switch (typeOfRequest)
+            if(executer is null)
             {
-                case RequestType.IDENTITY:
-                    sendHeader = new HeaderAck(true);
-                    sendBody = new SData_Guid(ServerInfo.server.ServerIdentity);
-                    break;
-                case RequestType.KEY_EXCHANGE:
-                    if (body is null)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("Public key is only avaivaible for users with own Public key!");
-                        break;
-                    }
-
-                    if (body is not SecData_Key_RSA rsaBody)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("Server expectet a RSA key!");
-                        break;
-                    }
-
-                    UserPubKey = rsaBody.GetKey();
-
-                    if (header.SenderID > 0 && CommunicationVerified)
-                    {
-                        ServerInfo.server.AddPublicKey(header.SenderID, UserPubKey);
-                    }
-
-                    sendHeader = new HeaderAck(true);
-                    sendBody = new SecData_Key_RSA(ServerInfo.server.ServerKey, 0);
-
-                    break;
-                case RequestType.VERIFY:
-                    if (UserID > 0)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody   = new SData_String("You are already verifiyed! Server closes the connection!");
-                        requestConnectionClose = true;
-                        break;
-                    }
-
-                    if(header.SenderID <= 0)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody   = new SData_String("Use your UserID to verify!");
-                        break;
-                    }
-
-                    if(!ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody   = new SData_String("User unknown! Register first!");
-                        break;
-                    }
-
-                    UserID = header.SenderID;
-
-                    UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[UserID];
-
-
-                    goto COMM_KEY;
-                case RequestType.COMM_KEY:
-                COMM_KEY:
-
-                    if (CommunicationVerified)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody   = new SData_String("You are already verifiyed! Server closes the connection!");
-                        requestConnectionClose = true;
-                        break;
-                    }
-
-                    if (UserPubKey is null)
-                    {
-                        if (header.SenderID <= 0 || !ServerInfo.server.PublicKeyDictionaryCopy.ContainsKey(header.SenderID))
-                        {
-                            sendHeader = new HeaderAck(false);
-                            sendBody   = new SData_String("Public key unknown! Please exhange your Key first!");
-                            break;
-                        }
-                        UserPubKey = ServerInfo.server.PublicKeyDictionaryCopy[header.SenderID];
-                    }
-
-                    // Because if he doesn't understand the key, he has to close the connection.
-                    if(typeOfRequest == RequestType.VERIFY) CommunicationVerified = true; 
-
-                    requestEncryption = true;
-
-                    var preBody = new SecData_Key_Aes(ConnectionKey, 0);
-                    preBody.EncryptData(UserPubKey, UserID);
-
-                    sendHeader  = new HeaderAck(true);
-                    sendBody = preBody;
-                    break;
-                case RequestType.REGISTRATION: //<- Can be attacked very easily
-                    if(UserID > 0)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody  = new SData_String("You are already logged in!");
-                        break;
-                    }
-                    if (!SecureCommunicationEnabled || UserPubKey is null)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("You need to secure the communication first!");
-                        break;
-                    }
-                    var uid = ServerInfo.server.AddUser(UserPubKey);
-
-                    CommunicationVerified = true;
-                    UserID                = uid;
-
-                    sendHeader = new HeaderAck(true);
-                    sendBody  = new SData_Long(uid);
-                    break;
-                case RequestType.SET_USERNAME:
-                    if (!CommunicationVerified)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("You need to secure the communication first!");
-                        break;
-                    }
-                    if (UserID <= 0)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("You are not known!");
-                        break;
-                    }
-
-                    if (body is not SData_String strBody)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("No new username!");
-                        break;
-                    }
-                    if (strBody.Data is null)
-                    {
-                        sendHeader = new HeaderAck(false);
-                        sendBody = new SData_String("No new username!");
-                        break;
-                    }
-
-                    ServerInfo.server.UserDB[UserID].UserName = strBody.Data;
-
-                    sendHeader = new HeaderAck(true);
-                    break;
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.UNKNOWN_REQUEST_TYPE, $"{requestType} is not supported by the server!"));
+                return _toSend.Serialize();
             }
 
-            if (sendHeader is null) throw new Exception("Unknown request!");
+            if(UserID != reqHeader.SenderID)
+            {
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.WRONG_SENDER, "You are tring to be anouther user! Use -1 as long you are not verifiyed or registerd!"));
+                return _toSend.Serialize();
+            }
 
-            VOTP sendPackage = new(sendHeader, sendBody);
-            return sendPackage.Serialize();
+            if (executer.ExecuteOnlyIfVerified && !CommunicationVerified)
+            {
+                var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.COMMUNICATION_NOT_VERIFIED, "You need to be verifiyed or registerd to use this feature!"));
+                return _toSend.Serialize();
+            }
+
+            var (toSendHeader, toSendBody) = executer.ExecuteRequest(reqHeader, body, this) ?? throw new Exception();
+
+            var toSend = new VOTP(toSendHeader, toSendBody)
+            {
+                PackageID = packageID,
+            };
+
+            return toSend.Serialize();
         }
+
     }
 }

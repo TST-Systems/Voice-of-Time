@@ -1,25 +1,26 @@
 ﻿using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using VoTCore.Exeptions;
 using VoTCore.Package.Interfaces;
 using VoTCore.Secure.Iterfaces;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 20.01.2023
  * 
- * @last_change - 21.01.2023
+ * @last_change - 10.02.2023
  */
 namespace VoTCore.Package.SecData
 {
     public class SecData_Key_Aes : IVOTPBody, IRSACrypt
     {
-        private string keyAsB64;
-        private string iVAsB64;
+        private byte[] key;
+        private byte[] iv;
 
-        public string KeyAsB64 => keyAsB64;
-
-        public string IVAsB64  => iVAsB64; 
+        public byte[] Key { get => key; }
+        public byte[] IV  { get => iv;  }
 
         public long SourceID { get; }
 
@@ -31,8 +32,8 @@ namespace VoTCore.Package.SecData
 
         public SecData_Key_Aes(Aes publicKey, long sourceID)
         {
-            keyAsB64 = Convert.ToBase64String(publicKey.Key);
-            iVAsB64 = Convert.ToBase64String(publicKey.IV);
+            key      = publicKey.Key;
+            iv       = publicKey.IV;
             SourceID = sourceID;
         }
 
@@ -42,20 +43,20 @@ namespace VoTCore.Package.SecData
         /// <param name="keyXML">Public key as XML</param>
         /// <param name="sourceID">User/Group from with the key originates</param>
         [JsonConstructor]
-        public SecData_Key_Aes(string keyAsB64, string iVAsB64, long sourceID, long cryptedReciver)
+        public SecData_Key_Aes(byte[] key, byte[] iv, long sourceID, long cryptedReciver)
         {
-            SourceID                = sourceID;
-            this.keyAsB64           = keyAsB64;
-            this.iVAsB64            = iVAsB64;
-            this.cryptedReciver     = cryptedReciver;
+            SourceID            = sourceID;
+            this.key            = key;
+            this.iv             = iv;
+            this.cryptedReciver = cryptedReciver;
         }
 
         public Aes GetKey()
         {
-            var key = Aes.Create();
-            key.Key = Convert.FromBase64String(keyAsB64);
-            key.IV = Convert.FromBase64String(iVAsB64);
-            return key;
+            var aesKey = Aes.Create();
+            aesKey.Key = key;
+            aesKey.IV  = iv;
+            return aesKey;
         }
 
         public void EncryptData(RSA rsa, long revicerID)
@@ -64,28 +65,23 @@ namespace VoTCore.Package.SecData
 
             cryptedReciver = revicerID;
 
-            var key = Convert.FromBase64String(keyAsB64);
-            var iv = Convert.FromBase64String(iVAsB64);
-
             key = rsa.Encrypt(key, RSAEncryptionPadding.Pkcs1);
-            iv  = rsa.Encrypt(iv, RSAEncryptionPadding.Pkcs1);
-
-            keyAsB64 = Convert.ToBase64String(key);
-            iVAsB64  = Convert.ToBase64String(iv);
+            iv  = rsa.Encrypt(iv,  RSAEncryptionPadding.Pkcs1);
         }
+
+        public void EncryptData(PublicClient target) 
+        {
+            if (target.Key is null) throw new PublicKeyMissingExeption(target);
+            EncryptData(target.Key.PublicKey, target.UserID);
+        }
+
 
         public void DecryptData(RSA rsa)
         {
             if (cryptedReciver is null) return;
 
-            var key = Convert.FromBase64String(keyAsB64);
-            var iv = Convert.FromBase64String(iVAsB64);
-
             key = rsa.Decrypt(key, RSAEncryptionPadding.Pkcs1);
             iv  = rsa.Decrypt(iv,  RSAEncryptionPadding.Pkcs1);
-
-            keyAsB64 = Convert.ToBase64String(key);
-            iVAsB64  = Convert.ToBase64String(iv);
 
             cryptedReciver = null;
         }

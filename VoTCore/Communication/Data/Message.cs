@@ -1,18 +1,25 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 /**
  * @author      - Timeplex, SalzstangeManga
  * 
  * @created     - 23.01.2023
  * 
- * @last_change - 23.01.2023
+ * @last_change - 05.02.2023
  */
 namespace VoTCore.Communication.Data
 {
     /// <summary>
     /// Text based message for communication between clients
     /// </summary>
-    public abstract class Message
+    [Serializable]
+    [KnownType(typeof(BodyType))]
+    [KnownType(typeof(DateTime))]
+    [KnownType(typeof(MessageStatus))]
+    [KnownType(typeof(FileMessage))]
+    [KnownType(typeof(TextMessage))]
+    public abstract class Message : ISerializable
     {
         /// <summary>
         /// Type of Message
@@ -32,17 +39,33 @@ namespace VoTCore.Communication.Data
         /// <summary>
         /// Time of creation in milliseconds
         /// </summary>
-        public long DateOfCreation { get; }
+        public DateTime DateOfCreation { get; }
 
         public MessageStatus Status { get; }
 
-        protected Message(string messageString, long authorID, long dateOfCreation, BodyType type)
+        protected Message(SerializationInfo info, StreamingContext context)
         {
-            MessageString = messageString;
-            AuthorID = authorID;
+            Type           = (BodyType)(info.GetValue(nameof(Type), typeof(BodyType)) 
+                ?? throw new Exception("Message coudn't be laoded!"));
+
+            MessageString  = info.GetString(nameof(MessageString)) 
+                ?? throw new Exception("Message coudn't be laoded!");
+
+            AuthorID       = info.GetInt64(nameof(AuthorID));
+
+            DateOfCreation = info.GetDateTime(nameof(DateOfCreation));
+
+            Status         = (MessageStatus)(info.GetValue(nameof(Status), typeof(MessageStatus)) 
+                ?? throw new Exception("Message coudn't be laoded!"));
+        }
+
+        protected Message(string messageString, long authorID, DateTime dateOfCreation, BodyType type)
+        {
+            MessageString  = messageString;
+            AuthorID       = authorID;
             DateOfCreation = dateOfCreation;
-            Type = type;
-            Status = new();
+            Type           = type;
+            Status         = new();
         }
 
         public override bool Equals(object? obj)
@@ -61,6 +84,15 @@ namespace VoTCore.Communication.Data
         public override int GetHashCode()
         {
             throw new NotImplementedException();
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(MessageString),  MessageString);
+            info.AddValue(nameof(AuthorID),       AuthorID);
+            info.AddValue(nameof(DateOfCreation), DateOfCreation);
+            info.AddValue(nameof(Status),         Status);
+            info.AddValue(nameof(Type),           Type);
         }
     }
 }

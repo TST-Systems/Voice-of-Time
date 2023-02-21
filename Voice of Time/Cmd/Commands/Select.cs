@@ -1,11 +1,12 @@
-﻿using VoTCore.Controll;
+﻿using Voice_of_Time.Shared;
+using VoTCore.Controll;
 
 /**
  * @author      - Timeplex
  * 
  * @created     - 28.01.2023
  * 
- * @last_change - 28.01.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Cmd.Commands
 {
@@ -51,7 +52,7 @@ namespace Voice_of_Time.Cmd.Commands
                 Console.WriteLine("");
                 for (int i = 0; i < ConnectionList.Count; i++)
                 {
-                    Console.WriteLine($"[{i}] - {allConnections[ConnectionList[i]].GetIPAddress(true)}");
+                    Console.WriteLine($"[{i}] - {allConnections[ConnectionList[i]].Address}");
                 }
                 Console.WriteLine("");
                 Console.Write("ID: ");
