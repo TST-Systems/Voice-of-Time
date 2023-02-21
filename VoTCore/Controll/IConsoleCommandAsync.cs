@@ -1,6 +1,4 @@
-﻿using Voice_of_Time;
-
-/**
+﻿/**
  * @author      - Timeplex
  * 
  * @created     - 27.01.2023

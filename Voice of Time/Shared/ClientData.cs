@@ -1,4 +1,7 @@
-﻿using Voice_of_Time.Transfer;
+using System.Runtime.Serialization;
+using Voice_of_Time.Transfer;
+using Voice_of_Time.User;
+using VoTCore.Controll;
 using VoTCore.Exeptions;
 
 /**
@@ -6,21 +9,46 @@ using VoTCore.Exeptions;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 28.01.2023
+ * @last_change - 12.02.2023
  */
-namespace Voice_of_Time
+namespace Voice_of_Time.Shared
 {
+    [Serializable]
     public static class ClientData
     {
         private static readonly Dictionary<Guid, Client> UserRegister = new();
 
-        private static readonly Dictionary<Guid, CSocketHold> ConnectionRegister = new();
+
+        private static readonly Dictionary<Guid, ClientSocket> ConnectionRegister = new();
 
         private static readonly Dictionary<string, IConsoleCommand> CommandRegister = new();
         private static readonly Dictionary<string, string> AliasesRegister = new();
 
         private static Guid? currentConnection = null;
         internal static Guid? CurrentConnection { get => currentConnection; }
+
+        internal static Client? CurrentClient
+        {
+            get
+            {
+                if (CurrentConnection != null)
+                    return UserRegister[(Guid)CurrentConnection];
+                return null;
+            }
+        }
+
+        public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
+
+        internal static (ClientSocket, Client, Guid) GetCurrentConnection()
+        {            
+            var serverID = currentConnection       ?? throw new Exception("No acctiv connection!");
+            var socket   = GetConnection(serverID) ?? throw new Exception("Internal Error: No Connection to current Server!");
+            var client   = CurrentClient           ?? throw new Exception("Internal Errir: No Client for current Servert!");
+
+            return (socket, client, serverID);
+        }
+
+
 
         #region CommandRegister
         private const string AllowedChars = "abcdefghijklmnopqrstuvwxyz0123456789_";
@@ -102,7 +130,7 @@ namespace Voice_of_Time
                 RegisterCommand(executer);
             }
             catch (EntryAlreadyExistsExeption) { return false; }
-            catch (UnauthorizedCharExeption)   { return false; }
+            catch (UnauthorizedCharExeption) { return false; }
             return true;
         }
 
@@ -110,7 +138,7 @@ namespace Voice_of_Time
         {
             command = command.ToLower();
             var realCommand = AliasesRegister.GetValueOrDefault(command);
-            if(realCommand is null) return null;
+            if (realCommand is null) return null;
             return CommandRegister[realCommand];
         }
 
@@ -129,12 +157,20 @@ namespace Voice_of_Time
         #region UserRegister
         internal static Client? GetServerCient(Guid serverID)
         {
+            if (!UserRegister.ContainsKey(serverID))
+            {
+                var serverInstace = LoadData(serverID);
+                if (serverInstace is not null)
+                {
+                    UserRegister[serverID] = serverInstace;
+                }
+            }
             return UserRegister.GetValueOrDefault(serverID);
         }
 
         internal static void AddServerClient(Client client, Guid serverID)
         {
-            if(UserRegister.ContainsKey(serverID))
+            if (UserRegister.ContainsKey(serverID))
             {
                 throw new EntryAlreadyExistsExeption();
             }
@@ -148,13 +184,13 @@ namespace Voice_of_Time
             {
                 AddServerClient(client, serverID);
             }
-            catch(EntryAlreadyExistsExeption) { return false; }
+            catch (EntryAlreadyExistsExeption) { return false; }
             return true;
         }
         #endregion
 
         #region ConnectionRegister
-        internal static void AddConnection(Guid serverID, CSocketHold socket, bool isCurrentConnection = true)
+        internal static void AddConnection(Guid serverID, ClientSocket socket, bool isCurrentConnection = true)
         {
             if (ConnectionRegister.ContainsKey(serverID)) throw new EntryAlreadyExistsExeption();
             ConnectionRegister.Add(serverID, socket);
@@ -165,12 +201,12 @@ namespace Voice_of_Time
             }
         }
 
-        internal static CSocketHold? GetConnection(Guid serverID)
+        internal static ClientSocket? GetConnection(Guid serverID)
         {
             return ConnectionRegister.GetValueOrDefault(serverID);
         }
 
-        internal static List<CSocketHold> GetAllConnectionSockets()
+        internal static List<ClientSocket> GetAllConnectionSockets()
         {
             return ConnectionRegister.Values.ToList();
         }
@@ -194,9 +230,9 @@ namespace Voice_of_Time
             }
         }
 
-        internal static Dictionary<Guid, CSocketHold> GetConnectionRegisterCopy()
+        internal static Dictionary<Guid, ClientSocket> GetConnectionRegisterCopy()
         {
-            return new Dictionary<Guid, CSocketHold>(ConnectionRegister);
+            return new Dictionary<Guid, ClientSocket>(ConnectionRegister);
         }
 
         internal static bool SelectConnection(Guid serverID)
@@ -207,5 +243,50 @@ namespace Voice_of_Time
         }
         #endregion
 
+        #region Save & Load
+        public static void SaveData()
+        {
+            Directory.CreateDirectory(SaveFolder);
+
+            foreach (var server in UserRegister)
+            {
+                var saveFile = Path.Combine(SaveFolder, server.Key.ToString());
+
+                if(File.Exists(saveFile))
+                {
+                    if(File.Exists(saveFile + ".BAK"))
+                    {
+                        File.Delete(saveFile + ".BAK");
+                    }
+                    File.Move(saveFile, saveFile + ".BAK");
+                }
+
+                using FileStream stream = File.OpenWrite(saveFile);
+
+                DataContractSerializer formatter = new(typeof(Client));
+
+                formatter.WriteObject(stream, server.Value);
+
+                stream.Close();
+            }
+        }
+
+        private static Client? LoadData(Guid serverID)
+        {
+            var saveFile = Path.Combine(SaveFolder, serverID.ToString());
+
+            if (!File.Exists(saveFile)) return null;
+
+            using FileStream stream = File.OpenRead(saveFile);
+
+            DataContractSerializer formatter = new(typeof(Client));
+
+            Client? client = (Client?)formatter.ReadObject(stream);
+
+            stream.Close();
+
+            return client;
+        }
+        #endregion
     }
 }

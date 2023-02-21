@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Voice_of_Time.Cmd.Commands;
+using Voice_of_Time.Shared;
 using VoTCore.Controll;
 
 /**
@@ -7,7 +8,7 @@ using VoTCore.Controll;
  * 
  * @created     - 27.01.2023
  * 
- * @last_change - 28.01.2023
+ * @last_change - 12.02.2023
  */
 namespace Voice_of_Time.Cmd
 {
@@ -46,7 +47,7 @@ namespace Voice_of_Time.Cmd
                     var connetion = ClientData.GetConnection((Guid)ClientData.CurrentConnection); 
                     if(connetion != null)
                     {
-                        selectedServer =  connetion.GetIPAddress();
+                        selectedServer =  connetion.Address;
                     }
                 }
                 Console.Write(selectedServer + " > ");
@@ -54,17 +55,21 @@ namespace Voice_of_Time.Cmd
                 Console.WriteLine();
                 await ProcessCommand(input);
                 Console.WriteLine();
+
+                ClientData.SaveData();
             }
         }
 
-        private static void LoadDefaultCommands()
+        protected virtual void LoadDefaultCommands()
         {
             ClientData.TryRegisterCommand(new Help());
             ClientData.TryRegisterCommand(new Connect());
             ClientData.TryRegisterCommand(new Disconnect());
             ClientData.TryRegisterCommand(new Select());
-            ClientData.TryRegisterCommand(new ListChats());
             ClientData.TryRegisterCommand(new Exit());
+            ClientData.TryRegisterCommand(new Chat());
+            ClientData.TryRegisterCommand(new Users());
+            ClientData.TryRegisterCommand(new Stash());
         }
 
         static async Task ProcessCommand(string? str)

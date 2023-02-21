@@ -28,11 +28,14 @@ namespace VoTCore.Package.SData
             if (obj == null) return false;
             if (obj is not SData<T> their) return false;
 
-            if (Data == null && their.Data != null) return false;
-            if (!(Data == null && their.Data == null) && !Data.Equals(their.Data)) return false;
             if (Type != their.Type) return false;
 
-            return true;
+            if (Data == null && their.Data == null) return true;
+
+            if (Data != null && their.Data != null)
+                if(Data.Equals(their.Data)) return true;
+
+            return false;
         }
 
         public override int GetHashCode()
