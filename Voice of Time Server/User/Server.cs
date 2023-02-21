@@ -18,22 +18,54 @@ using VoTCore.User;
  */
 namespace Voice_of_Time_Server.User
 {
+    /// <summary>
+    /// Server data storage
+    /// </summary>
     internal class Server : IDisposable
     {
+        /// <summary>
+        /// Server UID
+        /// </summary>
         public Guid ServerIdentity { get; }
-
+        /// <summary>
+        /// Server Config
+        /// </summary>
         public ServerConfig Config { get; }
-
+        /// <summary>
+        /// Server Key pair
+        /// </summary>
         public RSA ServerKey { get; }
 
-
+        /// <summary>
+        /// DB-Profile Name
+        /// </summary>
         private string DBName { get; }
+        /// <summary>
+        /// ID-DB
+        /// Stores the following:
+        /// - IDs
+        /// - Users
+        /// - Chats
+        /// - Channels
+        /// - Member of Channels
+        /// </summary>
         private readonly SqliteConnection DB;
+        /// <summary>
+        /// Stash-DB
+        /// Link DB between file storage and user/chat/channel
+        /// </summary>
         private readonly SqliteConnection StashDB;
 
-        // Data Hasher
+        // Data Name Hasher
         private readonly SHA256 hasher = SHA256.Create();
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="serverIdentity">Server UID</param>
+        /// <param name="serverKey">Server Key pair</param>
+        /// <param name="config">Servert config</param>
+        /// <param name="dbName">Profile-Name</param>
         public Server(Guid? serverIdentity = null, RSA? serverKey = null, ServerConfig? config = null, string dbName = "Server")
         {
             Config          = config         ?? new();
@@ -41,29 +73,39 @@ namespace Voice_of_Time_Server.User
             ServerIdentity  = serverIdentity ?? Guid.NewGuid();
 
             DBName = dbName;
-
+            
+            // SQLite stuff :/
             SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
 
+            // Check if the DB musst be created
             var createDB = !File.Exists($"{DBName}.sqlite");
-
+            // Create DB
             DB = new SqliteConnection($"Data Source={DBName}.sqlite");
-
+            // Start DB
             StartDB(createDB);
 
+            // (Create +) Open StashDB 
             Directory.CreateDirectory("Stash");
             StashDB = new SqliteConnection($@"Data Source=Stash\{DBName}.sqlite");
             StashDB.Open();
             Console.WriteLine("Stash started");
         }
 
+        /// <summary>
+        /// SB starter
+        /// </summary>
+        /// <param name="createDB">DB needs to be created</param>
+        /// <exception cref="FileNotFoundException">Template not found</exception>
         private void StartDB(bool createDB)
         {
             try
             {
                 DB.Open();
                 Console.WriteLine("DB started");
+                // Init DB
                 if (createDB)
                 {
+                    // Load Template & Create it
                     var createScriptPath = @"SQLite\CREATE.sql";
                     if (!File.Exists(createScriptPath)) throw new FileNotFoundException(createScriptPath);
 
@@ -73,7 +115,7 @@ namespace Voice_of_Time_Server.User
                     createCommand.ExecuteNonQuery();
                     Console.WriteLine("DB Created");
                 }
-
+                // Run every start commands (pragmas)
                 var initScriptPath = @"SQLite\INIT.sql";
                 if (!File.Exists(initScriptPath)) throw new FileNotFoundException(initScriptPath);
 
@@ -91,10 +133,17 @@ namespace Voice_of_Time_Server.User
             }
         }
 
+        /// <summary>
+        /// Register a new User to the system
+        /// </summary>
+        /// <param name="userPubKey">Public Key of user</param>
+        /// <param name="username">Username of user</param>
+        /// <returns>User ID of new user</returns>
         internal long AddUser(RSA userPubKey, string username)
         {
             Random rdm = new();
             long userID;
+            // Get an free ID
             do 
             { 
                 userID = rdm.Next(101, int.MaxValue); 
@@ -107,6 +156,11 @@ namespace Voice_of_Time_Server.User
             return userID;
         }
 
+        /// <summary>
+        /// Register a new Chat to the system
+        /// </summary>
+        /// <param name="creatorID">User ID of the creator of the chat</param>
+        /// <returns>Chat ID of new chat</returns>
         internal long AddChat(long creatorID)
         {
             Random rdm = new();
@@ -123,7 +177,14 @@ namespace Voice_of_Time_Server.User
 
             return chatID;
         }
+
         #region DBCommands
+        /// <summary>
+        /// Check if a given ID is already occupied
+        /// </summary>
+        /// <param name="id">ID to check</param>
+        /// <returns>ID if free to use</returns>
+        /// <exception cref="Exception"></exception>
         internal bool IDIsFree (long id)
         {
             using var cmd = new SqliteCommand("SELECT COUNT(*) FROM IDS WHERE id = @id", DB);
@@ -141,6 +202,10 @@ namespace Voice_of_Time_Server.User
             return count == 0;
         }
 
+        /// <summary>
+        /// Add a user into the DB
+        /// </summary>
+        /// <param name="client">Public user data</param>
         internal void RegisterUser(PublicClient client)
         {
             using var cmd = new SqliteCommand("INSERT INTO USERS (id, username, publickey) VALUES (@id, @username, @publickey)", DB);
@@ -151,6 +216,11 @@ namespace Voice_of_Time_Server.User
             cmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Wrapper for <see cref="RegisterUser"/> if the ID is already occupied
+        /// </summary>
+        /// <param name="client">Public user data</param>
+        /// <returns>Client could be added</returns>
         internal bool TryRegisterUser(PublicClient client)
         {
             try
@@ -165,6 +235,11 @@ namespace Voice_of_Time_Server.User
             return true;
         }
 
+        /// <summary>
+        /// Add a chat to the system
+        /// </summary>
+        /// <param name="chatID">ID of the chat</param>
+        /// <param name="creatorID">ID of the creator</param>
         internal void RegisterChat(long chatID, long creatorID)
         {
             using (var cmd = new SqliteCommand("INSERT INTO CHATS (id) VALUES (@id)", DB))
@@ -182,6 +257,12 @@ namespace Voice_of_Time_Server.User
             }
         }
 
+        /// <summary>
+        /// Wrapper for <see cref="RegisterChat"/> if the ID is already occupied
+        /// </summary>
+        /// <param name="chatID">ID of the chat</param>
+        /// <param name="creatorID">ID of the creator</param>
+        /// <returns>Chat could be added</returns>
         internal bool TryRegisterChat(long chatID, long creatorID)
         {
             try
@@ -196,6 +277,11 @@ namespace Voice_of_Time_Server.User
             return true;
         }
 
+        /// <summary>
+        /// Get User data if user exists
+        /// </summary>
+        /// <param name="userID">ID of user</param>
+        /// <returns>User data or null</returns>
         internal PublicClient? GetUser(long userID)
         {
             using var cmd = new SqliteCommand("SELECT id, username, publickey FROM USERS WHERE id = @id", DB);
@@ -215,6 +301,10 @@ namespace Voice_of_Time_Server.User
             return new(id, username, PublicKey);
         }
 
+        /// <summary>
+        /// Get a List of IDs of users
+        /// </summary>
+        /// <returns>List of all user IDs</returns>
         internal long[] GetUserIDs()
         {
             List<long> ids = new();
@@ -228,6 +318,12 @@ namespace Voice_of_Time_Server.User
             return ids.ToArray();
         }
         
+        /// <summary>
+        /// Check if a user is known by the server
+        /// </summary>
+        /// <param name="userID">Id of designated user</param>
+        /// <returns>User exists</returns>
+        /// <exception cref="Exception"></exception>
         internal bool UserExists(long userID)
         {
             using var cmd = new SqliteCommand("SELECT COUNT(*) FROM USERS WHERE id = @id", DB);
@@ -245,6 +341,11 @@ namespace Voice_of_Time_Server.User
             return count == 1;
         }
 
+        /// <summary>
+        /// Change the username of a user
+        /// </summary>
+        /// <param name="userID">ID of targeted user</param>
+        /// <param name="userName">New username</param>
         internal void ChangeUserUsername(long userID, string userName)
         {
             using var cmd = new SqliteCommand("UPDATE USERS SET username = @username WHERE id = @id", DB);
@@ -254,15 +355,26 @@ namespace Voice_of_Time_Server.User
             // TODO: Return if succesfull
         }
 
+        /// <summary>
+        /// Change the public Key of a user
+        /// </summary>
+        /// <param name="userID">ID of user</param>
+        /// <param name="userPubKey">New public key</param>
         internal void ChangeUserKey(long userID, RSA userPubKey)
         {
-            using var cmd = new SqliteCommand("UPDATE OR FAIL users SET PublicKey = @PublicKey WHERE id = @id");
+            using var cmd = new SqliteCommand("UPDATE OR FAIL users SET PublicKey = @PublicKey WHERE id = @id", DB);
             cmd.Parameters.AddWithValue("@PublicKey", JsonSerializer.Serialize(new PublicRSA(userPubKey)));
             cmd.Parameters.AddWithValue("@id",        userID);
             cmd.ExecuteNonQuery();
+            // TODO: Return if succesfull
         }
 
-        internal List<(long, ChatUserState)> GetChatMembers(long chatID)
+        /// <summary>
+        /// Get a list of all chatmember + state of a chat
+        /// </summary>
+        /// <param name="chatID">ID of chat</param>
+        /// <returns>List of all chatmember + state</returns>
+        internal List<(long userID, ChatUserState state)> GetChatMembers(long chatID)
         {
             List<(long, ChatUserState)> values = new();
 
@@ -278,6 +390,12 @@ namespace Voice_of_Time_Server.User
             return values;
         }
 
+        /// <summary>
+        /// Check if a Chat is known by the server
+        /// </summary>
+        /// <param name="chatID">ID of targeted chat</param>
+        /// <returns>Chat exists</returns>
+        /// <exception cref="Exception"></exception>
         internal bool ChatExists(long chatID)
         {
             using var cmd = new SqliteCommand("SELECT COUNT(*) FROM CHATS WHERE id = @id", DB);
@@ -295,6 +413,12 @@ namespace Voice_of_Time_Server.User
             return count == 1;
         }
 
+        /// <summary>
+        /// Get the state of a chatmember
+        /// </summary>
+        /// <param name="chatID">ID of chat</param>
+        /// <param name="userID">ID of user</param>
+        /// <returns>state</returns>
         internal ChatUserState GetChatMember(long chatID, long userID)
         {
             using var cmd = new SqliteCommand("SELECT state FROM CHAT_MEMBERS WHERE user_id = @user_id AND chat_id = @chat_id", DB);
@@ -308,6 +432,12 @@ namespace Voice_of_Time_Server.User
             return (ChatUserState)reader.GetInt16(0);
         }
 
+        /// <summary>
+        /// Add a user to a chat with given state
+        /// </summary>
+        /// <param name="chatID">ID of chat</param>
+        /// <param name="targetID">ID of user</param>
+        /// <param name="state">state</param>
         internal void AddChatUser(long chatID, long targetID, ChatUserState state)
         {
             using var cmd = new SqliteCommand("INSERT OR REPLACE INTO CHAT_MEMBERS (chat_id, user_id, state) VALUES (@chat_id, @user_id, @state)", DB);
@@ -317,6 +447,12 @@ namespace Voice_of_Time_Server.User
             cmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Change the state of a user. User need to already added to chat!
+        /// </summary>
+        /// <param name="chatID">ID of chat</param>
+        /// <param name="targetID">ID of user</param>
+        /// <param name="state">New state</param>
         internal void UpdateChatMemberState(long chatID, long targetID, ChatUserState state)
         {
             using var cmd = new SqliteCommand("UPDATE CHAT_MEMBERS SET state = @state WHERE chat_id = @chat_id AND user_id = @user_id", DB);
@@ -329,6 +465,11 @@ namespace Voice_of_Time_Server.User
 
 
         #region StashDBCommands
+        /// <summary>
+        /// Create a new stash for a user/chat/channel.
+        /// + Template for new Shards.
+        /// </summary>
+        /// <param name="ID">ID for stash (Should match a existing ID)</param>
         private void SetupStash(long ID)
         {
             using var cmd = new SqliteCommand(
@@ -344,15 +485,26 @@ namespace Voice_of_Time_Server.User
             cmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Add a message to a stash
+        /// </summary>
+        /// <param name="targetID">ID of tageted stash</param>
+        /// <param name="authorID">ID of author (user)</param>
+        /// <param name="message">Message as string</param>
+        /// <param name="expires">Date of expiring</param>
+        /// <param name="handling">Data handling guidelines</param>
+        /// <returns>ReceipID</returns>
+        /// <exception cref="Exception"></exception>
         public long StashMessage(long targetID, long authorID, string message, DateTime expires, DataHandling handling)
         {
             // Get a File name
             var input = Encoding.UTF8.GetBytes(message);
             var bName = hasher.ComputeHash(input);
             var sName = Convert.ToBase64String(bName);
-
+            // Replace non usable symbol
             sName = sName.Replace('/', '-');
 
+            // Repeat until a non used name is found
             while (File.Exists(@$"Stash\{sName}"))
             {
                 var _input = Encoding.UTF8.GetBytes(sName);
@@ -361,8 +513,10 @@ namespace Voice_of_Time_Server.User
                 sName = sName.Replace('/', '-');
             }
 
+            // Write the message into the file
             File.WriteAllText(@$"Stash\{sName}", message);
 
+            // Link it via the stash
             using (var cmd = new SqliteCommand($"INSERT INTO m{targetID} (messagehandling, author, created, expires, stashfile) " +
                 "VALUES (@messagehandling, @author, @created, @expires, @stashfile)", StashDB))
             {
@@ -374,6 +528,9 @@ namespace Voice_of_Time_Server.User
                 cmd.ExecuteNonQuery();
             }
 
+            // TODO: Garantie für richtig ID. / lock stash for time of using that not the wrong ID will be highest
+
+            // Get the receipID
             using (var cmd = new SqliteCommand($"SELECT MAX(Receipt) FROM m{targetID}", StashDB))
             {
                 using var reader = cmd.ExecuteReader();
@@ -383,6 +540,12 @@ namespace Voice_of_Time_Server.User
             }
         }
 
+        /// <summary>
+        /// Get a message of a stash my it receiptID
+        /// </summary>
+        /// <param name="targetID">ID of stash</param>
+        /// <param name="receiptID">ID of receipt</param>
+        /// <returns>Message if exists</returns>
         public StashMessage? StashMessageGet(long targetID, long receiptID)
         {
             using var cmd = new SqliteCommand($"SELECT Receipt, MessageHandling, Author, Created, Expires, StashFile FROM m{targetID} WHERE receipt = @receipt", StashDB);
@@ -409,12 +572,14 @@ namespace Voice_of_Time_Server.User
                 message = File.ReadAllText(filePath);
             }
 
+            // If data is expired remove
             if (expires <= DateTime.Now)
             {
                 StashMessageRemove(targetID, receiptID);
                 return null;
             }
 
+            // If data should instantlie be removed after reading, remove it
             if(messageHandling == DataHandling.REMOVE_AFTER_GET)
             {
                 // TODO: Check if User / Chat and remove if user
@@ -423,6 +588,11 @@ namespace Voice_of_Time_Server.User
             return new(receipt, messageHandling, authorID, targetID, created, expires, message); ;
         }
 
+        /// <summary>
+        /// Get all IDs of messages stored in a stash
+        /// </summary>
+        /// <param name="targetID">ID of stash</param>
+        /// <returns>List of IDs contained in the stash</returns>
         public long[] StashMessageList(long targetID) 
         { 
             List<long> list = new();
@@ -435,8 +605,15 @@ namespace Voice_of_Time_Server.User
             return list.ToArray();
         }
 
+        /// <summary>
+        /// Remove a message from a stash
+        /// </summary>
+        /// <param name="targetID">ID of stash</param>
+        /// <param name="receiptID">ID of message</param>
+        /// <returns>Message could be deleted</returns>
         public bool StashMessageRemove(long targetID, long receiptID)
         {
+            // Remove the file first
             using (var cmd = new SqliteCommand($"SELECT StashFile FROM m{targetID} WHERE receipt = @receipt", StashDB))
             {
                 cmd.Parameters.AddWithValue("@receipt", receiptID);
@@ -451,6 +628,8 @@ namespace Voice_of_Time_Server.User
                     File.Delete(filePath);
                 }
             }
+
+            // Remove the link
             using (var cmd = new SqliteCommand($"DELETE FROM m{targetID} WHERE receipt = @receipt", StashDB))
             {
                 cmd.Parameters.AddWithValue("@receipt", receiptID);
