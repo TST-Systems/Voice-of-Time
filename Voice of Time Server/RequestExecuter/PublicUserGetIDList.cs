@@ -14,6 +14,9 @@ using VoTCore.Package.Interfaces;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for getting a list of all registerd userIDs
+    /// </summary>
     internal class PublicUserGetIDList : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;

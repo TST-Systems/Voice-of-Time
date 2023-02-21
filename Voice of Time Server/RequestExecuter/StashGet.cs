@@ -19,6 +19,9 @@ using VoTCore.Package.StashData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for getting a message from a stash
+    /// </summary>
     internal class StashGet : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
@@ -32,7 +35,7 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             var targetStashID = receiptBody.TargetID;
 
-            // Check if Target is self
+            // Check if Target is self. If not check if the user has the nessary rights to access it anyways
             if(targetStashID != socket.UserID)
             {
                 if (ServerData.server.UserExists(targetStashID))
@@ -60,7 +63,7 @@ namespace Voice_of_Time_Server.RequestExecuter
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.STASH_NO_MESSAGE_UNDER_ID, $"No message under ReceiptID:{receiptBody.ReceiptID}!"));
             }
 
-            return (new HeaderAck(true), new StashData((StashMessage)message));
+            return (new HeaderAck(true), new StashData(message));
         }
     }
 }

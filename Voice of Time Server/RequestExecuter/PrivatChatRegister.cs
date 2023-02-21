@@ -14,6 +14,9 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for creating a privat chat
+    /// </summary>
     internal class PrivatChatRegister : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
@@ -21,7 +24,7 @@ namespace Voice_of_Time_Server.RequestExecuter
         (IVOTPHeader, IVOTPBody?)? IServerRequestExecuter.ExecuteRequest(HeaderReq header, IVOTPBody? body, SocketHandler socket)
         {
             return (new HeaderAck(true), 
-                new SData_Long(ServerData.server.AddChat(socket.UserID)));
+                new SData_Long(ServerData.server.AddChat(socket.UserID))); // <- This is where the importend stuff happends
         }
     }
 }

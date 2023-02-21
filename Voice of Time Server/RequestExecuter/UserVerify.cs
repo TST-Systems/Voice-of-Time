@@ -15,6 +15,11 @@ using VoTCore.Package.SData;
 */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    // TODO: Possible glitch where a user sends first a verification and then a public key without waiting for the respnse, so that he would be overrideing the pub key and would now have stollen the acount. Still he would not be able to read any chats but he has kicked out the owner from its acounr and can now be someone else. 
+    // fix: lock KeyExchange while verifiying
+    /// <summary>
+    /// Function for verifying self over userID
+    /// </summary>
     internal class UserVerify : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => false;
@@ -46,7 +51,7 @@ namespace Voice_of_Time_Server.RequestExecuter
             IServerRequestExecuter openSecureCommunication = new CommunicationGetKeyAndSecure();
             var (returnHeader, returnBody) = openSecureCommunication.ExecuteRequest(header, null, socket) ?? throw new Exception("Internal Error");
 
-            socket.CommunicationVerified = true;
+            socket.CommunicationVerified = true; // <- Expect that user will be able to communicate with the given public key, so if he doesn't have the privat key part he has to close the connection
 
             return (returnHeader, returnBody);
         }

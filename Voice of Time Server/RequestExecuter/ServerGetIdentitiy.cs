@@ -13,6 +13,9 @@ using VoTCore.Package.SData;
 */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for getting the UID of the server
+    /// </summary>
     internal class ServerGetIdentitiy : IServerRequestExecuter
     {
         public bool ExecuteOnlyIfVerified => false;

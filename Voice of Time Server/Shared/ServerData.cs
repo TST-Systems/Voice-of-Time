@@ -18,11 +18,19 @@ namespace Voice_of_Time_Server.Shared
         public static Server server;
 #pragma warning restore CS8618 // 
 
-        private readonly static Dictionary<RequestType, IServerRequestExecuter> SRER = new(); 
+        /// <summary>
+        /// Server request executer register
+        /// </summary>
+        private readonly static Dictionary<RequestType, IServerRequestExecuter> SRER = new();
 
+        /// <summary>
+        /// <para>Only call once!</para>
+        /// Initialization of all default data
+        /// </summary>
+        // TODO: lock Initialize after first initzialisation
         public static void Initialize()
         {
-            server = new Server();
+            server = new Server(); // TODO: Load and Save Server
             // Register default Executer
             RegisterExecuter(new ServerGetIdentitiy(),           RequestType.SERVER_GET_IDENTITY);
             RegisterExecuter(new ServerPublicKeyExchange(),      RequestType.SERVER_PUBLIC_KEY_EXCHANGE);
@@ -41,6 +49,12 @@ namespace Voice_of_Time_Server.Shared
             RegisterExecuter(new StashDelete(),                  RequestType.STASH_DELETE);
         }
 
+        /// <summary>
+        /// Request executer regestration
+        /// </summary>
+        /// <param name="executer">Request executer</param>
+        /// <param name="key">RequestType</param>
+        /// <returns>Could be set</returns>
         public static bool RegisterExecuter(IServerRequestExecuter executer, RequestType key)
         {
             if (SRER.ContainsKey(key))
@@ -52,6 +66,11 @@ namespace Voice_of_Time_Server.Shared
             return true;
         }
 
+        /// <summary>
+        /// Get a executer over is RequestType
+        /// </summary>
+        /// <param name="key">RequestType of request</param>
+        /// <returns>Executer or default = null if not exists</returns>
         public static IServerRequestExecuter? GetExecuter(RequestType key)
         {
             return SRER.GetValueOrDefault(key);

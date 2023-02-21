@@ -18,6 +18,9 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for listing all receiptIDs of a single stash
+    /// </summary>
     internal class StashList : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
@@ -31,7 +34,7 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             var targetStashID = receiptBody.Data;
 
-            // Check if Target is self
+            // Check if Target is self. If not check if the user has the nessary rights to access it anyways
             if (targetStashID != socket.UserID)
             {
                 if (ServerData.server.UserExists(targetStashID))
