@@ -13,6 +13,9 @@ using VoTCore.Secure;
  */
 namespace VoTCore.User
 {
+    /// <summary>
+    /// Class to hold any nessary informations about a user for outhers to get
+    /// </summary>
     [DataContract]
     [KnownType(typeof(PublicRSA))]
     public class PublicClient : IVOTPBody
@@ -27,6 +30,12 @@ namespace VoTCore.User
         [JsonIgnore]
         public BodyType Type => BodyType.PUBLIC_CLIENT;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="userID">ID of user</param>
+        /// <param name="username">Username of user</param>
+        /// <param name="key">Public key of user</param>
         [JsonConstructor]
         public PublicClient(long userID, string username, PublicRSA key)
         {
@@ -35,6 +44,12 @@ namespace VoTCore.User
             Key = key;
         }
 
+        /// <summary>
+        /// Wrapper for <see cref="PublicClient(long, string , PublicRSA)"/>
+        /// </summary>
+        /// <param name="userID">ID of user</param>
+        /// <param name="username">Username of user</param>
+        /// <param name="key">RSA key</param>
         public PublicClient(long userID, string username, RSA key) : this(userID, username, new PublicRSA(key))
         {
         }

@@ -9,6 +9,9 @@
  */
 namespace VoTTest.Core
 {
+    /// <summary>
+    /// Test of the Base36 algorithm
+    /// </summary>
     public class Base36Test
     {
         [Fact]

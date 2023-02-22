@@ -11,8 +11,15 @@ using System.Text.Json.Serialization;
  */
 namespace VoTCore.Package
 {
+    /// <summary>
+    /// Pre-header for VOTP for inforamtions about Types of header and body for deseriliasation
+    /// </summary>
     public class VOTPInfo
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="package"></param>
         public VOTPInfo(VOTP package)
         {
             Version = package.Header.Version;
@@ -21,6 +28,12 @@ namespace VoTCore.Package
             PackageID = package.PackageID;
         }
 
+        /// <summary>
+        /// JSON constructor
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="type"></param>
+        /// <param name="packageID"></param>
         [JsonConstructor]
         public VOTPInfo(short version, BodyType type, long packageID)
         {
@@ -29,6 +42,11 @@ namespace VoTCore.Package
             PackageID = packageID;
         }
 
+        /// <summary>
+        /// Constructor for only getting the VOTPinfo for peeking what types are inside the package
+        /// </summary>
+        /// <param name="json">The intier json string of the package</param>
+        /// <exception cref="SerializationException"></exception>
         public VOTPInfo(string json)
         {
             var split = json.Split('\0');

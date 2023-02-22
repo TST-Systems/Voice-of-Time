@@ -3,6 +3,9 @@ using VoTCore.Package.StashData;
 
 namespace VoTTest.Core
 {
+    /// <summary>
+    /// Test for bodys of type StashData
+    /// </summary>
     public class StashDataTest
     {
         [Fact]

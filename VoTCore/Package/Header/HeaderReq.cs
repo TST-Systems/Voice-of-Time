@@ -15,6 +15,12 @@ namespace VoTCore.Package.Header
     /// </summary>
     public class HeaderReq : IVOTPHeader
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="senderID">ID of sender</param>
+        /// <param name="request">Type of request</param>
+        /// <param name="targetID">Currently unused</param>
         public HeaderReq(long senderID, RequestType request, long? targetID = null)
         {
             SenderID = senderID;
@@ -25,10 +31,15 @@ namespace VoTCore.Package.Header
         [JsonIgnore]
         public short Version { get; } = 2;
 
+        /// <summary>
+        /// ID of sender
+        /// </summary>
         public long  SenderID { get; }
 
         public long? TargetID { get; }
-
+        /// <summary>
+        /// Type of request
+        /// </summary>
         public RequestType Request { get; }
 
 

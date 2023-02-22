@@ -7,6 +7,9 @@
  */
 namespace VoTCore.Controll
 {
+    /// <summary>
+    /// Interface as base for console-command-executer
+    /// </summary>
     public interface IConsoleCommand
     {
         /// <summary>
@@ -19,7 +22,9 @@ namespace VoTCore.Controll
         /// Aliases of command wich also calls this ConsoleCommand
         /// </summary>
         public string[] Aliases { get; }
-
+        /// <summary>
+        /// Helping text to show when the commandexecuter returns false
+        /// </summary>
         public string Usage { get; }
     }
 }

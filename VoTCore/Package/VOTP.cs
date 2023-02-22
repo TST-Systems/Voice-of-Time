@@ -1,5 +1,5 @@
 ﻿using VoTCore.Package.Interfaces;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+using JSON = System.Text.Json.JsonSerializer;
 /**
  * @author      - Timeplex
  * 
@@ -9,14 +9,22 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
  */
 namespace VoTCore.Package
 {
+    /// <summary>
+    /// Modular package for sending and reciving data over the internet 
+    /// </summary>
     public class VOTP
     {
         public IVOTPHeader Header { get; }
 
         public IVOTPBody? Body { get; }
-
+        // ID for recognition of anserws
         public long PackageID { get; set; } = -1;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="data"></param>
         public VOTP(IVOTPHeader header, IVOTPBody? data = null)
         {
             this.Header = header;
@@ -24,7 +32,7 @@ namespace VoTCore.Package
         }
 
         /// <summary>
-        /// Function to convert an serialized version back to normal
+        /// Constructor to convert an serialized version back to normal
         /// </summary>
         /// <param name="json">Musst be an by it self generatet json String to meet the requirements {}\0{}(\0{})</param>
         /// <exception cref="ArgumentNullException">No input</exception>
@@ -43,7 +51,7 @@ namespace VoTCore.Package
             VOTPInfo vOTPInfo;
             try
             {
-                var _vOTPInfo = JsonSerializer.Deserialize<VOTPInfo>(split[0]);
+                var _vOTPInfo = JSON.Deserialize<VOTPInfo>(split[0]);
                 if (_vOTPInfo == null) throw new ArgumentException("Json does not meet the requirements");
                 vOTPInfo = _vOTPInfo;
                 PackageID = vOTPInfo.PackageID;
@@ -58,7 +66,7 @@ namespace VoTCore.Package
                 var _headerType = Constants.HeaderTypes[vOTPInfo.Version];
                 if (_headerType == null) throw new ArgumentException("Header version unknown!");
                 Type headerType = _headerType;
-                var _header = (IVOTPHeader?)JsonSerializer.Deserialize(split[1], headerType);
+                var _header = (IVOTPHeader?)JSON.Deserialize(split[1], headerType);
                 if (_header == null) throw new ArgumentException("Header can not be converted!");
                 Header = _header;
             }
@@ -74,7 +82,7 @@ namespace VoTCore.Package
                 var _bodyType = Constants.BodyTypes[vOTPInfo.Type];
                 if (_bodyType == null) throw new ArgumentException("Body type unknown!");
                 Type bodyType = _bodyType;
-                var _body = (IVOTPBody?)JsonSerializer.Deserialize(split[2], bodyType);
+                var _body = (IVOTPBody?)JSON.Deserialize(split[2], bodyType);
                 if (_body == null) throw new ArgumentException("Body can not be converted!");
                 Body = _body;
             }
@@ -84,18 +92,22 @@ namespace VoTCore.Package
             }
         }
 
+        /// <summary>
+        /// Serialize the Package by serilize each part by its own and combining them later
+        /// </summary>
+        /// <returns>JSON string that represents the package</returns>
         public string Serialize()
         {
             string serialized = string.Empty;
             var packageInfo = new VOTPInfo(this);
 
-            serialized += JsonSerializer.Serialize(packageInfo);
+            serialized += JSON.Serialize(packageInfo);
             serialized += (char)0;
-            serialized += JsonSerializer.Serialize(Convert.ChangeType(Header, Header.GetType()));
+            serialized += JSON.Serialize(Convert.ChangeType(Header, Header.GetType()));
             if(Body != null)
             {
                 serialized += (char)0;
-                serialized += JsonSerializer.Serialize(Convert.ChangeType(Body, Body.GetType()));
+                serialized += JSON.Serialize(Convert.ChangeType(Body, Body.GetType()));
             }
             return serialized;
         }

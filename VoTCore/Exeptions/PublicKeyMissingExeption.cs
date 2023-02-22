@@ -8,6 +8,9 @@
  */
 namespace VoTCore.Exeptions
 {
+    /// <summary>
+    /// Exception for a client witch does not have a public key
+    /// </summary>
     public class PublicKeyMissingExeption : Exception
     {
         public PublicKeyMissingExeption() : base() { }

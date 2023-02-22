@@ -10,8 +10,17 @@ using VoTCore.Package.Interfaces;
  */
 namespace VoTCore.Package.Header
 {
+    /// <summary>
+    /// Header for CLient->Client communication
+    /// </summary>
     public class HeaderStd : IVOTPHeader
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="senderID">ID of sender</param>
+        /// <param name="receiverID">ID of reciver</param>
+        /// <param name="messageType">Type of message</param>
         public HeaderStd(long senderID, long receiverID, byte messageType)
         {
             SenderID      = senderID;
@@ -22,11 +31,18 @@ namespace VoTCore.Package.Header
         [JsonIgnore]
         public short Version      { get; } = 1;
 
+        /// <summary>
+        /// ID of sender
+        /// </summary>
         public long SenderID      { get; }
-
+        /// <summary>
+        /// ID of reciver
+        /// </summary>
         public long ReceiverID    { get; }
-
-        public byte MessageType   { get; }
+        /// <summary>
+        /// Type of message
+        /// </summary>
+        public byte MessageType   { get; } // TODO: Make a enum for it
 
         public override bool Equals(object? obj)
         {

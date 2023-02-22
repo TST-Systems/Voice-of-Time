@@ -7,22 +7,44 @@
  */
 namespace VoTCore.Algorithms
 {
+    /// <summary>
+    /// Class for displaying and handling a Loading Bar in Console
+    /// </summary>
     public class LoadingBar
     {
+        /// <summary>
+        /// Amount of steps needed to reach the 100%
+        /// </summary>
         public readonly int Steps;
 
+        /// <summary>
+        /// Current set step
+        /// </summary>
         private int currentStep;
         public int CurrentStep { get => currentStep; }
 
+        /// <summary>
+        /// Shows if the loading bar is currently activated
+        /// </summary>
         private bool IsActive = false;
 
+        /// <summary>
+        /// Amount of chars which can be set with the current Console window lenght
+        /// </summary>
         private int CurrentLenght = 0;
 
+        /// <summary>
+        /// Default construcotr
+        /// </summary>
+        /// <param name="steps">Amount of steps until 100% is reached</param>
         public LoadingBar(int steps) 
         {
             Steps = steps;
         }
 
+        /// <summary>
+        /// Start the Loading bar and displays it for now on
+        /// </summary>
         public void Start()
         {
             if (IsActive) return;
@@ -31,6 +53,10 @@ namespace VoTCore.Algorithms
             Draw();
         }
 
+        /// <summary>
+        /// Set a new currentStep value and automaticly update the loading bar
+        /// </summary>
+        /// <param name="currentStep">New current step</param>
         public void Update(int currentStep)
         {
             if (!IsActive) return;
@@ -39,12 +65,18 @@ namespace VoTCore.Algorithms
             Draw();
         }
 
+        /// <summary>
+        /// Pasue the Loadingbar without reseting the loadingbar -> Hide the loading bar. Can be resumed later
+        /// </summary>
         public void Pause()
         {
             if (!IsActive) return;
             Clear();
         }
 
+        /// <summary>
+        /// Stop the loadingbar, hide it and reset the current Lenght
+        /// </summary>
         public void Stop()
         {
             if (!IsActive) return;
@@ -52,6 +84,9 @@ namespace VoTCore.Algorithms
             Clear();
         }
 
+        /// <summary>
+        /// Redraw the loadingbar with the current values
+        /// </summary>
         private void Draw()
         {
             if (!IsActive) return;
@@ -81,6 +116,9 @@ namespace VoTCore.Algorithms
             Console.Write(fullString);
         }
 
+        /// <summary>
+        /// Clear the Loading bar from the sreen
+        /// </summary>
         private void Clear()
         {
             if (!IsActive) return;

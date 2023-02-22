@@ -16,15 +16,30 @@ namespace VoTCore.Communication.Data
     [Serializable]
     public class FileMessage : Message, IVOTPBody, ISerializable
     {
-
-        public string? File { get; }
+        /// <summary>
+        /// File to send
+        /// </summary>
+        public string? File { get; } // TODO: 
 
         const BodyType TYPE = BodyType.MESSAGE_FILE;
+
+        /// <summary>
+        /// Constructor for DataContract
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public FileMessage(SerializationInfo info, StreamingContext context) : base(info, context) 
         { 
             File = info.GetString(nameof(File));
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="messageString">Text message as string</param>
+        /// <param name="authorID">ID of the author</param>
+        /// <param name="dateOfCreation">Date and Time of creation</param>
+        /// <param name="file">File</param>
         public FileMessage(string messageString, long authorID, DateTime dateOfCreation, string file)
             : base(messageString, authorID, dateOfCreation, TYPE)
         {

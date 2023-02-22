@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using VoTCore.User;
 
 /**
  * @author      - Timeplex
@@ -9,6 +10,9 @@
  */
 namespace VoTCore.Secure.Iterfaces
 {
+    /// <summary>
+    /// Interface for classes witch can be enrcypted and decrypteded with an RSA key
+    /// </summary>
     public interface IRSACrypt
     {
         /// <summary>
@@ -20,6 +24,14 @@ namespace VoTCore.Secure.Iterfaces
         /// </summary>
         /// <param name="key">Public Key needs to be present</param>
         public void EncryptData(RSA key, long revicerID);
+        /// <summary>
+        /// Wrapper for <see cref="EncryptData"/>
+        /// </summary>
+        /// <param name="reciver"></param>
+        public void EncryptData(PublicClient reciver)
+        {
+            EncryptData(reciver.Key.PublicKey, reciver.UserID);
+        }
         /// <summary>
         /// Decrypt Data
         /// </summary>

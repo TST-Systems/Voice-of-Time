@@ -11,13 +11,22 @@ using VoTCore.Package.Interfaces;
  */
 namespace VoTCore.Package.StashData
 {
+    /// <summary>
+    /// Body for reciving Stahed data
+    /// </summary>
     public class StashData : IVOTPBody
     {
         [JsonIgnore]
         public virtual BodyType Type { get; } = BodyType.STASHDATA;
-
+        /// <summary>
+        /// Stashed data
+        /// </summary>
         public StashMessage Data { get; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="data">Stashed data</param>
         public StashData(StashMessage data)
         {
             Data = data;
