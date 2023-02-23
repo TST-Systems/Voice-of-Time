@@ -273,7 +273,7 @@ namespace Voice_of_Time_Server.Transfer
             var body      = package.Body;
             var packageID = package.PackageID;
 
-            // Check if header is of any type witch can be processed
+            // Check if header is of any type which can be processed
             if (header is not HeaderReq reqHeader)
             {
                 var _toSend = new VOTP(new HeaderAck(false), new SData_InternalException(InternalExceptionCode.UNKNOWN_HEADER_TYPE, $"{header.GetType().Name} is not supported by the server!"));

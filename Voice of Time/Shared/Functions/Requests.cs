@@ -96,7 +96,7 @@ namespace Voice_of_Time.Shared.Functions
         /// Request a exchange of public keys with the server
         /// </summary>
         /// <param name="socket">Socket to server</param>
-        /// <param name="key">Own public Key to send (Can contain privat parts, witch will be sorted out)</param>
+        /// <param name="key">Own public Key to send (Can contain privat parts, which will be sorted out)</param>
         /// <param name="userID">Own userID, if already verified</param>
         /// <returns>Public key of server</returns>
         public static async Task<RSA> KeyExchangeWithServer(ClientSocket socket, RSA key, long userID = -1)

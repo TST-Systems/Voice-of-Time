@@ -54,8 +54,8 @@ namespace Voice_of_Time.Transfer
         private readonly SemaphoreSlim itemInQueue = new(0, 1);
 
         /// <summary>
-        /// <para>A helping register witch holds the Callback Funcktions of <see cref="QueueItem"/>.</para>
-        /// This is used since the use of a Full-Duplex connection, witch no longer garantues that a anserw to a request is the next thing to expect.
+        /// <para>A helping register which holds the Callback Funcktions of <see cref="QueueItem"/>.</para>
+        /// This is used since the use of a Full-Duplex connection, which no longer garantues that a anserw to a request is the next thing to expect.
         /// </summary>
         private readonly Dictionary<long, Func<string?, Task>> CallBackRegister = new();
 
@@ -286,7 +286,7 @@ namespace Voice_of_Time.Transfer
             // Check if packageID is known
             if (!CallBackRegister.ContainsKey(packageID)) throw new NotImplementedException(); // TODO: Handling if message is not a anserwer
 
-            // Call the function witch is connected to the packageID
+            // Call the function which is connected to the packageID
             _ = CallBackRegister[packageID](message);
             
             // Remove the callback from the register
@@ -411,7 +411,7 @@ namespace Voice_of_Time.Transfer
             // Send and Reciver anserw
             string? response = "";
 
-            // Awaitable blockade witch will be relaeased if a message was recived
+            // Awaitable blockade which will be relaeased if a message was recived
             SemaphoreSlim responseReady = new(0, 1);
 
             _ = await EnqueueItem(serialized, (lResponse) => { response = lResponse; responseReady.Release(); return Task.CompletedTask; }, id);

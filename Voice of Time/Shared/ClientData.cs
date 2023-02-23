@@ -14,7 +14,7 @@ using VoTCore.Exeptions;
 namespace Voice_of_Time.Shared
 {
     /// <summary>
-    /// Static class witch holds all nessaray Data for all classes
+    /// Static class which holds all nessaray Data for all classes
     /// </summary>
     [Serializable]
     public static class ClientData
@@ -60,7 +60,7 @@ namespace Voice_of_Time.Shared
         }
 
         /// <summary>
-        /// Folder in witch the saves will be saved and loaded
+        /// Folder in which the saves will be saved and loaded
         /// </summary>
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
