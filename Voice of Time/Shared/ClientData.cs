@@ -14,7 +14,7 @@ using VoTCore.Exeptions;
 namespace Voice_of_Time.Shared
 {
     /// <summary>
-    /// Static class which holds all nessaray Data for all classes
+    /// Static class that holds all nessaray Data for all classes
     /// </summary>
     [Serializable]
     public static class ClientData

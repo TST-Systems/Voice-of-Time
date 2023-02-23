@@ -115,8 +115,8 @@ namespace Voice_of_Time.Cmd.Commands
             var header  = new HeaderStd(ClientData.CurrentClient.UserID, chat.ChatID, 1);
             var message = new TextMessage(toSend, ClientData.CurrentClient.UserID, DateTime.Now);
             var toStash = new VOTP(header, message).Serialize();
-            // Enrypted it which the symetric key of the chat
-            toStash     = Convert.ToBase64String(CryproManager.AesEncyrpt(chat.Key, Encoding.UTF8.GetBytes(toStash)));
+            // Enrypted it with the symetric key of the chat
+            toStash = Convert.ToBase64String(CryproManager.AesEncyrpt(chat.Key, Encoding.UTF8.GetBytes(toStash)));
 
             var Receipt = await Requests.AddStashMessage(currentConnection, ClientData.CurrentClient, chat.ChatID, toStash);
 

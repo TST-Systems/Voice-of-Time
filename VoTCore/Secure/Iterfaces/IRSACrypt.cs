@@ -11,7 +11,7 @@ using VoTCore.User;
 namespace VoTCore.Secure.Iterfaces
 {
     /// <summary>
-    /// Interface for classes which can be enrcypted and decrypteded with an RSA key
+    /// Interface for classes that can be enrcypted and decrypted with an RSA key
     /// </summary>
     public interface IRSACrypt
     {

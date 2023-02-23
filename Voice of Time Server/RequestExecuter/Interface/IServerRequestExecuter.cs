@@ -21,7 +21,7 @@ namespace Voice_of_Time_Server.RequestExecuter.Interface
         /// </summary>
         public bool ExecuteOnlyIfVerified { get; }
         /// <summary>
-        /// Function which will be called if a request fits the requierments
+        /// Function which that be called if a request fits the requierments
         /// </summary>
         /// <param name="header">Header of the incoming message</param>
         /// <param name="body">Body, if exists, of the incoming message</param>

@@ -21,7 +21,7 @@ namespace Voice_of_Time_Server.Transfer
         /// <summary>
         /// Default constructor
         /// </summary>
-        /// <param name="port">Any port number which is not already taken by any other process</param>
+        /// <param name="port">Any port number that is not already taken by any other process</param>
         public SocketServer(int port)
         {
             Listener = new(IPAddress.Any, port);
