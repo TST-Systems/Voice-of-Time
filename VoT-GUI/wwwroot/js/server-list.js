@@ -20,9 +20,9 @@
 //Server IDs
     const serverIDs = new Array();
 
+const { ipcRenderer } = require("electron");
 
-
-function createServerItem(serverID, name, url="0.0.0.0", imageSource = "./sources/Pictures/blank-profile-picture.svg") {
+function createServerItem(serverID, url, name = url, imageSource = "./sources/Pictures/blank-profile-picture.svg") {
     //delete Server Button
     document.getElementById("ServerAddButton").remove();
 
@@ -78,25 +78,17 @@ function rightClickOnServer(serverID){
 //Click add Server
 document.getElementById("ButtonAddServer").onclick = () => {
     document.getElementById("ServerSettings").style.display = "none";
-    //Create Server ID
-        var prove = true;
-        var newServerID;
-        while(true) {
-            randomID = Math.floor(Math.random() * 1000000);
-            for (var i = 0; i < serverIDs.length; i++){
-                if (randomID == serverIDs[i]) prove = false;
-            }
-            if (prove) {
-                newServerID = randomID;
-                break;
-            } 
-        } 
-    //
 
-    const serverName = document.getElementById("ServerName").value;
-    const serverIP = document.getElementById("ServerIP").value;    
+    const serverName = document.getElementById("UserName").value;
+    const serverIP = document.getElementById("ServerIP").value; 
 
-    createServerItem(newServerID, serverName, serverIP);
+    //electron comunication
+    const reply = ipcRenderer.send("createServer", {serverName, serverIP });
+    
+    ipcRenderer.on('createServer-reply', (event, serverID) => {
+        createServerItem(serverID, serverName, serverIP);
+        console.log(serverID);
+    });
 
 }
 

@@ -75,11 +75,12 @@ namespace Test_GUI_VoT
 			};
 
 			//Overwite MenuItems with "null"
-			var menu = new MenuItem[] { };
-			Electron.Menu.SetApplicationMenu(menu);
+			//var menu = new MenuItem[] { };
+			//Electron.Menu.SetApplicationMenu(menu);
 
 			var browserWindow = await Electron.WindowManager.CreateWindowAsync(browserWindowOptions);
 			await browserWindow.WebContents.Session.ClearCacheAsync();
+			
 
 			// Handler to show when it is ready
 			browserWindow.OnReadyToShow += () =>

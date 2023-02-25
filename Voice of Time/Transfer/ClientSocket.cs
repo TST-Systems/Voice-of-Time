@@ -13,7 +13,7 @@ using VoTCore.Package;
  */
 namespace Voice_of_Time.Transfer
 {
-    internal class ClientSocket : IDisposable
+    public class ClientSocket : IDisposable
     {
         private record QueueItem
         (
@@ -76,7 +76,7 @@ namespace Voice_of_Time.Transfer
         /// </summary>
         /// <param name="address">Ip addess / Domain of the server</param>
         /// <param name="port">Port of the server</param>
-        internal ClientSocket(string address, int port)
+        public ClientSocket(string address, int port)
         {
             Address = address;
             Port = port;

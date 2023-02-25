@@ -23,4 +23,7 @@
     <None Include="wwwroot\js\electron_communication.js" />
     <None Include="wwwroot\sources\Pictures\VoT_logo.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Voice of Time\Voice of Time.csproj" />
+  </ItemGroup>
 </Project>

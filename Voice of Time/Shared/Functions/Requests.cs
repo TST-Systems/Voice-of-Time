@@ -24,7 +24,7 @@ using Voice_of_Time.Cmd.Commands;
  */
 namespace Voice_of_Time.Shared.Functions
 {
-    internal static class Requests
+    public static class Requests
     {
         #region Process Helper
         private static async Task<T> RequestPackageHandler<T>(ClientSocket socket, VOTP package) where T : IVOTPBody

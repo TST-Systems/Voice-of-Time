@@ -1,5 +1,8 @@
-﻿const { ipcRenderer } = require("electron");
+﻿/*
+const { ipcRenderer } = require("electron");
 
-document.getElementById("ServerList").addEventListener("click", () => {
-    const reply = ipcRenderer.sendSync("sync-msg", );
+document.getElementById("ButtonAddServer").addEventListener("click", () => {
+    const ip = document.getElementById("ServerIP").value;
+    const reply = ipcRenderer.sendSync("sync-msg", ip);
 });
+*/

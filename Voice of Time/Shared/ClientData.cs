@@ -25,9 +25,9 @@ namespace Voice_of_Time.Shared
         private static readonly Dictionary<string, string> AliasesRegister = new();
 
         private static Guid? currentConnection = null;
-        internal static Guid? CurrentConnection { get => currentConnection; }
+        public static Guid? CurrentConnection { get => currentConnection; }
 
-        internal static Client? CurrentClient
+        public static Client? CurrentClient
         {
             get
             {
@@ -39,11 +39,11 @@ namespace Voice_of_Time.Shared
 
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
-        internal static (ClientSocket, Client, Guid) GetCurrentConnection()
+        public static (ClientSocket, Client, Guid) GetCurrentConnection()
         {            
             var serverID = currentConnection       ?? throw new Exception("No acctiv connection!");
-            var socket   = GetConnection(serverID) ?? throw new Exception("Internal Error: No Connection to current Server!");
-            var client   = CurrentClient           ?? throw new Exception("Internal Errir: No Client for current Servert!");
+            var socket   = GetConnection(serverID) ?? throw new Exception("public Error: No Connection to current Server!");
+            var client   = CurrentClient           ?? throw new Exception("public Errir: No Client for current Servert!");
 
             return (socket, client, serverID);
         }
@@ -155,7 +155,7 @@ namespace Voice_of_Time.Shared
         #endregion
 
         #region UserRegister
-        internal static Client? GetServerCient(Guid serverID)
+        public static Client? GetServerCient(Guid serverID)
         {
             if (!UserRegister.ContainsKey(serverID))
             {
@@ -168,7 +168,7 @@ namespace Voice_of_Time.Shared
             return UserRegister.GetValueOrDefault(serverID);
         }
 
-        internal static void AddServerClient(Client client, Guid serverID)
+        public static void AddServerClient(Client client, Guid serverID)
         {
             if (UserRegister.ContainsKey(serverID))
             {
@@ -178,7 +178,7 @@ namespace Voice_of_Time.Shared
             UserRegister.Add(serverID, client);
         }
 
-        internal static bool TryAddServerClient(Client client, Guid serverID)
+        public static bool TryAddServerClient(Client client, Guid serverID)
         {
             try
             {
@@ -190,7 +190,7 @@ namespace Voice_of_Time.Shared
         #endregion
 
         #region ConnectionRegister
-        internal static void AddConnection(Guid serverID, ClientSocket socket, bool isCurrentConnection = true)
+        public static void AddConnection(Guid serverID, ClientSocket socket, bool isCurrentConnection = true)
         {
             if (ConnectionRegister.ContainsKey(serverID)) throw new EntryAlreadyExistsExeption();
             ConnectionRegister.Add(serverID, socket);
@@ -201,22 +201,22 @@ namespace Voice_of_Time.Shared
             }
         }
 
-        internal static ClientSocket? GetConnection(Guid serverID)
+        public static ClientSocket? GetConnection(Guid serverID)
         {
             return ConnectionRegister.GetValueOrDefault(serverID);
         }
 
-        internal static List<ClientSocket> GetAllConnectionSockets()
+        public static List<ClientSocket> GetAllConnectionSockets()
         {
             return ConnectionRegister.Values.ToList();
         }
 
-        internal static List<Guid> GetAllConnectionIDs()
+        public static List<Guid> GetAllConnectionIDs()
         {
             return ConnectionRegister.Keys.ToList();
         }
 
-        internal static void CloseConnection(Guid serverID)
+        public static void CloseConnection(Guid serverID)
         {
             if (!ConnectionRegister.ContainsKey(serverID)) return;
 
@@ -230,12 +230,12 @@ namespace Voice_of_Time.Shared
             }
         }
 
-        internal static Dictionary<Guid, ClientSocket> GetConnectionRegisterCopy()
+        public static Dictionary<Guid, ClientSocket> GetConnectionRegisterCopy()
         {
             return new Dictionary<Guid, ClientSocket>(ConnectionRegister);
         }
 
-        internal static bool SelectConnection(Guid serverID)
+        public static bool SelectConnection(Guid serverID)
         {
             var entryExists = ConnectionRegister.ContainsKey(serverID);
             if (entryExists) currentConnection = serverID;

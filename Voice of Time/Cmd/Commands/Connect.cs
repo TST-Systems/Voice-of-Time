@@ -14,7 +14,7 @@ using Voice_of_Time.Shared.Functions;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
-    internal class Connect : ICommandHelp, IConsoleCommandAsync
+    public class Connect : ICommandHelp, IConsoleCommandAsync
     {
         #region Public info
         public string[] CommandHelp => throw new NotImplementedException(); // TODO
