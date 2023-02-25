@@ -34,7 +34,7 @@ function createServerItem(serverID, name, url="0.0.0.0", imageSource = "./source
     image.title = name;
 
     //on click connect to server
-    //image.onclick = func();
+    
 
     serverElement.appendChild(image);
     
