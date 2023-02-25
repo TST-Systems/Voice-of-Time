@@ -1,55 +1,53 @@
 html {
-    overflow-y: hidden;
-    overflow-x: hidden;
-    position: relative;
-    max-height: 100vh;
+  overflow-y:hidden;
+  overflow-x:hidden;
+  position:relative;
 
-    /* User can't copie text */
-    -webkit-user-select: none;
-    /* -khtml-user-select: none; */
-    -moz-user-select: none;
-    -ms-user-select: none;
-    /* -o-user-select: none; */
-    user-select: none;
+  /* User can't copie text */
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
-body {
-    margin-top: 0px;
-    margin-left: 0px;
-    margin-bottom: 0px;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.800);
-    font-family: Arial, Helvetica, sans-serif;
-}
 
 header {
-    background-color: rgba(0, 0, 0, 0.300);
-    margin-top: 0px;
-    margin-left: 0px;
-    width: 100%;
-    color: white;
-    height: 50px;
-    font-size: 130%;
+  background-color:rgba(0, 0, 0, 0.300);
+  margin-top: 0px;
+  margin-left: 0px;
+  width: 100%;
+  color: white;
+  height: 50px;
+  font-size: 130%;
 }
 
 header img {
-    display: block;
-    float: left;
-    height: 40px;
-    width: 40px;
-    margin-top: 0px;
-    margin-left: 5px;
+  display: block;
+  float: left;
+  height: 40px;
+  width: 40px;
+  margin-top: 0px;
+  margin-left: 5px;
 }
 
 header p {
-    display: block;
-    float: left;
-    margin-left: 5px;
-    margin-top: 10px;
-    margin-bottom: 0px;
+  display: block;
+  float: left;
+  margin-left: 5px;
+  margin-top: 10px;
+  margin-bottom: 0px;
 }
 
-
+body {
+  margin-top: 0px;
+  margin-left: 0px;
+  margin-bottom: 0px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.800);
+  font-family:Arial, Helvetica, sans-serif;
+}
 
 /*scrollbar */
     
@@ -75,3 +73,4 @@ header p {
     ::-webkit-scrollbar-thumb:hover {
       background:lightgray; 
     }
+

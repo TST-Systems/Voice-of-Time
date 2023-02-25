@@ -22,7 +22,7 @@
 
 
 
-function createServerItem(serverID, name, url="0.0.0.0", imageSource = "./sources/Pictures/blank-profile-picture.png") {
+function createServerItem(serverID, name, url="0.0.0.0", imageSource = "./sources/Pictures/blank-profile-picture.svg") {
     //delete Server Button
     document.getElementById("ServerAddButton").remove();
 
@@ -120,7 +120,6 @@ function createServerAddButton() {
 
     serverElement.id = "ServerAddButton"
 }
-createServerAddButton();
 
 
 

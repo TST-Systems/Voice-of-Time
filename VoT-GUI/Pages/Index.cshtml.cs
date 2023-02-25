@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ElectronNET.API;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Test_GUI_VoT.Pages
@@ -14,7 +15,10 @@ namespace Test_GUI_VoT.Pages
 
 		public void OnGet()
 		{
-
-		}
+            Electron.IpcMain.OnSync("sync-msg", (args) =>
+            {
+                return "pong " + args;
+            });
+        }
 	}
 }

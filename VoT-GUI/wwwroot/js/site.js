@@ -2,16 +2,24 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+createServerAddButton();
 
-createServerItem(12205,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+//Scrollbar on Bottom
+    var objDiv = document.getElementById("TextChat");
+    objDiv.scrollTop = objDiv.scrollHeight;
+
+//hide right click
+    document.addEventListener("contextmenu", (e) => {e.preventDefault()});
+
+createServerItem(12205,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(25682,"Zweiter Server");
-createServerItem(5526984,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(5526984,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(2574589,"Zweiter Server");
-createServerItem(2599745,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(2599745,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(2569877,"Zweiter Server");
-createServerItem(5874136,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(5874136,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(698741,"Zweiter Server");
-createServerItem(7789634,"Hallo there", "sources/Pictures/VoT_logo.jpg");
+createServerItem(7789634,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(5587466,"Zweiter Server");
 createServerItem(5569877,"Zweiter Server");
 
@@ -28,17 +36,33 @@ createPrivateChatOrGroup("Name");
 createPrivateChatOrGroup("Name",undefined, 3);
 createPrivateChatOrGroup("Name");
 
-createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
-createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+createChannel("Name123", "sources/Pictures/VT-Logo_neu.svg", 3);
+createChannel("Name123", "sources/Pictures/VT-Logo_neu.svg", 3);
 createChannel("Name123", undefined, 5);
-createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+createChannel("Name123", "sources/Pictures/VT-Logo_neu.svg", 3);
 createChannel("Name123");
-createChannel("Name123", "sources/Pictures/VoT_logo.jpg", 3);
+createChannel("Name123", "sources/Pictures/VT-Logo_neu.svg", 3);
 receiveMessage("Hallo du da hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-receiveMessage("Hallo du da", "User 1", "./sources/Pictures/VoT_logo.jpg", "02.01.2023");
+receiveMessage("Hallo du da", "User 1", "./sources/Pictures/VT-Logo_neu.svg", "02.01.2023");
 dispatchedMessage("Hab du", "You");
 dispatchedMessage("nichts zu tun?");
 
-//Scrollbar on Bottom
-    var objDiv = document.getElementById("TextChat");
-    objDiv.scrollTop = objDiv.scrollHeight;
+
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");
+createChatMember("Tim");
+createChatMember("SalzstangenManga");

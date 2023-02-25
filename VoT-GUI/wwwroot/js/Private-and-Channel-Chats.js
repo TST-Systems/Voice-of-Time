@@ -1,4 +1,4 @@
-function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pictures/blank-profile-picture.png", numberGroupMember = 0) {
+function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pictures/blank-profile-picture.svg", numberGroupMember = 0) {
     const chatElement = document.createElement("div");
     const profPicture = document.createElement("img");
     const profName = document.createElement("p");
@@ -24,7 +24,7 @@ function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pict
     privatChat.appendChild(chatElement);
 }
 
-function createChannel (profileName, profilePicture = "./sources/Pictures/blank-profile-picture.png", numberGroupMember = 1) {
+function createChannel (profileName, profilePicture = "./sources/Pictures/blank-profile-picture.svg", numberGroupMember = 1) {
     const chatElement = document.createElement("div");
     const profPicture = document.createElement("img");
     const profName = document.createElement("p");

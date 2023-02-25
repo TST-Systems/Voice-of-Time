@@ -1,11 +1,11 @@
-function sendMessage(name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.png") {
+function sendMessage(name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.svg") {
     let messageValue = document.getElementById("MessageContent").value;
 
     const message = document.createElement("div");
     const profileImage = document.createElement("img");
     const messageData = document.createElement("div");
     const profileName = document.createElement("p");
-    const messageContent = document.createElement("p");
+    const messageContent = document.createElement("pre");
     const timeElement = document.createElement("p");
     
 
@@ -19,8 +19,8 @@ function sendMessage(name = "Unbekannt", picture = "./sources/Pictures/blank-pro
                 + (currentdate.getMonth()+1)  + "." 
                 + currentdate.getFullYear() + " "  
                 + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
+                + currentdate.getMinutes(); //+ ":" 
+                //+ currentdate.getSeconds();
 
         timeElement.innerHTML = time;
 
@@ -52,12 +52,12 @@ function sendMessage(name = "Unbekannt", picture = "./sources/Pictures/blank-pro
     }
 } 
 
-function dispatchedMessage(messageValue, name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.png", time = "01.01.2000 0:00") {
+function dispatchedMessage(messageValue, name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.svg", time = "01.01.2000 0:00") {
     const message = document.createElement("div");
     const profileImage = document.createElement("img");
     const messageData = document.createElement("div");
     const profileName = document.createElement("p");
-    const messageContent = document.createElement("p");
+    const messageContent = document.createElement("pre");
     const timeElement = document.createElement("p");
     
 
@@ -91,12 +91,12 @@ function dispatchedMessage(messageValue, name = "Unbekannt", picture = "./source
     }
 } 
 
-function receiveMessage (messageValue, name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.png", time = "01.01.2000 0:00") {
+function receiveMessage (messageValue, name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.svg", time = "01.01.2000 0:00") {
     const message = document.createElement("div");
     const profileImage = document.createElement("img");
     const messageData = document.createElement("div");
     const profileName = document.createElement("p");
-    const messageContent = document.createElement("p");
+    const messageContent = document.createElement("pre");
     const timeElement = document.createElement("p");
 
     if (messageValue != ""){
@@ -129,3 +129,18 @@ function receiveMessage (messageValue, name = "Unbekannt", picture = "./sources/
     }
 }
 
+
+document.getElementById("MessageContent").addEventListener("keypress", function(event) {
+    if (event.key === "Enter" && !(event.shiftKey)) {
+        event.preventDefault();
+        sendMessage();
+    }
+  });
+
+
+document.getElementById("MessageContent").addEventListener("keypress", function(event) {
+    if (event.key === "Enter" && event.shiftKey) {
+        event.preventDefault();
+        document.getElementById("MessageContent").value += "\r\n";
+    }
+});
