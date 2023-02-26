@@ -19,7 +19,7 @@ namespace VoTCore.Controll
         /// </summary>
         public string Command { get; }
         /// <summary>
-        /// Aliases of command wich also calls this ConsoleCommand
+        /// Aliases of command wich also calls this console command
         /// </summary>
         public string[] Aliases { get; }
         /// <summary>
