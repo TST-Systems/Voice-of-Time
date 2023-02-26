@@ -17,9 +17,9 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
-    // TODO: Rework of chat and user differenctiation
+    // TODO: Rework of chat and user differenztiation
     /// <summary>
-    /// Function for deleteing a message from a stash
+    /// Function for deleting a message from a stash
     /// </summary>
     internal class StashDelete : IServerRequestExecuter
     {
@@ -34,7 +34,7 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             var targetStashID = receiptBody.TargetID;
 
-            // Check if Target is self. If not check if user has permissions to access it
+            // Check if Target is Soruce. If not check if user has permissions to access the Target
             ChatUserState chatUserState = 0;
             if (targetStashID != socket.UserID)
             {

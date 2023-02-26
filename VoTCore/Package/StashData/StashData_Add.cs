@@ -40,7 +40,7 @@ namespace VoTCore.Package.StashData
         /// Default constructor
         /// </summary>
         /// <param name="message">Message to store</param>
-        /// <param name="targetID">ID of stash to it into</param>
+        /// <param name="targetID">ID of stash to stash the message into</param>
         /// <param name="expires">Date of expiring</param>
         /// <param name="messageHandling">Data handling agreement</param>
         public StashData_Add(string message, long targetID, DateTime expires, DataHandling messageHandling = DataHandling.REMOVE_AFTER_GET_ACK) : 

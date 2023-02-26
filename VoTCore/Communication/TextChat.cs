@@ -55,7 +55,7 @@ namespace VoTCore.Communication
         }
 
         /// <summary>
-        /// Add a message to the chat + automatcly sorts it in by Date
+        /// Add a message to the chat + automaticly sorts it in by Date
         /// </summary>
         /// <param name="message">Mesage to add</param>
         public void AddMessage(Message message)

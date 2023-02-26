@@ -10,7 +10,7 @@
 namespace VoTCore.Secure
 {
     /// <summary>
-    /// Static class for methoths used for enrypting and decrypting
+    /// Static class for methods used for enrypting and decrypting
     /// </summary>
     public static class CryproManager
     {
@@ -18,7 +18,7 @@ namespace VoTCore.Secure
         /// Encrypt data with a Aes key
         /// </summary>
         /// <param name="key">Aes full key</param>
-        /// <param name="toEncrypt">Array of byts to encrypt</param>
+        /// <param name="toEncrypt">Array of bytes to encrypt</param>
         /// <param name="offset">parmeter of <see cref="MemoryStream"/></param>
         /// <param name="lenght">parmeter of <see cref="MemoryStream"/></param>
         /// <returns>Enrypted data</returns>

@@ -3,12 +3,12 @@
 namespace VoTCore.Data
 {
     /// <summary>
-    /// Soft exeption class for thrown or hanbdling exeptions over distance like server->client client->server
+    /// Soft exeption class for thrown or handling exeptions over distance like server->client client->server
     /// </summary>
     public class InternalException
     {
         /// <summary>
-        /// Messge for explainations
+        /// Message for explainations
         /// </summary>
         public string Message { get; }
         /// <summary>

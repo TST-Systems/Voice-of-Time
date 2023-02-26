@@ -14,7 +14,7 @@ using VoTCore.Controll;
 namespace Voice_of_Time.Cmd.Commands
 {
     /// <summary>
-    /// Do stuff with outher users
+    /// Do stuff with other users
     /// </summary>
     internal class Users : IConsoleCommandAsync
     {

@@ -24,7 +24,7 @@ namespace Voice_of_Time_Server.RequestExecuter
         (IVOTPHeader, IVOTPBody?)? IServerRequestExecuter.ExecuteRequest(HeaderReq header, IVOTPBody? body, SocketHandler socket)
         {
             return (new HeaderAck(true), 
-                new SData_Long(ServerData.server.AddChat(socket.UserID))); // <- This is where the importend stuff happends
+                new SData_Long(ServerData.server.AddChat(socket.UserID))); // <- This is where the important stuff happends
         }
     }
 }

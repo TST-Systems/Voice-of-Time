@@ -18,7 +18,7 @@ using VoTCore.Package.SData;
 namespace Voice_of_Time_Server.RequestExecuter
 {
     /// <summary>
-    /// Function for accapting an invite into a chat
+    /// Function for accepting an invite into a chat
     /// </summary>
     internal class PrivatChatInviteAccept : IServerRequestExecuter
     {

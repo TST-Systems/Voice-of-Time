@@ -16,7 +16,7 @@ namespace VoTCore.Package.SData
     public class SData_InternalException : SData<InternalException>
     {
         /// <summary>
-        /// JSON construcor, but can alos be used
+        /// JSON construcor, can also been used
         /// </summary>
         /// <param name="data">Direct internal exception</param>
         [JsonConstructor]

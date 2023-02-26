@@ -17,7 +17,7 @@ using VoTCore.User;
 namespace VoTCore
 {
     /// <summary>
-    /// Summary of all Constans used thought all parts (Client/Server)
+    /// Summary of all constants used thought all parts (Client/Server)
     /// </summary>
     public static class Constants
     {

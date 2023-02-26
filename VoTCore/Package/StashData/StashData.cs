@@ -12,7 +12,7 @@ using VoTCore.Package.Interfaces;
 namespace VoTCore.Package.StashData
 {
     /// <summary>
-    /// Body for reciving Stahed data
+    /// Body for receiving stashed data
     /// </summary>
     public class StashData : IVOTPBody
     {

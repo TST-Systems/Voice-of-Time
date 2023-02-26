@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 namespace VoTCore.Package
 {
     /// <summary>
-    /// Pre-header for VOTP for inforamtions about Types of header and body for deseriliasation
+    /// Pre-header for VOTP for informations about Types of header and body for deseriliasation
     /// </summary>
     public class VOTPInfo
     {

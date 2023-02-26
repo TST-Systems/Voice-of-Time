@@ -52,7 +52,7 @@ namespace VoTCore.Package.SecData
         /// <summary>
         /// JSON constructror
         /// </summary>
-        /// <param name="sourceID">User/Group from with the key originates</param>
+        /// <param name="sourceID">User/Group from or with the key originates</param>
         /// <param name="key">Aes.key</param>
         /// <param name="iv">Aes.iv</param>
         /// <param name="cryptedReciver">Target id for encryption</param>

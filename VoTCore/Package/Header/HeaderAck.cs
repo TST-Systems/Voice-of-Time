@@ -11,12 +11,12 @@ using VoTCore.Package.Interfaces;
 namespace VoTCore.Package.Header
 {
     /// <summary>
-    /// Header for acknowloge the processing of a package
+    /// Header for acknowledge the processing of a package
     /// </summary>
     public class HeaderAck : IVOTPHeader
     {
         /// <summary>
-        /// Displayes the success
+        /// Displays the success
         /// </summary>
         public bool Successful { get; }
 

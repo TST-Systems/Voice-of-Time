@@ -88,7 +88,7 @@ namespace Voice_of_Time.Cmd.Commands
 
                 var desMsg = new VOTP(msg);
 
-                // CHeck if Header can be processed
+                // Check if Header can be processed
                 if (desMsg.Header is HeaderStd header)
                 {
                     // Check if mewssageType can be Processed
@@ -120,8 +120,8 @@ namespace Voice_of_Time.Cmd.Commands
                         throw new Exception("Unknwon MessageType");
                     }
 
-                    // Check datahadnling
-                    if(handling == DataHandling.REMOVE_AFTER_GET_ACK)
+                    // Check data handling
+                    if (handling == DataHandling.REMOVE_AFTER_GET_ACK)
                     {
                         // If message has to be deletet after successfull reciving delete it and remove the entry from the ReceiptDictonary
                         await Requests.RemoveStashMessage(currentConnection, ClientData.CurrentClient, stashID, requestID);

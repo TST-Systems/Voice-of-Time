@@ -15,7 +15,7 @@ namespace VoTCore.Package.SData
         /// <summary>
         /// Default constructor
         /// </summary>
-        /// <param name="data">Strng</param>
+        /// <param name="data">String</param>
         public SData_String(string? data) 
             : base(data, BodyType.SDATA_STRING)
         {

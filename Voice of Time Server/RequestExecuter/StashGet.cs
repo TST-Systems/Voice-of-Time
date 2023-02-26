@@ -35,8 +35,8 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             var targetStashID = receiptBody.TargetID;
 
-            // Check if Target is self. If not check if the user has the nessary rights to access it anyways
-            if(targetStashID != socket.UserID)
+            // Check if Target is Soruce. If not check if user has permissions to access the Target
+            if (targetStashID != socket.UserID)
             {
                 if (ServerData.server.UserExists(targetStashID))
                 {

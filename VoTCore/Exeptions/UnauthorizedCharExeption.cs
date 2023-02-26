@@ -8,7 +8,7 @@
 namespace VoTCore.Exeptions
 {
     /// <summary>
-    /// Exception for using a charactor that is not allowed in the declared alphabet
+    /// Exception for using a character that is not allowed in the declared alphabet
     /// </summary>
     public class UnauthorizedCharExeption : Exception
     {

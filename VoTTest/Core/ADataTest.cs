@@ -12,7 +12,7 @@ using JS = System.Text.Json.JsonSerializer;
 namespace VoTTest.Core
 {
     /// <summary>
-    /// Test for AData Bodys
+    /// Test for AData Bodies
     /// </summary>
     public class ADataTest
     {

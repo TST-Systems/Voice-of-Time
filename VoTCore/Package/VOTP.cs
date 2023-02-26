@@ -10,7 +10,7 @@ using JSON = System.Text.Json.JsonSerializer;
 namespace VoTCore.Package
 {
     /// <summary>
-    /// Modular package for sending and reciving data over the internet 
+    /// Modular package for sending and receiving data over the internet 
     /// </summary>
     public class VOTP
     {
@@ -93,7 +93,7 @@ namespace VoTCore.Package
         }
 
         /// <summary>
-        /// Serialize the Package by serilize each part by its own and combining them later
+        /// Serialize the Package by serialize each part by its own and combining them later
         /// </summary>
         /// <returns>JSON string that represents the package</returns>
         public string Serialize()

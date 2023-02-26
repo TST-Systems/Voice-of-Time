@@ -23,7 +23,7 @@ namespace VoTCore.Controll
         /// </summary>
         public string[] Aliases { get; }
         /// <summary>
-        /// Helping text to show when the commandexecuter returns false
+        /// Helping text to show when the command executer returns false
         /// </summary>
         public string Usage { get; }
     }

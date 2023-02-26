@@ -24,7 +24,7 @@ namespace Voice_of_Time.Shared
         /// </summary>
         private static readonly Dictionary<Guid, Client> UserRegister = new();
         /// <summary>
-        /// Register of all activ connectrions to a server
+        /// Register of all activ connections to a server
         /// </summary>
         private static readonly Dictionary<Guid, ClientSocket> ConnectionRegister = new();
         /// <summary>
@@ -65,7 +65,7 @@ namespace Voice_of_Time.Shared
         public static readonly string SaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Voice_Of_Time");
 
         /// <summary>
-        /// WORKAROUND. Get all nessary parts of the current connection
+        /// WORKAROUND. Get all necessary parts of the current connection
         /// </summary>
         /// <returns>All importend parts of the current Connection</returns>
         /// <exception cref="Exception">No connection is currently active</exception>
@@ -301,7 +301,7 @@ namespace Voice_of_Time.Shared
         }
 
         /// <summary>
-        /// Close a connection to a spezific server
+        /// Close a connection to a specific server
         /// </summary>
         /// <param name="serverID">UID of server</param>
         internal static void CloseConnection(Guid serverID)
@@ -328,7 +328,7 @@ namespace Voice_of_Time.Shared
         }
 
         /// <summary>
-        /// Make anouther connection to the current connection
+        /// Make another connection to the current connection
         /// </summary>
         /// <param name="serverID">UID of server</param>
         /// <returns>Current connection was changed</returns>
@@ -342,7 +342,7 @@ namespace Voice_of_Time.Shared
 
         #region Save & Load
         /// <summary>
-        /// Save all savaable Data to files
+        /// Save all saveable Data to files
         /// </summary>
         public static void SaveData() // TODO: Encryption
         {

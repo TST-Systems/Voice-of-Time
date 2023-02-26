@@ -8,7 +8,7 @@
 namespace VoTCore.Exeptions
 {
     /// <summary>
-    /// Exception for entry that already exists in a Dictonary
+    /// Exception for entry that already exists in a dictionary
     /// </summary>
     public class EntryAlreadyExistsExeption : Exception
     {

@@ -15,7 +15,7 @@ using VoTCore.Package.SData;
 */
 namespace Voice_of_Time_Server.RequestExecuter
 {
-    // TODO: Possible glitch where a user sends first a verification and then a public key without waiting for the respnse, so that he would be overrideing the pub key and would now have stollen the acount. Still he would not be able to read any chats but he has kicked out the owner from its acounr and can now be someone else. 
+    // TODO: Possible glitch where a user sends first a verification and then a public key without waiting for the response, so that he would be overwrite the pub key and would now have stollen the acount. Still he would not be able to read any chats but he has kicked out the owner from its account and can now be someone else. 
     // fix: lock KeyExchange while verifiying
     /// <summary>
     /// Function for verifying self over userID

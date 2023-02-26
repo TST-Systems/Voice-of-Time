@@ -19,7 +19,7 @@ namespace VoTCore.Package.Header
         /// Default constructor
         /// </summary>
         /// <param name="senderID">ID of sender</param>
-        /// <param name="receiverID">ID of reciver</param>
+        /// <param name="receiverID">ID of receiver</param>
         /// <param name="messageType">Type of message</param>
         public HeaderStd(long senderID, long receiverID, byte messageType)
         {
@@ -36,7 +36,7 @@ namespace VoTCore.Package.Header
         /// </summary>
         public long SenderID      { get; }
         /// <summary>
-        /// ID of reciver
+        /// ID of receiver
         /// </summary>
         public long ReceiverID    { get; }
         /// <summary>
