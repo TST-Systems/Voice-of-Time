@@ -13,6 +13,7 @@ namespace Voice_of_Time_Server.Transfer
     internal class SocketServer
     {
         private readonly TcpListener Listener;
+        private int lastMessage;
 
         public SocketServer(int port)
         {
@@ -27,6 +28,16 @@ namespace Voice_of_Time_Server.Transfer
                 var socket = await Listener.AcceptTcpClientAsync();
                 _ = new SocketHandler(socket);
             }
+        }
+
+        async Task Timeout(int sek)
+        {
+            await Task.Delay(sek * 1000);
+            if (lastMessage < DateTime.Now.Millisecond - (sek * 1000))
+            {
+
+            }
+            _ = Timeout(sek);
         }
     }
 

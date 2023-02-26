@@ -87,6 +87,19 @@ namespace Voice_of_Time.Transfer
             Dispose();
         }
 
+        internal Task<bool> AutoStart()
+        {
+            return AutoStart(con);
+        }
+
+        internal async Task<bool> AutoStart(bool con)
+        {
+            var con = Connect();
+            StartHandler();
+            _ = KeepAlive(5);
+            return await con;
+        }
+
         internal void SetCommunicationKey (Aes key, bool enable = true)
         {
             CommunicationKey           = key;
@@ -344,6 +357,12 @@ namespace Voice_of_Time.Transfer
             Queue.Clear();
             Disconect();
             GC.SuppressFinalize(this);
+        }
+
+        async Task KeepAlive(int sek)
+        {
+            await Task.Delay(sek * 1000);
+            await EnqueueItem(Constants.ACK);
         }
     }
 }
