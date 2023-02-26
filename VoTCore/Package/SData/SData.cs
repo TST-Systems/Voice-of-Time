@@ -10,13 +10,25 @@ using VoTCore.Package.Interfaces;
  */
 namespace VoTCore.Package.SData
 {
+    /// <summary>
+    /// Base class for single data bodys
+    /// </summary>
+    /// <typeparam name="T">type of data</typeparam>
     public abstract class SData<T> : IVOTPBody
     {
+        /// <summary>
+        /// Data
+        /// </summary>
         public T? Data { get; }
-
+    
         [JsonIgnore]
         public BodyType Type { get; }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="data">Data</param>
+        /// <param name="type">Type of body</param>
         protected SData(T? data, BodyType type)
         {
             Data = data;

@@ -12,13 +12,15 @@ using VoTCore.Controll;
  */
 namespace Voice_of_Time.Cmd
 {
+    /// <summary>
+    /// Console command handler
+    /// </summary>
     internal class CommandHandler : IDisposable
     {
         bool isCanceled = false;
 
         public CommandHandler() 
         {
-            
         }
 
         public void Dispose()
@@ -29,11 +31,14 @@ namespace Voice_of_Time.Cmd
 
             [DllImport("kernel32.dll", SetLastError = true)]
             static extern bool CancelIoEx(IntPtr handle, IntPtr lpOverlapped);
-
+            // Close the Console.ReadLine() command
             var handle = GetStdHandle(-10);
             CancelIoEx(handle, IntPtr.Zero);
         }
 
+        /// <summary>
+        /// Only called once. Enables the command listener
+        /// </summary>
         public async Task Enable()
         {
             // Register default commands
@@ -42,6 +47,7 @@ namespace Voice_of_Time.Cmd
             while (!isCanceled)
             {
                 string selectedServer = "";
+                // Get and Print the current Server IP like "127.0.0.1 > "
                 if(ClientData.CurrentConnection != null) 
                 {
                     var connetion = ClientData.GetConnection((Guid)ClientData.CurrentConnection); 
@@ -56,10 +62,14 @@ namespace Voice_of_Time.Cmd
                 await ProcessCommand(input);
                 Console.WriteLine();
 
+                // Save data after each command
                 ClientData.SaveData();
             }
         }
 
+        /// <summary>
+        /// Default commands
+        /// </summary>
         protected virtual void LoadDefaultCommands()
         {
             ClientData.TryRegisterCommand(new Help());
@@ -72,6 +82,10 @@ namespace Voice_of_Time.Cmd
             ClientData.TryRegisterCommand(new Stash());
         }
 
+        /// <summary>
+        /// Command processing
+        /// </summary>
+        /// <param name="str">command string</param>
         static async Task ProcessCommand(string? str)
         {
             if(str is null or "") return;
@@ -89,10 +103,11 @@ namespace Voice_of_Time.Cmd
             }
             var success = false;
             // Execute command
-            if(commandExecuter is IConsoleCommandSync syncCE)
+            if(commandExecuter is IConsoleCommandSync syncCE) // syncrone
                 success = syncCE.ExecuteCommand(split[0], split.Length > 1 ? split[1..] : Array.Empty<string>());
-            else if(commandExecuter is IConsoleCommandAsync asyncCE)
+            else if(commandExecuter is IConsoleCommandAsync asyncCE) // asyncrone
                 success = await asyncCE.ExecuteCommand(split[0], split.Length > 1 ? split[1..] : Array.Empty<string>());
+
             if (!success) Console.WriteLine($"Usage: {commandExecuter.Usage}");
         }
     }

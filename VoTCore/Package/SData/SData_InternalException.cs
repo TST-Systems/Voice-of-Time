@@ -1,6 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 using VoTCore.Data;
-using VoTCore.Package.AData;
 
 /**
 * @author      - Timeplex
@@ -11,14 +10,26 @@ using VoTCore.Package.AData;
 */
 namespace VoTCore.Package.SData
 {
+    /// <summary>
+    /// Body for sending Internal Errors
+    /// </summary>
     public class SData_InternalException : SData<InternalException>
     {
+        /// <summary>
+        /// JSON construcor, can also been used
+        /// </summary>
+        /// <param name="data">Direct internal exception</param>
         [JsonConstructor]
         public SData_InternalException(InternalException data) 
             : base(data, BodyType.SDATA_INTERNALEXCEPTION)
         {
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="code">Error code</param>
+        /// <param name="message">Error message</param>
         public SData_InternalException(InternalExceptionCode code, string message)
             : base(new(message, code), BodyType.SDATA_INTERNALEXCEPTION) { }
 

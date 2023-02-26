@@ -16,6 +16,9 @@ using VoTCore.Package.SecData;
  */
 namespace VoTTest.Core
 {
+    /// <summary>
+    /// Tests for packages
+    /// </summary>
     public class VOTPTest
     {
 

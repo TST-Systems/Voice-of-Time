@@ -17,7 +17,10 @@ using VoTCore.Package.StashData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
-    internal class StashAdd : IServerRequestExecuter
+    /// <summary>
+    /// Function for adding a message to a given stash
+    /// </summary>
+    internal class StashAdd : IServerRequestExecuter 
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
 
@@ -37,6 +40,8 @@ namespace Voice_of_Time_Server.RequestExecuter
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.ID_DOES_NOT_EXISTS, $"Target unknown: {target}!"));
             }
+
+            // TODO: CHECK IF THE USER IS ALLOWED TO STORE IT!
 
             // Store the message
             long receiptID = ServerData.server.StashMessage(target, socket.UserID, messageToStore.Message, messageToStore.Expires, messageToStore.MessageHandling);

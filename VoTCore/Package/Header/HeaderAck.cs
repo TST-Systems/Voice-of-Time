@@ -10,13 +10,23 @@ using VoTCore.Package.Interfaces;
  */
 namespace VoTCore.Package.Header
 {
+    /// <summary>
+    /// Header for acknowledge the processing of a package
+    /// </summary>
     public class HeaderAck : IVOTPHeader
     {
+        /// <summary>
+        /// Displays the success
+        /// </summary>
         public bool Successful { get; }
 
         [JsonIgnore]
         public short Version => 3;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="successful"></param>
         public HeaderAck(bool successful)
         {
             Successful = successful;

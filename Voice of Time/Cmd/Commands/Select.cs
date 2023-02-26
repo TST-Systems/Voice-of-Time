@@ -10,6 +10,9 @@ using VoTCore.Controll;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Select a connection to use over its index in the Connection List 
+    /// </summary>
     internal class Select : IConsoleCommandSync
     {
         public string Command => "select";

@@ -40,9 +40,17 @@ namespace VoTCore.Communication.Data
         /// Time of creation in milliseconds
         /// </summary>
         public DateTime DateOfCreation { get; }
-
+        /// <summary>
+        /// Message status
+        /// </summary>
         public MessageStatus Status { get; }
 
+        /// <summary>
+        /// Constructor for DataContract
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <exception cref="Exception"></exception>
         protected Message(SerializationInfo info, StreamingContext context)
         {
             Type           = (BodyType)(info.GetValue(nameof(Type), typeof(BodyType)) 
@@ -59,6 +67,13 @@ namespace VoTCore.Communication.Data
                 ?? throw new Exception("Message coudn't be laoded!"));
         }
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="messageString">Text message</param>
+        /// <param name="authorID">ID of author</param>
+        /// <param name="dateOfCreation">Date and Time of creation</param>
+        /// <param name="type">Type of Message</param>
         protected Message(string messageString, long authorID, DateTime dateOfCreation, BodyType type)
         {
             MessageString  = messageString;

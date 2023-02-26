@@ -16,8 +16,14 @@ using VoTCore.User;
  */
 namespace VoTCore
 {
+    /// <summary>
+    /// Summary of all constants used thought all parts (Client/Server)
+    /// </summary>
     public static class Constants
     {
+        /// <summary>
+        /// Dict of all Headers
+        /// </summary>
         public readonly static Dictionary<Int16, Type> HeaderTypes = new()
         {
             { 1, typeof(HeaderStd) },
@@ -25,6 +31,9 @@ namespace VoTCore
             { 3, typeof(HeaderAck) },
         };
 
+        /// <summary>
+        /// Dict of all Bodys
+        /// </summary>
         public readonly static Dictionary<BodyType, Type> BodyTypes = new()
         {
             { BodyType.MESSAGE_TEXT,            typeof(TextMessage)             },
@@ -123,6 +132,9 @@ namespace VoTCore
         // 0x01_01 - 0xff_ff
     }
 
+    /// <summary>
+    /// All types of request send to server
+    /// </summary>
     public enum RequestType
     {
         // Server requests
@@ -148,6 +160,9 @@ namespace VoTCore
         STASH_DELETE
     }
 
+    /// <summary>
+    /// All data handling instructions
+    /// </summary>
     public enum DataHandling : byte
     {
         NONE,
@@ -156,6 +171,9 @@ namespace VoTCore
         REMOVE_AFTER_GET_READ,
     }
 
+    /// <summary>
+    /// Types of status that a receipt can have on the client side
+    /// </summary>
     public enum ReceiptStatus : byte
     {
         TO_REQUEST,
@@ -164,6 +182,9 @@ namespace VoTCore
         IGNORE,
     }
 
+    /// <summary>
+    /// All codes of "soft" errors that can orruce
+    /// </summary>
     public enum InternalExceptionCode
     {
         UNKNOWN,

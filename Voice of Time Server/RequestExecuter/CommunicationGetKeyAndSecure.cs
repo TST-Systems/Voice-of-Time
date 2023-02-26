@@ -15,6 +15,9 @@ using VoTCore.Package.SecData;
 */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function to secure a socket and its communication with a Aes key on both sides
+    /// </summary>
     internal class CommunicationGetKeyAndSecure : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => false;
@@ -33,6 +36,7 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             socket.RequestEncryption = true;
 
+            // Send the Aes kes to user and encrypet it with the public key of the user
             var toSendBody = new SecData_Key_Aes(socket.CommunicationKey, 0);
             toSendBody.EncryptData(socket.UserPubKey, socket.UserID);
 

@@ -7,6 +7,9 @@
  */
 namespace VoTCore.Controll
 {
+    /// <summary>
+    /// Interface for async command executer
+    /// </summary>
     public interface IConsoleCommandAsync : IConsoleCommand
     {
         /// <summary>

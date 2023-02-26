@@ -19,8 +19,18 @@ namespace VoTCore.Communication.Data
     {
         const BodyType TYPE = BodyType.MESSAGE_TEXT;
 
+        /// <summary>
+        /// Constreuctor for DataContract
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         public TextMessage(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="messageString">Text message</param>
+        /// <param name="authorID">ID of author</param>
+        /// <param name="dateOfCreation">Date and Time of creation</param>
         [JsonConstructor]
         public TextMessage(string messageString, long authorID, DateTime dateOfCreation)
             : base(messageString, authorID, dateOfCreation, TYPE)

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Voice_of_Time_Server.RequestExecuter.Interface;
+﻿using Voice_of_Time_Server.RequestExecuter.Interface;
 using Voice_of_Time_Server.Shared;
 using Voice_of_Time_Server.Transfer;
 using VoTCore;
@@ -22,6 +17,9 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for accepting an invite into a chat
+    /// </summary>
     internal class PrivatChatInviteAccept : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
@@ -39,15 +37,15 @@ namespace Voice_of_Time_Server.RequestExecuter
             }
 
             var userChatSate = ServerData.server.GetChatMember(invAccBody.Data, socket.UserID);
-
+            // Check if user is invited and not already blocked
             if (!userChatSate.HasFlag(ChatUserState.INVITED) || userChatSate.HasFlag(ChatUserState.BLOCKED))
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NOT_INVITED, message: $"You are not invited to: {invAccBody.Data}"));
             }
 
+            // Set new state of user
             userChatSate |=  ChatUserState.MEMBER;
             userChatSate &= ~ChatUserState.INVITED;
-
             ServerData.server.UpdateChatMemberState(invAccBody.Data, socket.UserID, userChatSate);
 
             return (new HeaderAck(true), null);

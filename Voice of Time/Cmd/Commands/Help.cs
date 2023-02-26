@@ -10,6 +10,9 @@ using VoTCore.Controll;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Command to show a list of all commands and adds the ability if a class has ICommandHelp to display detailed information abaout a single command
+    /// </summary>
     internal class Help : IConsoleCommandSync, ICommandHelp
     {
         public string Command => "help";
@@ -104,7 +107,7 @@ namespace Voice_of_Time.Cmd.Commands
     internal interface ICommandHelp
     {
         /// <summary>
-        /// 
+        /// A Detaild guid for users
         /// </summary>
         public string[] CommandHelp { get; }
     }

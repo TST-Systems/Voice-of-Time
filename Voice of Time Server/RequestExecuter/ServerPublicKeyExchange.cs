@@ -16,6 +16,11 @@ using VoTCore.Package.SecData;
 */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// <para>Function for exchanging public keys with the server.</para>
+    /// <para>Client->Server => Server->Client</para>
+    /// The public key will be set onto the socket and also be updatet for the user if he is verified
+    /// </summary>
     internal class ServerPublicKeyExchange : IServerRequestExecuter
     {
         public bool ExecuteOnlyIfVerified => false;

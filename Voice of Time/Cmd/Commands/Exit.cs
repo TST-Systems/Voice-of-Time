@@ -7,6 +7,9 @@
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Closes all Connections corectly and closes the programm
+    /// </summary>
     internal class Exit : Disconnect
     {
         public override string Command => "exit";

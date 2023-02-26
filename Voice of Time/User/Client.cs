@@ -1,8 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using System.Security.Cryptography;
-using System.Text.Json.Serialization;
 using VoTCore.Communication;
-using VoTCore.Communication.Data;
 using VoTCore.User;
 
 /**
@@ -15,7 +13,7 @@ using VoTCore.User;
 namespace Voice_of_Time.User
 {
     /// <summary>
-    /// Server bound Client Identity
+    /// Per-Server client data storage and data handling
     /// </summary>
     [Serializable]
     [KnownType(typeof(List<TextChat>))]
@@ -37,12 +35,18 @@ namespace Voice_of_Time.User
         public RSA UserKey { get; }
         // List of all Textchats
         public List<TextChat> TextChats { get; } // TODO: Dynamic serialiastion!
-        // List of all Known Users
+        // List of all Known Public Users
         public Dictionary<long, PublicClient> UserDB { get; }
 
         // Receipt system
         public Dictionary<(long, long), ReceiptStatus> ReceiptStatusDictionary { get; }
 
+        /// <summary>
+        /// Constructor for XML construction
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <exception cref="Exception"></exception>
         protected Client(SerializationInfo info, StreamingContext context)
         {
             UserID = info.GetInt64(nameof(UserID));
@@ -61,6 +65,16 @@ namespace Voice_of_Time.User
                 info.GetValue(nameof(ReceiptStatusDictionary), typeof(Dictionary<(long, long), ReceiptStatus>)) ?? new();
         }
 
+        /// <summary>
+        /// Default constructor for Client
+        /// </summary>
+        /// <param name="userID">ID of user</param>
+        /// <param name="username">Username of user</param>
+        /// <param name="userKey">Public and Privat RSA key of user</param>
+        /// <param name="textChats">List of all text-based chats</param>
+        /// <param name="userDB">Dictonay of PublicClients</param>
+        /// <param name="receiptStatusDictionary">Dictornary of Receipts and their current work status</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public Client(long userID, string username, RSA userKey, List<TextChat>? textChats = null, Dictionary<long, PublicClient>? userDB = null, Dictionary<(long, long), ReceiptStatus>? receiptStatusDictionary = null)
         {
             UserID    = userID;
@@ -71,18 +85,32 @@ namespace Voice_of_Time.User
             ReceiptStatusDictionary = receiptStatusDictionary ?? new();
         }
 
+        /// <summary>
+        /// Add, if not exists, a new public client to the UserDB
+        /// </summary>
+        /// <param name="publicClient">Public client to add</param>
+        /// <returns>User was added AND publicClient is ok</returns>
         public bool AppendPublicClient(PublicClient publicClient)
         {
             var id = publicClient.UserID;
+            // Check if user tries to use a non authorized id
             if (id < 0) return false;
+            // Check if user is already known
             if (UserDB.ContainsKey(id)) return false;
+
             UserDB.Add(id, publicClient);
             return true;
         }
 
+        /// <summary>
+        /// Add or overide a public client to/on the UserDB
+        /// </summary>
+        /// <param name="publicClient">Public client to add</param>
+        /// <returns>User was added AND publicClient is ok</returns>
         public bool AppendOrOverridePublicClint(PublicClient publicClient)
         {
             var id = publicClient.UserID;
+            // Check if user tries to use a non authorized id
             if (id < 0) return false;
             UserDB[id] = publicClient;
             return true;

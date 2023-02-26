@@ -17,6 +17,10 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    // TODO: Rework of chat and user differenztiation
+    /// <summary>
+    /// Function for deleting a message from a stash
+    /// </summary>
     internal class StashDelete : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
@@ -30,7 +34,7 @@ namespace Voice_of_Time_Server.RequestExecuter
 
             var targetStashID = receiptBody.TargetID;
 
-            // Check if Target is self
+            // Check if Target is Soruce. If not check if user has permissions to access the Target
             ChatUserState chatUserState = 0;
             if (targetStashID != socket.UserID)
             {
@@ -59,7 +63,7 @@ namespace Voice_of_Time_Server.RequestExecuter
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.STASH_NO_MESSAGE_UNDER_ID, $"No message under ReceiptID:{receiptBody.ReceiptID}!"));
             }
 
-
+            // If message comes from a chat check if the user is the author of the message or has the nessatry permissions to delete it anyways
             if(targetStashID != socket.UserID && message.AuthorID != socket.UserID)
             {
                 if (!chatUserState.HasFlag(ChatUserState.MODERATOR) && !chatUserState.HasFlag(ChatUserState.ADMIN))

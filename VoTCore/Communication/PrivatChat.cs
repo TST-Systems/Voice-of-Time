@@ -2,7 +2,6 @@
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using VoTCore.Package.Interfaces;
-using VoTCore.Secure;
 using VoTCore.Secure.Iterfaces;
 
 /**
@@ -55,6 +54,15 @@ namespace VoTCore.Communication
         private long? cryptedReciver;
         public long CryptedReciver { get { if (cryptedReciver is null) return -1; return (long)cryptedReciver; } }
 
+        /// <summary>
+        /// Constructor for JSON
+        /// </summary>
+        /// <param name="participants"></param>
+        /// <param name="chatID"></param>
+        /// <param name="title"></param>
+        /// <param name="cryptedReciver"></param>
+        /// <param name="groupKey"></param>
+        /// <param name="groupIV"></param>
         [JsonConstructor]
         public PrivatChat(List<long> participants, long chatID, string title, long cryptedReciver, byte[] groupKey, byte[] groupIV) 
         {
@@ -66,6 +74,12 @@ namespace VoTCore.Communication
             this.cryptedReciver = cryptedReciver;
         }
 
+        /// <summary>
+        /// Constructor for DataContract
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        /// <exception cref="Exception"></exception>
         protected PrivatChat(SerializationInfo info, StreamingContext context) : base(info, context) 
         {
             var _participants = info.GetValue(nameof(Participants), typeof(List<long>));
@@ -85,12 +99,13 @@ namespace VoTCore.Communication
             GroupKey = Key;
             GroupIV  = IV;
         }
+
         /// <summary>
-        /// 
+        /// Default construcor
         /// </summary>
-        /// <param name="participants"></param>
-        /// <param name="chatID"></param>
-        /// <param name="title"></param>
+        /// <param name="participants">List of particepent IDs (own included)</param>
+        /// <param name="chatID">ID of chat</param>
+        /// <param name="title">Titel of chat</param>
         public PrivatChat(long chatID, string title, List<long>? participants = null, byte[]? groupkey = null, byte[]? groupIV = null)
         {
             this.participants = participants ?? new();
@@ -101,6 +116,10 @@ namespace VoTCore.Communication
             GroupIV           = groupIV  ?? aes.IV;
         }
 
+        /// <summary>
+        /// Copy constructror
+        /// </summary>
+        /// <param name="chat">PrivatChat to copy</param>
         public PrivatChat(PrivatChat chat)
         {
             participants   = chat.participants;
@@ -111,6 +130,11 @@ namespace VoTCore.Communication
             cryptedReciver = chat.cryptedReciver;
         }
 
+        /// <summary>
+        /// Add a user to the participants list sorted
+        /// </summary>
+        /// <param name="userID">Id of user to add</param>
+        /// <returns>User could be added</returns>
         public bool AddUser(long userID)
         {
             if (participants.Contains(userID)) return false;
@@ -122,6 +146,11 @@ namespace VoTCore.Communication
             return true;
         }
 
+        /// <summary>
+        /// Remove a user from the list of participants
+        /// </summary>
+        /// <param name="userID">ID of user to remove</param>
+        /// <returns>User could be removed</returns>
         public bool RemoveUser(long userID)
         {
             return participants.Remove(userID);

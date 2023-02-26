@@ -7,6 +7,9 @@
  */
 namespace VoTCore.Exeptions
 {
+    /// <summary>
+    /// Exception for an VOTP that contains non body a body was expected
+    /// </summary>
     public class PackageBodyNullException : Exception
     {
         public PackageBodyNullException() : base() { }

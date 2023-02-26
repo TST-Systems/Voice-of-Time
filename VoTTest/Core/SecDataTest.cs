@@ -15,6 +15,9 @@ using VoTCore.User;
  */
 namespace VoTTest.Core
 {
+    /// <summary>
+    /// Tests for bodys of type SecData
+    /// </summary>
     public class SecDataTest
     {
         [Fact]

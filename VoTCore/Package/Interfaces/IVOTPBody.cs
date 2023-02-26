@@ -8,6 +8,9 @@
 */
 namespace VoTCore.Package.Interfaces
 {
+    /// <summary>
+    /// Interface for package bodys
+    /// </summary>
     public interface IVOTPBody
     {
         /// <summary>

@@ -7,6 +7,9 @@
  */
 namespace VoTCore.Communication.Extra
 {
+    /// <summary>
+    /// Flags the state of the user in a chat
+    /// </summary>
     [Flags]
     public enum ChatUserState : byte
     {

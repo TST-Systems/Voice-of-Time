@@ -15,6 +15,9 @@ using VoTCore.Package.SData;
 */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for register a new user. A username is a that stage not nessaray and can be set later <see cref="UserSetUsername"/>
+    /// </summary>
     internal class UserRegister : IServerRequestExecuter 
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => false;

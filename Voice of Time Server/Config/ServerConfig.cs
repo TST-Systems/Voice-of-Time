@@ -9,6 +9,9 @@
  */
 namespace Voice_of_Time_Server.Config
 {
+    /// <summary>
+    /// Config File for configurations on the server. Somekind of these are not used.
+    /// </summary>
     internal class ServerConfig
     {
         [JsonInclude]

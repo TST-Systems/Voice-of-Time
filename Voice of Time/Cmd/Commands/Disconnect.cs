@@ -10,6 +10,9 @@ using VoTCore.Controll;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Command to close one or all connections
+    /// </summary>
     internal class Disconnect : IConsoleCommandSync
     {
         public virtual string Command => "disconnect";
@@ -44,6 +47,10 @@ namespace Voice_of_Time.Cmd.Commands
             return true;
         }
 
+        /// <summary>
+        /// Loop wrapper to close each connection one after anouther
+        /// </summary>
+        /// <returns></returns>
         protected static bool CloseAllConections()
         {
             var allConections = ClientData.GetAllConnectionIDs();

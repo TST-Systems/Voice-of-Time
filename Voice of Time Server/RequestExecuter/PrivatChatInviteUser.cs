@@ -17,6 +17,9 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for inviting a user into a existing chat
+    /// </summary>
     internal class PrivatChatInviteUser : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
@@ -51,12 +54,12 @@ namespace Voice_of_Time_Server.RequestExecuter
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NOT_MEMBER, message: $"You are not a member of this chat!"));
             }
-            if (!UserChatState.HasFlag(ChatUserState.ADMIN) && !UserChatState.HasFlag(ChatUserState.MODERATOR))
+            if (!UserChatState.HasFlag(ChatUserState.ADMIN) && !UserChatState.HasFlag(ChatUserState.MODERATOR)) // Inviter needs some privileges to invite someone. Not everyone can invite anyone
             {
                 return (new HeaderAck(false), new SData_InternalException(InternalExceptionCode.CHAT_NO_PERMISSIONS, message: $"You don't have the nessesary rights to do that!"));
             }
 
-            ServerData.server.AddChatUser(invite.ChatID, invite.TargetID, ChatUserState.INVITED);
+            ServerData.server.AddChatUser(invite.ChatID, invite.TargetID, ChatUserState.INVITED); //TODO: IDEA: possible instant privileges like invite as moderator or so...
             return (new HeaderAck(true), null);
         }
     }

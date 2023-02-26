@@ -13,6 +13,9 @@ using VoTCore.Controll;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Do stuff with other users
+    /// </summary>
     internal class Users : IConsoleCommandAsync
     {
         public string Command => "users";
@@ -34,6 +37,10 @@ namespace Voice_of_Time.Cmd.Commands
             return false;
         }
 
+        /// <summary>
+        /// Prints out a list of all users of the server (self included)
+        /// </summary>
+        /// <returns>command could be processed</returns>
         private async Task<bool> RequestAllUser()
         {
             var currentClient = ClientData.CurrentClient;
@@ -48,7 +55,9 @@ namespace Voice_of_Time.Cmd.Commands
 
             List<long> userID = await Requests.RequestAllUserIDs();
 
+            // Loading bar for something to look at while waiting for loading all users
             var loadingBar = new LoadingBar(userID.Count);
+            // And a stopwatch to see how much time was wasted on waiting
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
@@ -77,6 +86,7 @@ namespace Voice_of_Time.Cmd.Commands
             var userList = new List<long>(currentClient.UserDB.Keys);
             userList.Sort();
 
+            // Print out a "Table like" with all users and IDs + if they have a pub key
             var pattern = "{0,16}|{1,-32}|{2}";
 
             Console.WriteLine(pattern, "ID", "Username", "Has Public Key");

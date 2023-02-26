@@ -14,6 +14,9 @@ using Voice_of_Time.Shared.Functions;
  */
 namespace Voice_of_Time.Cmd.Commands
 {
+    /// <summary>
+    /// Command to connect to a server and automicly log in or register
+    /// </summary>
     internal class Connect : ICommandHelp, IConsoleCommandAsync
     {
         #region Public info

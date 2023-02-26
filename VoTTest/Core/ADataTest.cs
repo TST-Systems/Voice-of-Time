@@ -11,8 +11,15 @@ using JS = System.Text.Json.JsonSerializer;
  */
 namespace VoTTest.Core
 {
+    /// <summary>
+    /// Test for AData Bodies
+    /// </summary>
     public class ADataTest
     {
+        /// <summary>
+        /// Test of AData with long as Type
+        /// - Serialize & Deserialize
+        /// </summary>
         [Fact]
         public void TestAD_Long()
         {

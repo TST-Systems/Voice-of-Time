@@ -15,6 +15,9 @@ using VoTCore.Package.SData;
  */
 namespace Voice_of_Time_Server.RequestExecuter
 {
+    /// <summary>
+    /// Function for getting a public user if he exists
+    /// </summary>
     internal class PublicUserGet : IServerRequestExecuter
     {
         bool IServerRequestExecuter.ExecuteOnlyIfVerified => true;
