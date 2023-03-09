@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Test_GUI_VoT</title>
+    <title>Voice of Time</title>
+    <!-- <title>@ViewData["Title"] - Test_GUI_VoT</title> -->
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/server.css" />
     <link rel="stylesheet" href="~/css/privatChatAndChannel.css" />
@@ -26,13 +27,37 @@
         </main>
     </div>
     
+    <script>
+        //Get mouse coordinates
+        var mousePositionX = 0;
+        var mousePositionY = 0;
+
+        // Getting 'Info' div in js hands
+        var server = document.getElementById('body');
+
+        // Creating function that will tell the position of cursor
+        // PageX and PageY will getting position values and show them in P
+        function tellPos(p) {
+            mousePositionX = p.pageX;
+            mousePositionY = p.pageY;
+        }
+        server.addEventListener('mousemove', tellPos, false);
+
+        document.getElementById("body").onclick = () => {
+            document.getElementById("ContextMenuServer").style.display = "none";
+            document.getElementById("ContextMenuPrivateChat").style.display = "none";
+        };
+        //
+    </script>
+   
     
     <script src="~/js/server-list.js"></script>
     <script src="~/js/Private-and-Channel-Chats.js"></script>
     <script src="~/js/Chat-Messages.js"></script>
     <script src="~/js/groupMembers.js"></script>
+    <script src="~/js/electron_communication.js"></script>
     <script src="~/js/site.js"></script>
-    <script src="~/js/electron_communication.js" ></script>
+   
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

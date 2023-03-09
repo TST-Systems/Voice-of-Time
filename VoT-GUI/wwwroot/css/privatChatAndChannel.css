@@ -18,7 +18,79 @@
     color:white;
     overflow-y: auto;
   }
-  
+
+    #ContextMenuPrivateChat {
+        position: absolute;
+        display: none;
+        width: 150px;
+        height: auto;
+        color: black;
+    }
+
+    #ContextMenuPrivateChat p {
+        font-size: 75%;
+        border-style: ridge;
+        margin-top: 0%;
+        margin-bottom: 0%;
+        background-color: rgb(0, 0, 0);
+        color: white;
+    }
+
+    #ChatSettings {
+        position: absolute;
+        display: none;
+        width: 500px;
+        height: 170px;
+        margin-top: calc(50vh - 150px);
+        margin-left: calc(50% - 250px);
+        margin-bottom: 0%;
+        border-radius: 25px;
+        background-color: rgb(70, 70, 70);
+        border-style: solid;
+        border-width: 3px;
+        border-color: black;
+        color: white;
+    }
+
+    #ChatSettings p {
+        width: calc(100% - 10%);
+        display: block;
+        float: left;
+        margin-left: 4%;
+        margin-top: 5%;
+        margin-bottom: 0%;
+    }
+
+    #ChatSettings label {
+        display: block;
+        float: left;
+    }
+
+    #ChatSettings input {
+        display: block;
+        float: right;
+        width: 40%;
+        font-size: large;
+        margin-top: -1%;
+    }
+
+    #ChatSettings button {
+        display: block;
+        float: right;
+        font-size: 130%;
+        margin-left: 1%;
+    }
+
+    #ChatSettingsHeadline {
+        display: block;
+        float: left;
+        font-size: 130%;
+        margin-top: 0%;
+        margin-left: 0%;
+        margin-bottom: 0%;
+    }
+
+
 /* Channel */
 
   .channel-list {

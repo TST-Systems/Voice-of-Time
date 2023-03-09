@@ -1,4 +1,4 @@
-function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pictures/blank-profile-picture.svg", numberGroupMember = 0) {
+function createPrivateChatOrGroup(Chat_ID, Chat_Name, profilePicture = "./sources/Pictures/blank-profile-picture.svg", numberGroupMember = 0) {
     const chatElement = document.createElement("div");
     const profPicture = document.createElement("img");
     const profName = document.createElement("p");
@@ -6,7 +6,7 @@ function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pict
     profPicture.src=profilePicture;
     profPicture.alt="avatar";
 
-    profName.innerHTML = profileName;
+    profName.innerHTML = Chat_Name;
 
     chatElement.appendChild(profPicture);
     chatElement.appendChild(profName);
@@ -22,9 +22,12 @@ function createPrivateChatOrGroup (profileName, profilePicture = "./sources/Pict
     const privatChat = document.getElementById("ChatList");
 
     privatChat.appendChild(chatElement);
+    chatElement.id = Chat_ID;
+
+    document.getElementById(Chat_ID).onclick = readChat(Chat_ID);
 }
 
-function createChannel (profileName, profilePicture = "./sources/Pictures/blank-profile-picture.svg", numberGroupMember = 1) {
+function createChannel (Chat_Name, profilePicture = "./sources/Pictures/blank-profile-picture.svg", numberGroupMember = 1) {
     const chatElement = document.createElement("div");
     const profPicture = document.createElement("img");
     const profName = document.createElement("p");
@@ -46,4 +49,45 @@ function createChannel (profileName, profilePicture = "./sources/Pictures/blank-
     const privatChat = document.getElementById("ChannelList");
 
     privatChat.appendChild(chatElement);
+}
+
+const chatlist = document.getElementById("ChatList");
+chatlist.oncontextmenu =  () => {
+    const contentMenu = document.getElementById("ContextMenuPrivateChat");
+    contentMenu.style.display = "block";
+
+    contentMenu.style.marginTop = "calc(" + String(mousePositionY) + "px - 50px)";
+    contentMenu.style.marginLeft = String(mousePositionX) + "px";
+
+    document.getElementById("CreateNewChat").onclick = () => {
+        document.getElementById("ChatSettings").style.display = "block";
+
+    }
+}
+chatlist.addEventListener("contextmenu", (e) => { e.preventDefault() });
+
+
+
+document.getElementById("ButtonAddChat").onclick = () => {
+
+}
+
+
+function listChats() {
+    ipcRenderer.send("listChats", "");
+    var chatIDs;
+    var ChatNames;
+
+    ipcRenderer.on('listChats-replyIDs', (event, chat) => {
+        
+        chat.forEach((chatElement) => {
+            console.log(chatElement.item1);
+            console.log(chatElement.item2);
+            createPrivateChatOrGroup(chatElement.item1, chatElement.item2);
+        });
+        
+        
+    });
+
+    
 }

@@ -31,6 +31,23 @@
         </div>
     </div>
 
+    <!-- new Chat Contextmenu -->
+    <div id="ContextMenuPrivateChat">
+        <p id="CreateNewChat">new Chat</p>
+    </div>
+
+    <div id="ChatSettings">
+        <p id="ChatSettingsHeadline">Add new Chat</p>
+        <p>
+            <label for="UserID">User ID:</label>
+            <input type="text" id="UserID" name="UserID" required minlength="4" maxlength="20" size="15">
+        </p>
+        <p>
+            <button onclick="document.getElementById('ChatSettings').style.display = 'none'">Close</button>
+            <button id="ButtonAddChat">Add</button>
+        </p>
+    </div>
+
     <!-- Chat -->
     <div class="box" id="Chat">
         <div id="TextChat"></div>

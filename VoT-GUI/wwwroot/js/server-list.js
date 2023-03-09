@@ -1,28 +1,7 @@
-﻿//Get mouse coordinates 
-    var mousePositionX = 0; 
-    var mousePositionY = 0;
-    
-    // Getting 'Info' div in js hands
-    var server = document.getElementById('ServerList');
-    
-    // Creating function that will tell the position of cursor
-    // PageX and PageY will getting position values and show them in P
-    function tellPos(p){
-        mousePositionX = p.pageX; 
-        mousePositionY = p.pageY;
-    }
-    server.addEventListener('mousemove', tellPos, false);
-
-    var body = document.getElementById("body");
-    body.onclick = () => {document.getElementById("ContextMenuServer").style.display = "none";};
-//
-
-//Server IDs
-    const serverIDs = new Array();
-
+﻿//ipcRenderer electron
 const { ipcRenderer } = require("electron");
 
-function createServerItem(serverID, url, name = url, imageSource = "./sources/Pictures/blank-profile-picture.svg") {
+function createServerItem(serverID, url, name = url, imageSource = "sources/Pictures/blank-profile-picture.svg") {
     //delete Server Button
     document.getElementById("ServerAddButton").remove();
 
@@ -33,21 +12,28 @@ function createServerItem(serverID, url, name = url, imageSource = "./sources/Pi
     image.alt = "avatar";
     image.title = name;
 
-    //on click connect to server
-    
-
     serverElement.appendChild(image);
     
 
-    const server = document.getElementById("ServerList");
-    server.appendChild(serverElement); 
+    const server = document.getElementById("ServerList"); 
 
+    //on click connect to server
+    serverElement.addEventListener("click", () => {
+        //electron comunication
+        ipcRenderer.send("connectServer", url);
+        
+        ipcRenderer.on('connectServer-reply', (event, serverID) => {
+            listChats();
+        });
+        
+    });
+
+    server.appendChild(serverElement);
     serverElement.id = serverID;
-    serverIDs.push(serverID);
 
-    serverElement.oncontextmenu = function() {rightClickOnServer(serverID)};
+    serverElement.oncontextmenu = function () { rightClickOnServer(serverID) };
 
-    serverElement.addEventListener("contextmenu", (e) => {e.preventDefault()});
+    serverElement.addEventListener("contextmenu", (e) => { e.preventDefault() });
     createServerAddButton();
 };
 
@@ -77,17 +63,19 @@ function rightClickOnServer(serverID){
 
 //Click add Server
 document.getElementById("ButtonAddServer").onclick = () => {
-    document.getElementById("ServerSettings").style.display = "none";
+    //document.getElementById("ServerSettings").style.display = "none";
 
-    const serverName = document.getElementById("UserName").value;
+    const UserName = document.getElementById("UserName").value;
     const serverIP = document.getElementById("ServerIP").value; 
 
     //electron comunication
-    const reply = ipcRenderer.send("createServer", {serverName, serverIP });
+    ipcRenderer.send("createServer", {UserName, serverIP });
     
     ipcRenderer.on('createServer-reply', (event, serverID) => {
-        createServerItem(serverID, serverName, serverIP);
-        console.log(serverID);
+        createServerItem(serverID, serverIP);
+        document.getElementById("ServerSettings").style.display = "none";
+
+        listChats();
     });
 
 }

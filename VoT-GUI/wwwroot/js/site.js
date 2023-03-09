@@ -11,7 +11,9 @@ createServerAddButton();
 //hide right click
     document.addEventListener("contextmenu", (e) => {e.preventDefault()});
 
-createServerItem(12205,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
+
+/*
+createServerItem(12205,"Hallo there");
 createServerItem(25682,"Zweiter Server");
 createServerItem(5526984,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(2574589,"Zweiter Server");
@@ -22,6 +24,7 @@ createServerItem(698741,"Zweiter Server");
 createServerItem(7789634,"Hallo there", "sources/Pictures/VT-Logo_neu.svg");
 createServerItem(5587466,"Zweiter Server");
 createServerItem(5569877,"Zweiter Server");
+
 
 createPrivateChatOrGroup("Name",undefined, 3);
 createPrivateChatOrGroup("Name",undefined, 3);
@@ -66,3 +69,4 @@ createChatMember("Tim");
 createChatMember("SalzstangenManga");
 createChatMember("Tim");
 createChatMember("SalzstangenManga");
+*/

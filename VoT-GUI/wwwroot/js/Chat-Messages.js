@@ -1,4 +1,4 @@
-function sendMessage(name = "Unbekannt", picture = "./sources/Pictures/blank-profile-picture.svg") {
+function sendMessage(name = "You", picture = "./sources/Pictures/blank-profile-picture.svg") {
     let messageValue = document.getElementById("MessageContent").value;
 
     const message = document.createElement("div");
@@ -127,6 +127,19 @@ function receiveMessage (messageValue, name = "Unbekannt", picture = "./sources/
        //Clear Message
         document.getElementById("MessageContent").value = ''; 
     }
+}
+
+
+function readChat(Chat_ID) {
+    //electron comunication
+    ipcRenderer.send("readChat", Chat_ID);
+
+    ipcRenderer.on('readChat-reply', (event, messageData) => {
+        messageData.forEach((message) => {
+            if (message.item1 = "You") receiveMessage(message.item3, message.item1, null, message.item2);
+            else dispatchedMessage(message.item3, message.item1, null, message.item2)
+        });
+    });
 }
 
 
