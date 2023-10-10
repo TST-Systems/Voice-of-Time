@@ -1,0 +1,101 @@
+.server-list {
+    float: left;
+    display: block;
+    width:50px;
+      margin-top: 0%;
+    background-color:rgba(0, 0, 0, 0.300);
+    box-sizing: border-box;
+    height:calc(100vh - 50px);
+    overflow-y: auto;
+  }
+  
+  .server-list div {
+    display: inline-block;
+    margin-left: 0%;
+  }
+
+  
+  
+  #ServerList img {
+    margin-top: 5%;
+    margin-left: 5%;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 50%;
+    background-color: white;
+  }
+  
+  #ServerList img:hover {
+    border-radius: 10%;
+  }
+
+
+  #ContextMenuServer {
+    position: absolute;
+    display: none;
+    width: 150px;
+    height: auto;
+    color: black;
+  }
+  #ContextMenuServer p {
+    font-size: 75%;
+    border-style:ridge;
+    margin-top: 0%;
+    margin-bottom: 0%;
+    background-color: rgb(0, 0, 0);
+    color: white;
+  }
+
+  #ServerSettings {
+    position: absolute;
+    display:none;
+    width: 500px;
+    height: 300px;
+    margin-top: calc(50vh - 150px);
+    margin-left: calc(50% - 250px);
+    margin-bottom: 0%;
+    border-radius: 25px;
+    background-color: rgb(70, 70, 70);
+    border-style: solid;
+    border-width: 3px;
+    border-color: black;
+    color: white;
+  }
+
+  #ServerSettings p {
+    width: calc(100% - 10%);
+    display: block;
+    float: left;
+    margin-left: 4%;
+    margin-top: 5%;
+    margin-bottom: 0%;
+  }
+
+  #ServerSettings label {
+    display: block;
+    float: left;
+  }
+
+  #ServerSettings input {
+    display: block;
+    float: right;
+    width: 40%;
+    font-size: large;
+    margin-top: -1%;
+  }
+
+  #ServerSettings button {
+    display: block;
+    float: right;
+    font-size: 130%;
+    margin-left: 1%;
+  }
+
+  #ServerSettingsHeadline {
+    display: block;
+    float: left;
+    font-size: 130%;
+    margin-top: 0%;
+    margin-left: 0%;
+    margin-bottom: 0%;
+  }

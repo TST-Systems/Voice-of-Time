@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Test_GUI_VoT</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/server.css" />
+    <link rel="stylesheet" href="~/css/privatChatAndChannel.css" />
+    <link rel="stylesheet" href="~/css/Chat.css" />
+    <link rel="stylesheet" href="~/css/groupMembers.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Test_GUI_VoT.styles.css" asp-append-version="true" />
+</head>
+<body id="body">
+	<!--
+    <div class="channel-list">
+        @RenderSection("Channel_List", false)
+    </div>
+	-->
+
+    
+    <div>
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+    
+    
+    <script src="~/js/server-list.js"></script>
+    <script src="~/js/Private-and-Channel-Chats.js"></script>
+    <script src="~/js/Chat-Messages.js"></script>
+    <script src="~/js/groupMembers.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/electron_communication.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

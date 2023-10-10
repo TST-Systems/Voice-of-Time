@@ -26,15 +26,15 @@ jobs:
         run: dotnet test
       - name: Restore the application
         run: dotnet restore
-      - name: Create a package for Windows
-        run: dotnet publish -o app -c release -r win-x64 --self-contained
+#      - name: Create a package for Windows
+#        run: dotnet publish -o app -c release -r win-x64 --self-contained
 #     - name: Create a package for Windows, Linux, and MacOS
 #       run: dotnet publish -c ${{ matrix.dotnet-configuration }} --self-contained -r ${{ matrix.os }}-x64
 #     - name: Remove the pfx
 #       run: find . -name "*.pfx" -delete
-      - name: Upload the Build
-        uses: actions/upload-artifact@v3
-        with:
+#      - name: Upload the Build
+#        uses: actions/upload-artifact@v3
+#        with:
 #         name: build-${{ matrix.dotnet-configuration }}${{ matrix.os }}
-          name: build-release-win
-          path: app/*
+#          name: build-release-win
+#          path: app/*

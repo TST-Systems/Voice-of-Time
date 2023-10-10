@@ -1,0 +1,80 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!-- RenderBody -->
+
+    <header>
+        <img src="sources/Pictures/VT-Logo_neu.svg">
+        <p>Voice of Time</p>
+    </header>
+
+
+
+<div class="Site">
+    <!-- Server List -->
+    <div class="server-list box" id="ServerList">
+    </div>
+
+    <!-- Chats Member -->
+    <div class="ChatMember">
+        <!-- Private and Group Chats -->
+        <p class="ChatFontHeadline">Private Chat</p>
+        <div class="privat-chat-list box privatAndChannelChats" id="ChatList">
+        </div>
+
+        <!-- Channel list -->
+        <p class="ChatFontHeadline">Channel</p>
+        <div class="channel-list box privatAndChannelChats" id="ChannelList">
+        </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="box" id="Chat">
+        <div id="TextChat"></div>
+        <textarea id="MessageContent" placeholder="Type message.."></textarea>
+        <button id="Send" onclick="sendMessage()">
+            <img src="sources/Pictures/optical-illusion-296409.svg">
+        </button>
+    </div>
+
+    <!-- Group merbers -->
+    <div id="showHideGroupMemberButton" onclick="ArrowButtonCick()">
+        <img src="sources/Pictures/blue-arrow.png" id="blueArrow">
+    </div>
+    <div id="GroupMerbers">
+        <p id="GroupMerberHeadline">Chat Members</p>
+        <div class="channel-list box privatAndChannelChats" id="ListGroupMembers"></div>
+    </div>
+    
+    <div id="ContextMenuServer">
+        <p id="ChangeSettings">Change Settings</p>
+        <p id="DeleteServer">Delete Server</p>
+        <p id="ConnectToServer">Connect to new Server</p>
+    </div>
+
+    <div id="ServerSettings">
+        <p id="ServerSettingsHeadline">Add new Server</p>
+        <p>
+            <label for="name">Server name (4 to 10 characters):</label>
+            <input type="text" id="ServerName" name="name" required minlength="4" maxlength="10" size="15">
+        </p>
+        <p>
+            <label for="IP">IP-adress Server:</label>
+            <input type="text" id="ServerIP" name="IP" required minlength="7" maxlength="15" size="15">
+        </p>
+        <p>
+            <label for="password">Server password:</label>
+            <input type="text" id="ServerPassword" name="password" required minlength="8" maxlength="16" size="15">
+        </p>
+        <p>
+            <button onclick="document.getElementById('ServerSettings').style.display = 'none'">Close</button>
+            <button id="ButtonAddServer">Add</button>
+            <!-- <button>Test</button> -->
+        </p>
+    </div>
+
+
+</div>

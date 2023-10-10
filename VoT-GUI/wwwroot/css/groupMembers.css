@@ -1,0 +1,78 @@
+#showHideGroupMemberButton {
+    position: absolute;
+    display: block;
+    float:left;
+    margin-left: calc(100% - 1vh - 40px);
+    margin-top: 40vh;
+    height: 40px;
+    width: 40px;
+    background-color: rgb(36, 36, 36);
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+
+#blueArrow {
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 5%;
+}
+
+
+#GroupMerbers {
+    position: absolute;
+    display: block;
+    width: 230px;
+    height: calc(100vh - 50px);
+    float: right;
+    margin-left: 100%;
+    margin-top: 0%;
+    margin-bottom: 0%;
+    background-color: rgb(36, 36, 36);
+    
+}
+
+
+#GroupMerberHeadline {
+    background-color: rgb(36, 36, 36);
+    width: 100%;
+    height: 5%;
+    margin-top: 0%;
+    margin-bottom: 0%;
+    color: aliceblue;
+    font-size: 110%;
+}
+
+
+#ListGroupMembers {
+    background-color: rgb(51, 51, 51);
+    width: 100%;
+    height: calc(100vh - 50px - 5%);
+}
+
+/* animation show Chat member*/
+@keyframes showChatMebers {
+    100% {margin-left: calc(100% - 230px);}
+  }
+
+@keyframes moveButtonLeft {
+    100% {margin-left: calc(100% - 1vh - 40px - 230px);}
+}
+
+@keyframes decreaseChat {
+    100% {width: calc(100% - 230px - 50px - 230px);}
+}
+
+
+/*animation hide Chat member */
+@keyframes hideChatMebers {
+  100% {margin-left: 100%;}
+}
+
+@keyframes moveButtonRight {
+    100% {margin-left: calc(100% - 1vh - 40px);}
+}
+
+@keyframes increaseChat {
+    100% {width: calc(100% - 230px - 50px );}
+}

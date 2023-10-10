@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoTTest", "VoTTest\VoTTest.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voice of Time Server", "Voice of Time Server\Voice of Time Server.csproj", "{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoT GUI", "VoT-GUI\VoT GUI.csproj", "{B25517C6-B309-41AE-8B4D-741EA7029837}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84993B12-0DB8-4CDD-BB17-C7D9265EDCA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B25517C6-B309-41AE-8B4D-741EA7029837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B25517C6-B309-41AE-8B4D-741EA7029837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B25517C6-B309-41AE-8B4D-741EA7029837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B25517C6-B309-41AE-8B4D-741EA7029837}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
